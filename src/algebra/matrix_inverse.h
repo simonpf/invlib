@@ -12,17 +12,26 @@ public:
 
     operator Matrix()
     {
-        return A.invert();
+        return A_.invert();
     }
 
     template <typename Vector>
     Vector operator*(const Vector &v)
     {
-        return A.solve(v);
+        return A_.solve(v);
     }
 
 private:
 
-    const Matrix &A;
+    const Matrix &A_;
 
+};
+
+template
+<
+typename Matrix
+>
+MatrixInverse<Matrix> inv( const Matrix &A )
+{
+    return MatrixInverse<Matrix>( A );
 }

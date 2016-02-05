@@ -1,5 +1,7 @@
 #include "Eigen/Dense"
+
 #include "lazy_evaluation.h"
+#include "matrix_inverse.h"
 
 template< typename Real >
 class Vector : public Eigen::Matrix< Real, Eigen::Dynamic, 1 >
@@ -31,6 +33,16 @@ public:
     Matrix delayed_multiplication( Matrix &B )
     {
         return Base::operator*(B);
+    }
+
+    Matrix invert() const
+    {
+        return this->inverse();
+    }
+
+    Vector<Real> solve(const Vector<Real> &v) const
+    {
+        return this->solve();
     }
 
 private:
