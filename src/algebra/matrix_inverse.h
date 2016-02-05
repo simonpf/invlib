@@ -1,3 +1,6 @@
+#ifndef ALGEBRA_MATRIX_INVERSE
+#define ALGEBRA_MATRIX_INVERSE
+
 template
 <
 typename Matrix
@@ -21,6 +24,12 @@ public:
         return A_.solve(v);
     }
 
+    template <typename Vector>
+    LazyProduct<MatrixInverse, Matrix> operator*(Matrix &B)
+    {
+        return LazyProduct<MatrixInverse, Matrix>(*this, B);
+    }
+
 private:
 
     const Matrix &A_;
@@ -35,3 +44,5 @@ MatrixInverse<Matrix> inv( const Matrix &A )
 {
     return MatrixInverse<Matrix>( A );
 }
+
+#endif // ALGEBRA_MATRIX_INVERSE

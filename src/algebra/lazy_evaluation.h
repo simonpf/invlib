@@ -1,28 +1,31 @@
+#ifndef ALGEBRA_LAZY_EVALUATION
+#define ALGEBRA_LAZY_EVALUATION
+
 #include <stdio.h>
 
 template
 <
 typename P,
-typename Matrix,
-typename Vector
+typename Matrix
 >
 class LazyProduct
 {
 
 public:
 
-    typedef LazyProduct< P, Matrix, Vector> Product;
-    typedef LazyProduct< Product, Matrix, Vector> NestedProduct;
+    typedef LazyProduct< P, Matrix> Product;
+    typedef LazyProduct< Product, Matrix> NestedProduct;
 
-    LazyProduct( P &Op1, Matrix &Op2 )
+    LazyProduct( const P &Op1, const Matrix &Op2 )
         : A(Op1), B(Op2) {}
 
-    NestedProduct operator*( Matrix &C )
+    NestedProduct operator*( const Matrix &C ) const
     {
         return NestedProduct( *this, C );
     }
 
-    Vector operator*( Vector &v )
+    template <typename Vector>
+    Vector operator*( const Vector &v ) const
     {
         Vector tmp1, tmp2, *result;
         tmp2.resize( B.rows() );
@@ -38,6 +41,7 @@ public:
         return tmp2;
     }
 
+    template <typename Vector>
     Vector* compute( Vector &tmp1, Vector &tmp2 )
     {
         tmp1.resize( B.rows() );
@@ -48,35 +52,32 @@ public:
 private:
 
     // Operand references.
-    P      &A;
-    Matrix &B;
+    const P      &A;
+    const Matrix &B;
 
 };
 
-template
-<
-typename Matrix,
-typename Vector
->
-class LazyProduct< Matrix, Matrix, Vector >
+template < typename Matrix >
+class LazyProduct< Matrix, Matrix >
 {
 
 public:
 
-    typedef LazyProduct< Matrix, Matrix, Vector> Product;
-    typedef LazyProduct< Product, Matrix, Vector> NestedProduct;
+    typedef LazyProduct< Matrix, Matrix > Product;
+    typedef LazyProduct< Product, Matrix > NestedProduct;
 
-    LazyProduct( Matrix &Op1, Matrix &Op2 )
+    LazyProduct( const Matrix &Op1, const Matrix &Op2 )
         : A(Op1), B(Op2) {}
 
-    NestedProduct operator*( Matrix &C )
+    NestedProduct operator*( const Matrix &C ) const
     {
         return NestedProduct( *this, C );
     }
 
-    Vector operator*( Vector &v )
+    template <typename Vector>
+    Vector operator*( const Vector &v ) const
     {
-        Vector tmp1, tmp2, &result;
+        Vector tmp1, tmp2;
         tmp1.resize( B.rows() );
         tmp1 = B * v;
         tmp2.resize( A.rows() );
@@ -90,6 +91,7 @@ public:
         return tmp;
     }
 
+    template <typename Vector>
     Vector* compute( Vector &tmp1, Vector &tmp2 )
     {
         tmp1.resize( B.rows() );
@@ -102,7 +104,9 @@ public:
 private:
 
     // Operand references.
-    Matrix &A;
-    Matrix &B;
+    const Matrix &A;
+    const Matrix &B;
 
 };
+
+#endif //ALGEBRA_LAZY_EVALUATION

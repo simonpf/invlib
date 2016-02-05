@@ -16,21 +16,21 @@ class Matrix : public Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >
 public:
 
     typedef Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic > Base;
-    typedef LazyProduct< Matrix, Matrix, Vector<Real> > Product;
+    typedef LazyProduct< Matrix, Matrix> Product;
 
     using Base::Base;
 
-    Product operator*( Matrix &B )
+    Product operator*( const Matrix &B ) const
     {
         return Product( *this, B );
     }
 
-    Vector<Real> operator*( Vector<Real> &v )
+    Vector<Real> operator*( const Vector<Real> &v ) const
     {
         return Base::operator*(v);
     }
 
-    Matrix delayed_multiplication( Matrix &B )
+    Matrix delayed_multiplication( const Matrix &B ) const
     {
         return Base::operator*(B);
     }
@@ -42,7 +42,7 @@ public:
 
     Vector<Real> solve(const Vector<Real> &v) const
     {
-        return this->solve();
+        return this->solve(v);
     }
 
 private:
