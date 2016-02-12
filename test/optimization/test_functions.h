@@ -1,4 +1,3 @@
-#include <iostream>
 #include "../utility.h"
 #include "algebra/lazy_evaluation.h"
 #include "algebra/matrix_inverse.h"
@@ -6,8 +5,8 @@
 template
 <
 typename Real,
-typename Matrix,
-typename Vector
+typename Vector,
+typename Matrix
 >
 class SphereFunction
 {
@@ -15,10 +14,68 @@ class SphereFunction
 public:
 
     SphereFunction( unsigned int n )
-        : J_(n,n), n_(n)
+        : J(n,n), n(n)
     {
-        set_identity(J_);
+        set_identity(J);
     }
+
+    Real criterion( const Vector &xi,
+                    const Vector &dx ) const
+    {
+        return dx.norm();
+    }
+
+    Real cost_function(const Vector &x) const
+    {
+        Real res = 0.0;
+
+        for (unsigned int i = 0; i < x.rows(); i++)
+        {
+            res += 0.5*x(i)*x(i);
+        }
+
+        return res;
+    }
+
+    Matrix Hessian( const Vector &xi ) const
+    {
+        Matrix H(n,n);
+        H.setIdentity();
+        return H;
+    }
+
+    Vector gradient( const Vector &xi ) const
+    {
+        Vector g(n);
+
+        for (unsigned int i = 0; i < n; i++)
+        {
+            g(i) = xi[i];
+        }
+
+        return g;
+    }
+
+private:
+
+    Matrix J;
+    unsigned int n;
+
+};
+
+template
+<
+typename Real,
+typename Matrix,
+typename Vector
+>
+class SumOfPowers
+{
+
+public:
+
+    SumOfPowers( unsigned int n )
+        : n(n) {}
 
     Real criterion( const Vector &xi,
                     const Vector &dx ) const
@@ -28,54 +85,22 @@ public:
 
     Vector step( const Vector &xi ) const
     {
-        Vector dx  = J_ * J_ * xi;
+        Vector J(n);
+        Matrix H(n, n);
+
+
+        for (unsigned int i = 0; i < n; i++)
+        {
+            J(i) = ((double) (i + 2)) * pow(xi(i), i+1);
+            H(i, i) = ((double) (i + 1) * (i + 2)) * pow(xi(i), i);
+        }
+
+        Vector dx = inv(H) * J;
         return dx;
     }
 
 private:
 
-    Matrix J_;
-    unsigned int n_;
-
-};
-
-template
-<
-typename Real,
-typename Vector,
-typename Matrix
->
-class SumOfPowers
-{
-
-public:
-
-    SumOfPowers( unsigned int n )
-        : n_(n) {}
-
-    Real criterion( Vector &xi,
-                    Vector &dx )
-    {
-        return dx.norm();
-    }
-
-    Vector step( Vector &xi )
-    {
-        Vector J(n_);
-        Matrix H(n_, n_);
-
-
-        for (unsigned int i = 0; i < n_; i++)
-        {
-            J(n_) = ((double) (i + 2)) * pow(xi(i), i+1);
-            H(n_, n_) = ((double) (i + 1) * (i + 2)) * pow(xi(i), i);
-        }
-
-        return inv(H) * J * xi;
-    }
-
-private:
-
-    unsigned int n_;
+    unsigned int n;
 
 };

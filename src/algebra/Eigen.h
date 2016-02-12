@@ -37,12 +37,13 @@ public:
 
     Matrix invert() const
     {
-        return this->inverse();
+        return this->colPivHouseholderQr().inverse();
     }
 
     Vector<Real> solve(const Vector<Real> &v) const
     {
-        return this->solve(v);
+        Vector<Real> u = this->colPivHouseholderQr().solve(v);
+        return u;
     }
 
 private:
