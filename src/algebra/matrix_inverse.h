@@ -3,46 +3,105 @@
 
 template
 <
+typename T1,
+typename T2,
+typename Matrix
+>
+class MatrixProduct;
+
+template
+<
+typename T1,
+typename T2,
+typename Matrix
+>
+class MatrixSum;
+
+template
+<
+typename T1,
 typename Matrix
 >
 class MatrixInverse
 {
-
 public:
 
-    MatrixInverse( const Matrix &A )
-        : A_(A) {}
+    using Vector = typename Matrix::Vector;
 
-    operator Matrix()
+    MatrixInverse( const T1 &A_ )
+        : A(A_) {}
+
+    operator Matrix() const
     {
-        return A_.invert();
+        Matrix B = A.T1::operator Matrix().invert();
+        return B;
     }
 
-    template <typename Vector>
-    Vector operator*(const Vector &v)
+    // ----------------- //
+    //     Addition      //
+    // ----------------- //
+
+    Matrix add(const Matrix &B) const
     {
-        return A_.solve(v);
+        Matrix C(A.T1::operator Matrix().invert() + B);
+        return C;
     }
 
-    template <typename Vector>
-    LazyProduct<MatrixInverse, Matrix> operator*(Matrix &B)
+    // ----------------- //
+    //   Multiplication  //
+    // ----------------- //
+
+    Vector multiply(const Vector &v) const
     {
-        return LazyProduct<MatrixInverse, Matrix>(*this, B);
+        Vector w(A.T1::operator Matrix().solve(v));
+        return w;
+    }
+
+    Matrix multiply(const Matrix &B) const
+    {
+        Matrix C((A.T1::operator Matrix()).invert() * B);
+        return C;
+    }
+
+    // -------------------------- //
+    //   Multiplication Operator  //
+    // -------------------------- //
+
+    template<typename T>
+        using Product = MatrixProduct<MatrixInverse, T, Matrix>;
+
+    template <typename T>
+    auto operator*(const T &B) const -> Product<T>
+    {
+        return Product<T>(*this, B);
+    }
+
+    // --------------------- //
+    //   Addition  Operator  //
+    // --------------------- //
+
+    template<typename T>
+    using Sum = MatrixSum<MatrixInverse, T, Matrix>;
+
+    template <typename T>
+    auto operator+(const T &B) const -> Sum<T>
+    {
+        return Sum<T>(*this, B);
     }
 
 private:
 
-    const Matrix &A_;
+    const T1 &A;
 
 };
 
 template
 <
-typename Matrix
+typename T
 >
-MatrixInverse<Matrix> inv( const Matrix &A )
+MatrixInverse<T, typename T::MatrixBase> inv( const T &A )
 {
-    return MatrixInverse<Matrix>( A );
+    return MatrixInverse<T, typename T::MatrixBase>( A );
 }
 
 #endif // ALGEBRA_MATRIX_INVERSE

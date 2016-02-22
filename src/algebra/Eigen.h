@@ -1,51 +1,43 @@
 #include "Eigen/Dense"
 
-#include "lazy_evaluation.h"
 #include "matrix_inverse.h"
 
-template< typename Real >
-class Vector : public Eigen::Matrix< Real, Eigen::Dynamic, 1 >
-{
-    typedef Eigen::Matrix< Real, Eigen::Dynamic, 1 > Base;
-    using Base::Base;
-};
-
-template< typename Real >
-class Matrix : public Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic >
+class EigenWrapper : public Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 {
 public:
 
-    typedef Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic > Base;
-    typedef LazyProduct< Matrix, Matrix> Product;
+    using Base = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
-    using Base::Base;
+    template <typename ...Args>
+    EigenWrapper( Args&... params)
+        : Base(std::forward<Args>(params)...) {}
 
-    Product operator*( const Matrix &B ) const
+    EigenWrapper(const Base& B)
+        : Base(B) {}
+
+
+    template <typename T>
+    EigenWrapper transpose_multiply(const T& B) const
     {
-        return Product( *this, B );
+        EigenWrapper C = this->transpose() * B;
+        return C;
     }
 
-    Vector<Real> operator*( const Vector<Real> &v ) const
+    template <typename T>
+    EigenWrapper transpose_add(const T& B) const
     {
-        return Base::operator*(v);
+        EigenWrapper C = this->transpose() + B;
+        return C;
     }
 
-    Matrix delayed_multiplication( const Matrix &B ) const
+    EigenWrapper invert() const
     {
-        return Base::operator*(B);
+        return EigenWrapper(this->colPivHouseholderQr().inverse());
     }
 
-    Matrix invert() const
+    template <typename Vector>
+    Vector solve(const Vector &v) const
     {
-        return this->colPivHouseholderQr().inverse();
+        return Vector(this->colPivHouseholderQr().solve(v));
     }
-
-    Vector<Real> solve(const Vector<Real> &v) const
-    {
-        Vector<Real> u = this->colPivHouseholderQr().solve(v);
-        return u;
-    }
-
-private:
-    Eigen::Matrix< Real, Eigen::Dynamic, Eigen::Dynamic > M;
 };

@@ -1,38 +1,41 @@
 #ifndef OPTIMIZATION_LEVENBERG_MARQUARDT
 #define OPTIMIZATION_LEVENBERG_MARQUARDT
 
-#include "algebra/identity.h"
+#include "algebra/matrix_identity.h"
 #include <iostream>
 
 template
 <
 typename Real,
-template<typename> class Vector,
-template<typename> class Matrix,
-template<typename, typename, typename> class CostFunction,
-template<typename, template<typename> class > class DampingMatrix
+typename DampingMatrix
 >
 class LevenbergMarquardt
 {
 
 public:
 
-    LevenbergMarquardt( const DampingMatrix<Real, Matrix> &D_ )
-        : lambda(4.0), maximum(100.0), decrease(2.0), increase(3.0),
-        threshold(1.0), D(D_)
+    LevenbergMarquardt( const DampingMatrix &D_ )
+        : tol(1e-5), max_iter(100), lambda(4.0), maximum(100.0), decrease(2.0),
+        increase(3.0), threshold(1.0), D(D_)
     {}
 
-    int step( Vector<Real>       &dx,
-              const Vector<Real> &x,
-              Real         &cost,
-              const Vector<Real> &g,
-              const Matrix<Real> &B,
-              const CostFunction<Real, Vector<Real>, Matrix<Real>> &J )
+    template
+    <
+        typename Vector,
+        typename Matrix,
+        typename CostFunction
+    >
+    int step( Vector             &dx,
+              const Vector       &x,
+              Real               &cost,
+              const Vector       &g,
+              const Matrix       &B,
+              const CostFunction &J )
     {
         bool found_step = false;
         while (!found_step)
         {
-            Matrix<Real> C  = D * lambda + B;
+            auto C  = D * lambda + B;
             dx = inv(C) * g;
             Real new_cost = J.cost_function(x + dx);
 
@@ -46,6 +49,7 @@ public:
                 cost = new_cost;
                 found_step = true;
             }
+
             else
             {
                 if (lambda < threshold)
@@ -72,6 +76,12 @@ public:
 
 protected:
 
+    unsigned int & maximum_iterations()
+    { return max_iter; }
+
+    Real &tolerance()
+    { return tol; }
+
     Real &lambda_start()
     { return lambda; }
 
@@ -89,10 +99,11 @@ protected:
 
 private:
 
-    Real lambda, maximum, increase, decrease, threshold;
+    Real tol, lambda, maximum, increase, decrease, threshold;
+    unsigned int max_iter;
 
     // Positive definite matrix defining the trust region sphere r < ||Mx||.
-    DampingMatrix<Real, Matrix > D;
+    DampingMatrix D;
 
 };
 

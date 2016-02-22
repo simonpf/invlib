@@ -5,11 +5,10 @@ template
 <
 typename Real,
 typename Vector,
-typename Matrix,
-template<typename, typename, typename> class CostFunction,
+typename CostFunction,
 typename Minimizer
 >
-int minimize( const CostFunction<Real, Vector, Matrix> &J,
+int minimize( CostFunction &J,
               Minimizer &M,
               const Vector &x0,
               Vector       &xi,
@@ -26,8 +25,8 @@ int minimize( const CostFunction<Real, Vector, Matrix> &J,
     while (!converged && (iter < max_iter))
     {
 
-        Vector g =  J.gradient(xi);
-        Matrix H =  J.Hessian(xi);
+        auto g =  J.gradient(xi);
+        auto H =  J.Hessian(xi);
         M.step( dx, xi, cost, g, H, J );
 
         if (J.criterion(xi, dx) < tol)

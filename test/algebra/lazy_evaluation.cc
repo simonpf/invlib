@@ -1,24 +1,46 @@
+#include "algebra/matrix.h"
+#include "algebra/vector.h"
+#include "algebra/matrix_inverse.h"
+#include "algebra/matrix_identity.h"
+#include "algebra/matrix_transpose.h"
 #include "algebra/Eigen.h"
+#include "Eigen/Dense"
 #include <stdio.h>
+
+template <typename T> void foo(T a);
 
 int main( int argc, const char** argv )
 {
 
-    Matrix<double> A(1000,1000), B(1000,1000), C(1000,1000), D(1000,1000),
-        E(1000,1000), F(1000,1000), G(1000,1000), H(1000,1000);
-    Vector<double> v(1000), w(1000);
+    const unsigned int n = 2;
+    using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+    using Vector = Vector<Eigen::Matrix<double, Eigen::Dynamic, 1>>;
+    Matrix<EigenWrapper, Vector> A, B, C, D, E, F, G, H;
+    A.resize(n,n); B.resize(n,n); C.resize(n,n); D.resize(n,n);
+    E.resize(n,n); F.resize(n,n); G.resize(n,n); H.resize(n,n);
+
+    using I = MatrixIdentity<double, Matrix<EigenWrapper, Vector> >;
+
+    Vector v, w;
+    v.resize(n); w.resize(n);
+
 
     A(0,0) = 1;
-    B(0,0) = 1;
-    C(0,0) = 1;
+    A(1,0) = 1;
+    B(0,0) = 2;
+    B(1,0) = 2;
+    C(0,0) = 3;
+    D(0,0) = 4;
+    E(0,0) = 5;
+    F(0,0) = 6;
+    G(0,0) = 7;
 
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < n; i++)
     {
-        A(i,i) = 2.0;
         v(i)   = 1.0;
     }
+    H = transp(A) * B;
+    w = (A + B) * inv(C + D) * v;
 
-    B = inv(A);
-    w =  B*v;
-    printf("B(0,0) = %f \n v(0) = %f \n", B(0,0), w(0));
+    printf("H(0,0) = %f \n v(0) = %f \n", H(0,0), w(0));
 }

@@ -59,6 +59,9 @@ public:
         dx = inv(B) * g;
         return 0;
     }
+
+private:
+    Real tol = 1e-5;
 };
 
 #endif //OPTIMIZATION_GAUSS_NEWTON
