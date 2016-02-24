@@ -1,5 +1,5 @@
-#ifndef ALGEBRA_MATRIX_PRODUCT
-#define ALGEBRA_MATRIX_PRODUCT
+#ifndef ALGEBRA_MATRIX_PRODUCT_H
+#define ALGEBRA_MATRIX_PRODUCT_H
 
 #include <iostream>
 #include <type_traits>
@@ -54,12 +54,39 @@ public:
     //      Addition      //
     // ------------------ //
 
+
     Matrix add(const Matrix &C) const
     {
         Matrix tmp1 = A.multiply(B);
         Matrix tmp2 = tmp1.add(C);
         return tmp2;
     }
+
+    Vector add(const Vector &v) const
+    {
+        Vector tmp1 = B;
+        Vector tmp2 = A * tmp1;
+        tmp2 += v;
+        return tmp2;
+    }
+
+    // ------------------ //
+    //     Inversion      //
+    // ------------------ //
+
+    Matrix invert() const
+    {
+        Matrix tmp(static_cast<Matrix>(A).multiply(static_cast<Matrix>(B)));
+        return tmp.invert();
+    }
+
+    Matrix solve(const Vector &v) const
+    {
+        Matrix tmp1(A);
+        tmp1 += static_cast<Matrix>(B);
+        return tmp1.solve(v);
+    }
+
 
     MatrixProduct( const T1 &Op1, const T2 &Op2 )
         : A(Op1), B(Op2) {}
@@ -85,11 +112,17 @@ public:
     /*     return typename Sum<T3>::type(A, B * C); */
     /* } */
 
-    template <typename T>
-    operator T() const
+    operator Matrix() const
     {
-        T tmp1 = B;
-        T tmp2 = A.multiply(tmp1);
+        Matrix tmp1 = B;
+        Matrix tmp2 = A.multiply(tmp1);
+        return tmp2;
+    }
+
+    operator Vector() const
+    {
+        Vector tmp1 = B;
+        Vector tmp2 = A.multiply(tmp1);
         return tmp2;
     }
 
@@ -113,5 +146,4 @@ private:
 
 };
 
-
-#endif // ALGEBRA_MATRIX_PRODUCT
+#endif // ALGEBRA_MATRIX_PRODUCT_H

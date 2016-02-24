@@ -1,6 +1,10 @@
+
 #include "Eigen/Dense"
 
 #include "matrix_inverse.h"
+#include "matrix_identity.h"
+#include "matrix_zero.h"
+#include "matrix.h"
 
 class EigenWrapper : public Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 {
@@ -41,3 +45,18 @@ public:
         return Vector(this->colPivHouseholderQr().solve(v));
     }
 };
+
+using EigenVector = Vector<Eigen::Matrix<double, Eigen::Dynamic, 1>>;
+using EigenMatrix = Matrix<EigenWrapper, EigenVector>;
+using I           = MatrixIdentity<double, EigenMatrix>;
+using Zero        = MatrixZero<EigenMatrix>;
+
+/* EigenVector operator+(const EigenVector &u, const EigenVector &v) */
+/* { */
+/*     return u + v; */
+/* } */
+
+double dot(const EigenVector &v, const EigenVector &w)
+{
+    return v.dot(w);
+}

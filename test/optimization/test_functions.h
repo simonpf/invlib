@@ -1,13 +1,11 @@
-#include "../utility.h"
-#include "algebra/matrix_identity.h"
-#include "algebra/lazy_evaluation.h"
-#include "algebra/matrix_inverse.h"
+#include "algebra.h"
+#include <iostream>
 
 template
 <
 typename Real,
-template <typename> class Vector,
-template <typename> class Matrix
+typename Vector,
+typename Matrix
 >
 class SphereFunction
 {
@@ -15,15 +13,20 @@ class SphereFunction
 public:
 
     SphereFunction( unsigned int n_ )
-        : n(n_) {}
+        : n(n_), m(n_) {}
 
-    Real criterion( const Vector<Real> &x,
-                    const Vector<Real> &dx ) const
+    Vector evaluate(const Vector &x)
+    {
+        return gradient(x);
+    }
+
+    Real criterion( const Vector &x,
+                    const Vector &dx ) const
     {
         return dx.norm();
     }
 
-    Real cost_function(const Vector<Real> &x) const
+    Real cost_function(const Vector &x) const
     {
         Real res = 0.0;
 
@@ -31,13 +34,12 @@ public:
         {
             res += 0.5*x(i)*x(i);
         }
-
         return res;
     }
 
-    Vector<Real> gradient( const Vector<Real> &x ) const
+    Vector gradient( const Vector &x ) const
     {
-        Vector<Real> g(n);
+        Vector g; g.resize(n);
 
         for (unsigned int i = 0; i < n; i++)
         {
@@ -47,33 +49,26 @@ public:
         return g;
     }
 
-    Matrix<Real> Jacobian( const Vector<Real> &x ) const
+    Matrix Jacobian( const Vector &x ) const
     {
-        Matrix<Real> A(n, n);
+        return Hessian(x);
+    }
 
+    Matrix Hessian(const Vector &x) const
+    {
+        Matrix H{}; H.resize(n,n);
         for (unsigned int i = 0; i < n; i++)
         {
             for (unsigned int j = 0; j < n; j++)
             {
-                A(i,j) = 0.0;
+                H(i, j) = 0.0;
             }
-            A(i,i) = x(i);
+            H(i, i) = 1.0;
         }
-
-        return A;
+        return H;
     }
 
-    MatrixIdentity<Real> Hessian( const Vector<Real> &x ) const
-    {
-        MatrixIdentity<Real> I = MatrixIdentity<Real>();
-        return I;
-    }
-
-
-private:
-
-    unsigned int n;
-
+    const unsigned int n,m;
 };
 
 template
@@ -88,7 +83,10 @@ class SumOfPowers
 public:
 
     SumOfPowers( unsigned int n )
-        : n(n) {}
+        : n_(n) {}
+
+    inline Real m() {return n_;}
+    inline Real n() {return n_;}
 
     Real criterion( const Vector &x,
                     const Vector &dx ) const
@@ -98,11 +96,11 @@ public:
 
     Vector step( const Vector &x ) const
     {
-        Vector J(n);
-        Matrix H(n, n);
+        Vector J(); J.resize(n_);
+        Matrix H(); H.resize(n_, n_);
 
 
-        for (unsigned int i = 0; i < n; i++)
+        for (unsigned int i = 0; i < n_; i++)
         {
             J(i) = ((double) (i + 2)) * pow(x(i), i+1);
             H(i, i) = ((double) (i + 1) * (i + 2)) * pow(x(i), i);
@@ -114,6 +112,6 @@ public:
 
 private:
 
-    unsigned int n;
+    unsigned int n_;
 
 };

@@ -1,22 +1,27 @@
-#ifndef OPTIMIZATION_LEVENBERG_MARQUARDT
-#define OPTIMIZATION_LEVENBERG_MARQUARDT
+#ifndef OPTIMIZATION_LEVENBERG_MARQUARDT_H
+#define OPTIMIZATION_LEVENBERG_MARQUARDT_H
 
 #include "algebra/matrix_identity.h"
-#include <iostream>
+#include "levenberg_marquardt_logger.h"
 
 template
 <
 typename Real,
-typename DampingMatrix
+typename DampingMatrix,
+Verbosity V = Verbosity::SILENT,
+std::ostream &stream = std::cout
 >
 class LevenbergMarquardt
 {
 
+    using Logger = LevenbergMarquardtLogger<V, stream>;
+
 public:
 
-    LevenbergMarquardt( const DampingMatrix &D_ )
-        : tol(1e-5), max_iter(100), lambda(4.0), maximum(100.0), decrease(2.0),
-        increase(3.0), threshold(1.0), D(D_)
+
+    LevenbergMarquardt(const DampingMatrix &D_)
+        : tol(1e-5), max_iter(10000), lambda(10.0), maximum(1000.0), decrease(2.0),
+          increase(3.0), threshold(1.0), D(D_), current_cost(0.0), step_count(0)
     {}
 
     template
@@ -35,9 +40,10 @@ public:
         bool found_step = false;
         while (!found_step)
         {
-            auto C  = D * lambda + B;
+            auto C  = lambda * D + B;
             dx = inv(C) * g;
-            Real new_cost = J.cost_function(x + dx);
+            Vector xnew(x - dx);
+            Real new_cost = J.cost_function(xnew);
 
             if (new_cost < cost)
             {
@@ -71,13 +77,17 @@ public:
                 }
             }
         }
+        step_count++;
+        current_cost = cost;
+        Logger::step(*this);
         return 0;
     }
 
-protected:
-
     unsigned int & maximum_iterations()
     { return max_iter; }
+
+    void maximum_iterations(unsigned int n)
+    { max_iter = n; }
 
     Real &tolerance()
     { return tol; }
@@ -97,14 +107,42 @@ protected:
     Real &lambda_threshold()
     { return threshold; }
 
+    friend class LevenbergMarquardtLogger<V, stream>;
 private:
 
-    Real tol, lambda, maximum, increase, decrease, threshold;
-    unsigned int max_iter;
+    Real current_cost, tol, lambda, maximum, increase, decrease, threshold;
+    unsigned int max_iter, step_count;
 
     // Positive definite matrix defining the trust region sphere r < ||Mx||.
     DampingMatrix D;
 
 };
 
-#endif // OPTIMIZATION_LEVENBERG_MARQUARDT
+/* template */
+/* < */
+/* typename... Args */
+/* > */
+/* class Logger<Verbosity::VERBOSE, LevenbergMarquardt, Args... A> */
+/* { */
+
+/*     using Derived = LevenbergMarquardt<A>; */
+
+/*     void separator( ostream& stream, */
+/*                     Index length ) */
+/*     { */
+/*         for (Index i = 0; i < length; i++) */
+/*             stream << "-"; */
+/*         stream << endl; */
+/*     } */
+
+/*     step(ostream& stream) */
+/*     { */
+/*         LevenbergMarquardt& derived = static_cast<LevenbergMarquardt&>(*this); */
+/*         stream << std::setw(10) << derived.step; */
+/*         stream << std::setw(10) << derived.cost; */
+/*         stream << std::setw(10) << derived.lambda; */
+/*     } */
+/* }; */
+
+#endif // OPTIMIZATION_LEVENBERG_MARQUARDT_H
+

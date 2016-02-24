@@ -25,6 +25,11 @@ public:
     Vector()
         : Base() {}
 
+    Vector add(const Vector &v)
+    {
+        Vector w = this->operator+(v);
+        return w;
+    }
 
     Vector(const Vector& v) = default;
     Vector(Vector&& v)      = default;
@@ -39,5 +44,11 @@ public:
         : Base(v) {}
 
 };
+
+template<typename Base>
+auto dot(const Vector<Base>& v, const Vector<Base>& w) -> decltype(v.dot(w))
+{
+    return v.dot(w);
+}
 
 #endif // ALGEBRA_VECTOR

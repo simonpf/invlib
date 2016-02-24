@@ -1,5 +1,5 @@
-#ifndef OPTIMIZATION_GAUSS_NEWTON
-#define OPTIMIZATION_GAUSS_NEWTON
+#ifndef OPTIMIZATION_GAUSS_NEWTON_H
+#define OPTIMIZATION_GAUSS_NEWTON_H
 
 #include <stdio.h>
 
@@ -40,28 +40,47 @@ int gauss_newton( CostFunction &J,
 
 template
 <
-typename Real,
-typename Vector,
-typename Matrix
+typename Real
 >
 class GaussNewton
 {
 
 public:
 
-    template<typename T>
+    GaussNewton()
+        : tol(1e-5), max_iter(1000) {}
+
+    template
+    <
+        typename Vector,
+        typename Matrix,
+        typename CostFunction
+    >
     int step( Vector       &dx,
               const Vector &x,
               Real         &cost,
               const Vector &g,
-              const Matrix &B )
+              const Matrix &B,
+              const CostFunction &J)
     {
         dx = inv(B) * g;
         return 0;
     }
 
+    unsigned int maximum_iterations()
+    { return max_iter; }
+
+    void maximum_iterations(unsigned int n)
+    { max_iter = n; }
+
+    Real &tolerance()
+    { return tol; }
+
 private:
-    Real tol = 1e-5;
+
+    Real tol;
+    unsigned int max_iter;
+
 };
 
 #endif //OPTIMIZATION_GAUSS_NEWTON

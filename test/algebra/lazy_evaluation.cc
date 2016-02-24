@@ -1,10 +1,6 @@
-#include "algebra/matrix.h"
-#include "algebra/vector.h"
-#include "algebra/matrix_inverse.h"
-#include "algebra/matrix_identity.h"
-#include "algebra/matrix_transpose.h"
+#include "algebra.h"
 #include "algebra/Eigen.h"
-#include "Eigen/Dense"
+
 #include <stdio.h>
 
 template <typename T> void foo(T a);
@@ -13,17 +9,13 @@ int main( int argc, const char** argv )
 {
 
     const unsigned int n = 2;
-    using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
-    using Vector = Vector<Eigen::Matrix<double, Eigen::Dynamic, 1>>;
-    Matrix<EigenWrapper, Vector> A, B, C, D, E, F, G, H;
+    EigenMatrix A, B, C, D, E, F, G, H;
+    EigenVector v, w;
+
     A.resize(n,n); B.resize(n,n); C.resize(n,n); D.resize(n,n);
     E.resize(n,n); F.resize(n,n); G.resize(n,n); H.resize(n,n);
 
-    using I = MatrixIdentity<double, Matrix<EigenWrapper, Vector> >;
-
-    Vector v, w;
     v.resize(n); w.resize(n);
-
 
     A(0,0) = 1;
     A(1,0) = 1;
@@ -39,7 +31,7 @@ int main( int argc, const char** argv )
     {
         v(i)   = 1.0;
     }
-    H = transp(A) * B;
+    H = Zero() + transp(A) * (Zero() + B);
     w = (A + B) * inv(C + D) * v;
 
     printf("H(0,0) = %f \n v(0) = %f \n", H(0,0), w(0));

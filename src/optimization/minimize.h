@@ -1,5 +1,7 @@
-#ifndef OPTIMIZATION_MINIMIZE
-#define OPTIMIZATION_MINIMIZE
+#ifndef OPTIMIZATION_MINIMIZE_H
+#define OPTIMIZATION_MINIMIZE_H
+
+#include <iostream>
 
 template
 <
@@ -24,11 +26,11 @@ int minimize( CostFunction &J,
 
     while (!converged && (iter < max_iter))
     {
-
         auto g =  J.gradient(xi);
         auto H =  J.Hessian(xi);
         M.step( dx, xi, cost, g, H, J );
 
+        std::cout << J.criterion(xi, dx) << std::endl;
         if (J.criterion(xi, dx) < tol)
             converged = true;
 

@@ -3,7 +3,7 @@
 
 #include "matrix_product.h"
 #include "matrix_inverse.h"
-#include "sum.h"
+#include "matrix_sum.h"
 
 template
 <
@@ -27,6 +27,23 @@ public:
     /*     : Base(std::forward<Args>(params)...) {} */
 
     // ----------------- //
+    //   Multiplication  //
+    // ----------------- //
+
+    Matrix multiply(const Matrix& B) const
+    {
+        Matrix C(this->Base::operator*(B));
+        return C;
+    }
+
+    Vector multiply(const Vector& v) const
+    {
+        Vector w(this->Base::operator*(v));
+        return w;
+    }
+
+
+    // ----------------- //
     // Addition operator //
     // ----------------- //
 
@@ -48,13 +65,6 @@ public:
     // ----------------------- //
     // Multiplication operator //
     // ----------------------- //
-
-    template <typename T>
-    T multiply(const T& B) const
-    {
-        T C = static_cast<T>(this->Base::operator*(B));
-        return C;
-    }
 
     template <typename T>
         using Product = MatrixProduct<Matrix, T, Matrix>;

@@ -1,5 +1,5 @@
-#ifndef ALGEBRA_MATRIX_IDENTITY
-#define ALGEBRA_MATRIX_IDENTITY
+#ifndef ALGEBRA_MATRIX_IDENTITY_H
+#define ALGEBRA_MATRIX_IDENTITY_H
 
 #include <iostream>
 
@@ -43,12 +43,14 @@ public:
     //      Addition      //
     // ------------------ //
 
-    Matrix add(const Matrix& B)
+    Matrix add(const Matrix& B) const
     {
         Matrix C(B);
 
         for (unsigned int i = 0; i < B.cols(); i++)
+        {
             C(i,i) += c;
+        }
 
         return C;
     }
@@ -96,14 +98,14 @@ public:
 
     MatrixIdentity invert() const
     {
-        MatrixIdentity A(1.0/c);
+        MatrixIdentity A(1.0 / c);
         return A;
     }
 
     template<typename Vector>
     Vector solve(const Vector& v) const
     {
-        Vector w = (1.0 / c) * v;
+        Vector w((1.0 / c) * v);
         return w;
     }
 
@@ -122,5 +124,4 @@ MatrixIdentity<Real, Matrix> operator*(Real c,
 {
     return MatrixIdentity<Real, Matrix>(c * I.scale());
 }
-
-#endif //ALGEBRA_MATRIX_IDENTIT
+#endif //ALGEBRA_MATRIX_IDENTITY_H

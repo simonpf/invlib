@@ -1,5 +1,5 @@
-#ifndef ALGEBRA_MATRIX_TRANSPOSE
-#define ALGEBRA_MATRIX_TRANSPOSE
+#ifndef ALGEBRA_MATRIX_TRANSPOSE_H
+#define ALGEBRA_MATRIX_TRANSPOSE_H
 
 template
 <
@@ -35,12 +35,18 @@ public:
     //   Multiplication   //
     // ------------------ //
 
-    template <typename T>
-    T multiply(const T& B) const
+    Matrix multiply(const Matrix& B) const
     {
 
         Matrix C(static_cast<Matrix>(A).transpose_multiply(B));
         return C;
+    }
+
+    Vector multiply(const Vector& v) const
+    {
+
+        Vector w(static_cast<Matrix>(A).transpose_multiply(v));
+        return w;
     }
 
     // ----------------- //
@@ -104,4 +110,4 @@ MatrixTranspose<T, typename T::MatrixBase> transp( const T &A )
     return MatrixTranspose<T, typename T::MatrixBase>( A );
 }
 
-#endif // ALGEBRA_MATRIX_TRANSPOSE
+#endif // ALGEBRA_MATRIX_TRANSPOSE_H

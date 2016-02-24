@@ -1,13 +1,10 @@
 #include <iostream>
 
+#include "algebra.h"
 #include "algebra/Eigen.h"
-#include "algebra/matrix_identity.h"
+#include "optimization.h"
 #include "test_functions.h"
-#include "optimization/gauss_newton.h"
-#include "optimization/levenberg_marquardt.h"
-#include "optimization/minimize.h"
 #include "../utility.h"
-
 
 using std::cout;
 using std::endl;
@@ -17,23 +14,23 @@ template <typename T> void foo(T a);
 int main( int argc, const char **argv )
 {
 
-    typedef IdentityMatrix<double, Matrix> Identity;
-    typedef SphereFunction<double, Vector, Matrix> CostFunction;
-    typedef LevenbergMarquardt<double, Identity> Minimizer;
+    typedef SphereFunction<double, EigenVector, EigenMatrix> CostFunction;
+    typedef LevenbergMarquardt<double, I> LM;
+    typedef GaussNewton<double> GN;
 
     unsigned int n = 10;
-    Vector<double> v(10),w(10);
-
-
+    EigenVector v,w;
+    v.resize(10); w.resize(10);
 
     CostFunction S(n);
-    Minimizer LM = Minimizer(IdentityMatrix<double,Matrix>());
+    I D{};
+    LM Minimizer(D);
     //SumOfPowers< double, Matrix<double>, Vector<double> > S(n);
 
-    v = random<Vector<double> > (n);
+    v = random<EigenVector>(n);
     cout << v << endl;
 
-    minimize(S, LM, v, w, 10, 1e-12);
+    minimize(S, Minimizer, v, w, 10, 1e-12);
 
     cout << w << endl;
 }

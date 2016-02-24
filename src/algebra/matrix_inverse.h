@@ -33,7 +33,7 @@ public:
 
     operator Matrix() const
     {
-        Matrix B = A.T1::operator Matrix().invert();
+        Matrix B = A.invert();
         return B;
     }
 
@@ -43,7 +43,7 @@ public:
 
     Matrix add(const Matrix &B) const
     {
-        Matrix C(A.T1::operator Matrix().invert() + B);
+        Matrix C = A.invert() + B;
         return C;
     }
 
@@ -53,13 +53,13 @@ public:
 
     Vector multiply(const Vector &v) const
     {
-        Vector w(A.T1::operator Matrix().solve(v));
+        Vector w(A.solve(v));
         return w;
     }
 
     Matrix multiply(const Matrix &B) const
     {
-        Matrix C((A.T1::operator Matrix()).invert() * B);
+        Matrix C = A.invert() * B;
         return C;
     }
 

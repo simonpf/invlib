@@ -1,5 +1,5 @@
-#ifndef ALGEBRA_SUM
-#define ALGEBRA_SUM
+#ifndef ALGEBRA_SUM_H
+#define ALGEBRA_SUM_H
 
 template
 <
@@ -55,6 +55,27 @@ public:
         return tmp2;
     }
 
+    // ------------------ //
+    //     Inversion      //
+    // ------------------ //
+
+    Matrix invert() const
+    {
+        Matrix tmp1(A);
+        tmp1 += static_cast<Matrix>(B);
+        return tmp1.invert();
+    }
+
+    Vector solve(const Vector &v) const
+    {
+        Matrix tmp1 = A.add(B);
+        return tmp1.solve(v);
+    }
+
+    // ----------------------- //
+    // Multiplication Operator //
+    // ----------------------- //
+
     template <typename T3>
     using Product = MatrixProduct<MatrixSum, T3, Matrix>;
 
@@ -77,11 +98,17 @@ public:
         return Sum<T3>(C, *this);
     }
 
-    template<typename T>
-    operator T() const
+    operator Matrix() const
     {
-        T tmp1 = B;
-        T tmp2 = A.add(tmp1);
+        Matrix tmp1 = B;
+        Matrix tmp2 = A.add(tmp1);
+        return tmp2;
+    }
+
+    operator Vector() const
+    {
+        Vector tmp1 = B;
+        Vector tmp2 = A.add(tmp1);
         return tmp2;
     }
 
@@ -105,4 +132,4 @@ private:
 
 };
 
-#endif // ALGEBRA_SUM
+#endif // ALGEBRA_SUM_H
