@@ -26,7 +26,9 @@ class MatrixInverse
 {
 public:
 
-    using Vector = typename Matrix::Vector;
+    using MatrixBase = Matrix;
+    using VectorBase = typename Matrix::VectorBase;
+    using Vector = VectorBase;
 
     MatrixInverse( const T1 &A_ )
         : A(A_) {}

@@ -24,7 +24,8 @@ class MatrixProduct
 public:
 
     using MatrixBase = Matrix;
-    using Vector = typename Matrix::Vector;
+    using VectorBase = typename Matrix::VectorBase;
+    using Vector = VectorBase;
 
     template <typename T3>
     using NestedProduct = typename T2::template Product<T3>;

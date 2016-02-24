@@ -12,7 +12,8 @@ class MatrixTranspose
 public:
 
     using MatrixBase = Matrix;
-    using Vector = typename Matrix::Vector;
+    using VectorBase = typename Matrix::VectorBase;
+    using Vector = VectorBase;
 
     // ----------------- //
     //   Constructors    //

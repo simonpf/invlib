@@ -8,14 +8,14 @@
 template
 <
 typename Base,
-typename Vector_
+typename Vector
 >
 class Matrix : public Base
 {
 
 public:
 
-    using Vector = Vector_;
+    using VectorBase = Vector;
     using MatrixBase = Matrix;
 
     // ----------------- //

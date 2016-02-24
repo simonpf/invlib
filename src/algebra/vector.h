@@ -1,7 +1,7 @@
 #ifndef ALGEBRA_VECTOR
 #define ALGEBRA_VECTOR
 
-#include "binary_operation.h"
+#include "matrix_sum.h"
 
 #include <utility>
 
@@ -13,14 +13,16 @@ class Vector : public Base
 {
 public:
 
-    struct VECTOR_ADDITION_NOT_SUPPORTED {};
-    struct VECTOR_MULTIPLICATION_NOT_SUPPORTED {};
+    struct LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED
+    {
+        using VectorBase = Vector;
+    };
 
     template <typename T>
-    using Sum = VECTOR_ADDITION_NOT_SUPPORTED;
+    using Product = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED;
 
-    template <typename T>
-    using Product = VECTOR_MULTIPLICATION_NOT_SUPPORTED;
+    using MatrixBase = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED;
+    using VectorBase = Vector;
 
     Vector()
         : Base() {}

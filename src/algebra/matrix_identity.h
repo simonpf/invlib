@@ -124,4 +124,20 @@ MatrixIdentity<Real, Matrix> operator*(Real c,
 {
     return MatrixIdentity<Real, Matrix>(c * I.scale());
 }
+
+template
+<
+typename T
+>
+auto operator*(double c,
+               const T& B)
+    -> typename MatrixIdentity<double, typename T::MatrixBase>::template Product<T>
+{
+
+    using Matrix = typename T::MatrixBase;
+    using I = MatrixIdentity<double, Matrix>;
+    using P = typename MatrixIdentity<double, Matrix>::template Product<T>;
+
+    return P(I(c), B);
+}
 #endif //ALGEBRA_MATRIX_IDENTITY_H
