@@ -38,6 +38,16 @@ public:
         return w;
     }
 
+    void accum(const Vector &B)
+    {
+        this->operator+=(B);
+    }
+
+    void subtract(const Vector &B)
+    {
+        this->operator-=(B);
+    }
+
     // ----------- //
     //   Scaling   //
     // ----------  //
@@ -61,6 +71,15 @@ public:
     {
 
         return Sum<T>(*this, B);
+    }
+
+    template <typename T>
+    using Difference = MatrixDifference<Vector, T, MatrixBase>;
+
+    template <typename T>
+    auto operator-(const T &C) const -> Difference<T> const
+    {
+        return Difference<T>(*this, C);
     }
 
     Vector(const Vector& v) = default;

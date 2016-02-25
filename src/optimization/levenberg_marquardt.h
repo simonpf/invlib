@@ -40,7 +40,7 @@ public:
         bool found_step = false;
         while (!found_step)
         {
-            auto C  = lambda * D + B;
+            auto C = B + lambda * D;
             dx = inv(C) * g;
             Vector xnew(x - dx);
             Real new_cost = J.cost_function(xnew);

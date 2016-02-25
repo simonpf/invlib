@@ -10,6 +10,7 @@ int main( int argc, const char** argv )
 
     const unsigned int n = 2;
     EigenMatrix A, B, C, D, E, F, G, H;
+    MatrixIdentity<double, EigenMatrix> I;
     EigenVector v, w;
 
     A.resize(n,n); B.resize(n,n); C.resize(n,n); D.resize(n,n);
@@ -31,7 +32,7 @@ int main( int argc, const char** argv )
     {
         v(i)   = 1.0;
     }
-    H = 3 * A;
+    H = A - A - A - A - A - A;
     //w = (A + B) * inv(C + D) * v;
 
     printf("H(0,0) = %f \n v(0) = %f \n", H(0,0), w(0));

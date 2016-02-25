@@ -10,6 +10,14 @@ typename T2,
 typename Matrix
 >
 class MatrixProduct;
+template
+
+<
+typename T1,
+typename T2,
+typename Matrix
+>
+class MatrixDifference;
 
 template
 <
@@ -42,7 +50,8 @@ public:
 
     Matrix multiply(const Matrix &C) const
     {
-        Matrix tmp1 = A.add(B);
+        Matrix tmp1 = A;
+        tmp1.accum(B);
         Matrix tmp2 = tmp1.multiply(C);
         return tmp2;
     }
@@ -53,9 +62,18 @@ public:
 
     Matrix add(const Matrix &C) const
     {
-        Matrix tmp1 = A.add(B);
-        Matrix tmp2 = tmp1.add(C);
-        return tmp2;
+        Matrix tmp = A;
+        tmp.accum(B);
+        tmp.accum(C);
+        return C;
+    }
+
+    Matrix subtract(const Matrix &C) const
+    {
+        Matrix tmp = A;
+        tmp.accum(B);
+        tmp.accum(C);
+        return tmp;
     }
 
     // ------------------ //
@@ -64,15 +82,16 @@ public:
 
     Matrix invert() const
     {
-        Matrix tmp1(A);
-        tmp1 += static_cast<Matrix>(B);
-        return tmp1.invert();
+        Matrix tmp = A;
+        tmp.accum(B);
+        return tmp.invert();
     }
 
     Vector solve(const Vector &v) const
     {
-        auto tmp1 = A.add(B);
-        return tmp1.solve(v);
+        Matrix tmp = A;
+        tmp.accum(B);
+        return tmp.solve(v);
     }
 
     // ----------------------- //
@@ -85,7 +104,7 @@ public:
     template<typename T3>
     auto operator*(const T3& C) const -> Product<T3>
     {
-        return Product<T3>((*this), C);
+        return Product<T3>(*this, C);
     }
 
     // ------------------ //
@@ -93,26 +112,35 @@ public:
     // ------------------ //
 
     template <typename T3>
-    using Sum = MatrixSum<T3, MatrixSum, Matrix>;
+    using Sum = MatrixSum<MatrixSum, T3, Matrix>;
 
     template <typename T3>
     auto operator+(const T3 &C) const -> Sum<T3> const
     {
-        return Sum<T3>(C, *this);
+        return Sum<T3>(*this, C);
+    }
+
+    template <typename T3>
+    using Difference = MatrixDifference<MatrixSum, T3, Matrix>;
+
+    template <typename T3>
+    auto operator-(const T3 &C) const -> Difference<T3> const
+    {
+        return Difference<T3>(*this, C);
     }
 
     operator Matrix() const
     {
-        Matrix tmp1 = B;
-        Matrix tmp2 = A.add(tmp1);
-        return tmp2;
+        Matrix tmp = A;
+        tmp.accum(B);
+        return tmp;
     }
 
     operator Vector() const
     {
-        Vector tmp1 = B;
-        Vector tmp2 = A.add(tmp1);
-        return tmp2;
+        Vector tmp = A;
+        tmp.accum(B);
+        return tmp;
     }
 
 private:

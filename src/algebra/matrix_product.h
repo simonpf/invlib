@@ -60,16 +60,17 @@ public:
 
     Matrix add(const Matrix &C) const
     {
-        auto tmp1 = A.multiply(B);
-        Matrix tmp2 = tmp1.add(C);
+        Matrix tmp1 = B;
+        auto tmp2 = A.multiply(tmp1);
+        tmp2.accum(C);
         return tmp2;
     }
 
     Vector add(const Vector &v) const
     {
         Vector tmp1 = B;
-        Vector tmp2 = A * tmp1;
-        tmp2 += v;
+        Vector tmp2 = A.multiply(tmp1);
+        tmp2.accum(v);
         return tmp2;
     }
 

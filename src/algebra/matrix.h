@@ -4,6 +4,8 @@
 #include "matrix_product.h"
 #include "matrix_inverse.h"
 #include "matrix_sum.h"
+#include "matrix_difference.h"
+#include "matrix_identity.h"
 
 /**
  * \brief Wrapper class for symbolic matrix computations.
@@ -105,13 +107,41 @@ public:
         return C;
     }
 
+    void subtract(const Matrix &B)
+    {
+        this->Base::operator-=(B);
+    }
+
+    template<typename Real>
+    void accum(const MatrixIdentity<Real,Matrix> &B)
+    {
+        for (unsigned int i = 0; i < this->rows(); i++)
+        {
+            (*this)(i,i) += B.scale();
+        }
+    }
+
+    void accum(const Matrix &B)
+    {
+        this->operator+=(B);
+    }
+
     template <typename T>
         using Sum = MatrixSum<Matrix, T, Matrix>;
 
     template<typename T>
     Sum<T> operator+(const T &B) const
     {
-        return Sum<T>{B, *this};
+        return Sum<T>{*this, B};
+    }
+
+    template <typename T>
+    using Difference = MatrixDifference<Matrix, T, Matrix>;
+
+    template <typename T>
+    auto operator-(const T &C) const -> Difference<T> const
+    {
+        return Difference<T>(*this, C);
     }
 
     // ----------------------- //

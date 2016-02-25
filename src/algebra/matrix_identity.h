@@ -155,4 +155,15 @@ auto operator*(double c,
 {
     return B.scale(c);
 }
+
+template
+<
+typename Real,
+typename T
+>
+MatrixIdentity<Real, typename T::MatrixBase> inv( const MatrixIdentity<Real,T> &A )
+{
+    return MatrixIdentity<Real, T>( 1.0 / A.scale() );
+}
+
 #endif //ALGEBRA_MATRIX_IDENTITY_H
