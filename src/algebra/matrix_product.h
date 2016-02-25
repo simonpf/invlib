@@ -12,6 +12,8 @@ typename Matrix
 >
 class MatrixSum;
 
+template <typename T> void foo(T t);
+
 template
 <
 typename T1,
@@ -58,7 +60,7 @@ public:
 
     Matrix add(const Matrix &C) const
     {
-        Matrix tmp1 = A.multiply(B);
+        auto tmp1 = A.multiply(B);
         Matrix tmp2 = tmp1.add(C);
         return tmp2;
     }

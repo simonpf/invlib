@@ -71,7 +71,7 @@ public:
 
     Vector solve(const Vector &v) const
     {
-        Matrix tmp1 = A.add(B);
+        auto tmp1 = A.add(B);
         return tmp1.solve(v);
     }
 

@@ -55,6 +55,11 @@ public:
         return C;
     }
 
+    MatrixIdentity add(const MatrixIdentity& B) const
+    {
+        return MatrixIdentity(c + B.c);
+    }
+
     // ------------------ //
     //   Multiplication   //
     // ------------------ //
@@ -62,12 +67,21 @@ public:
     template <typename T>
     T multiply(const T& B) const
     {
-        return T(c * B); // Use perfect forwarding here!
+        return B.scale(c); // Use perfect forwarding here!
     }
 
     const Real& scale() const
     {
         return c;
+    }
+
+    // ---------- //
+    //   Scaling  //
+    // ---------- //
+
+    MatrixIdentity scale(Real d) const
+    {
+        return MatrixIdentity(c * d); // Use perfect forwarding here!
     }
 
     // ----------------- //
@@ -78,7 +92,7 @@ public:
     using Sum = MatrixSum<MatrixIdentity, T, Matrix>;
 
     template<typename T>
-    Sum<T> operator+(const T &B)
+    Sum<T> operator+(const T &B) const
     {
         return Sum<T>(*this, B);
     }
@@ -116,17 +130,6 @@ private:
 
 template
 <
-typename Real,
-typename Matrix
->
-MatrixIdentity<Real, Matrix> operator*(Real c,
-                                       const MatrixIdentity<Real, Matrix> &I)
-{
-    return MatrixIdentity<Real, Matrix>(c * I.scale());
-}
-
-template
-<
 typename T
 >
 auto operator*(double c,
@@ -139,5 +142,17 @@ auto operator*(double c,
     using P = typename MatrixIdentity<double, Matrix>::template Product<T>;
 
     return P(I(c), B);
+}
+
+template
+<
+typename Real,
+typename T
+>
+auto operator*(double c,
+               const MatrixIdentity<Real, T>& B)
+    -> MatrixIdentity<Real, T>
+{
+    return B.scale(c);
 }
 #endif //ALGEBRA_MATRIX_IDENTITY_H

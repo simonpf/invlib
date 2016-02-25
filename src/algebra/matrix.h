@@ -84,6 +84,17 @@ public:
         return w;
     }
 
+    // ---------- //
+    //   Scaling  //
+    // ---------- //
+
+    template <typename Real>
+    Matrix scale(Real c) const
+    {
+        Matrix C(this->Base::operator*(c));
+        return C;
+    }
+
     // ----------------- //
     // Addition operator //
     // ----------------- //

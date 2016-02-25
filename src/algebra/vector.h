@@ -4,6 +4,7 @@
 #include "matrix_sum.h"
 
 #include <utility>
+#include <iostream>
 
 template
 <
@@ -27,10 +28,39 @@ public:
     Vector()
         : Base() {}
 
-    Vector add(const Vector &v)
+    // ----------- //
+    //   Addition  //
+    // ----------- //
+
+    Vector add(const Vector &v) const
     {
-        Vector w = this->operator+(v);
+        Vector w(this->Base::operator+(v));
         return w;
+    }
+
+    // ----------- //
+    //   Scaling   //
+    // ----------  //
+
+    template <typename Real>
+    Vector scale(Real c) const
+    {
+        Vector v(this->Base::operator*(c));
+        return v;
+    }
+
+    // ------------------ //
+    // Addition Operator  //
+    // -----------------  //
+
+    template <typename T>
+        using Sum = MatrixSum<Vector, T, MatrixBase>;
+
+    template<typename T>
+    Sum<T> operator+(const T &B) const
+    {
+
+        return Sum<T>(*this, B);
     }
 
     Vector(const Vector& v) = default;

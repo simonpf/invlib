@@ -23,7 +23,7 @@ Real test_map( unsigned int n,
 {
     typedef LevenbergMarquardt<Real,
                                MatrixIdentity<Real, Matrix>,
-                               Verbosity::VERBOSE> LM;
+                               Verbosity::SILENT> LM;
     typedef GaussNewton<Real> GN;
     typedef MAP<TestFunction, double, Vector, Matrix, MatrixIdentity<Real, Matrix>,
                 MatrixIdentity<Real, Matrix>, Formulation::STANDARD> MAP;
@@ -43,7 +43,7 @@ Real test_map( unsigned int n,
         std::cout << "Start vector: " << std::endl << xa << std::endl;
 
         MAP estimator(S, xa, I, I);
-        GN minimizer{};
+        LM minimizer{I}; minimizer.maximum_iterations(1000);
         estimator.compute(x, y, minimizer);
 
         std::cout << "Result" << std::endl << x << std::endl;

@@ -31,8 +31,8 @@ int main( int argc, const char** argv )
     {
         v(i)   = 1.0;
     }
-    H = Zero() + transp(A) * (Zero() + B);
-    w = (A + B) * inv(C + D) * v;
+    H = 3 * A;
+    //w = (A + B) * inv(C + D) * v;
 
     printf("H(0,0) = %f \n v(0) = %f \n", H(0,0), w(0));
 }
