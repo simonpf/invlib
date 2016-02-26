@@ -1,6 +1,6 @@
 #include "algebra.h"
 #include "algebra/Eigen.h"
-
+#include "../utility.h"
 #include <stdio.h>
 
 template <typename T> void foo(T a);
@@ -8,7 +8,7 @@ template <typename T> void foo(T a);
 int main( int argc, const char** argv )
 {
 
-    const unsigned int n = 2;
+    const unsigned int n = 5;
     EigenMatrix A, B, C, D, E, F, G, H;
     MatrixIdentity<double, EigenMatrix> I;
     EigenVector v, w;
@@ -33,7 +33,7 @@ int main( int argc, const char** argv )
         v(i)   = 1.0;
     }
     H = A - A - A - A - A - A;
-    //w = (A + B) * inv(C + D) * v;
+    w = (A + B) * inv(C + D) * v;
 
-    printf("H(0,0) = %f \n v(0) = %f \n", H(0,0), w(0));
+    printf("H(0,0) = %f \n v(0) = %f \n", maximum_error(w,v), w(0));
 }

@@ -6,37 +6,38 @@
 #include "matrix_zero.h"
 #include "matrix.h"
 
-class EigenWrapper : public Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
+class EigenMatrixWrapper : public Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 {
 public:
 
+    using Real = double;
     using Base = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
     template <typename ...Args>
-    EigenWrapper( Args&... params)
+    EigenMatrixWrapper( Args &&... params)
         : Base(std::forward<Args>(params)...) {}
 
-    EigenWrapper(const Base& B)
+    EigenMatrixWrapper(const Base& B)
         : Base(B) {}
 
 
     template <typename T>
-    EigenWrapper transpose_multiply(const T& B) const
+    EigenMatrixWrapper transpose_multiply(const T& B) const
     {
-        EigenWrapper C = this->transpose() * B;
+        EigenMatrixWrapper C = this->transpose() * B;
         return C;
     }
 
     template <typename T>
-    EigenWrapper transpose_add(const T& B) const
+    EigenMatrixWrapper transpose_add(const T& B) const
     {
-        EigenWrapper C = this->transpose() + B;
+        EigenMatrixWrapper C = this->transpose() + B;
         return C;
     }
 
-    EigenWrapper invert() const
+    EigenMatrixWrapper invert() const
     {
-        return EigenWrapper(this->colPivHouseholderQr().inverse());
+        return EigenMatrixWrapper(this->colPivHouseholderQr().inverse());
     }
 
     template <typename Vector>
@@ -46,8 +47,26 @@ public:
     }
 };
 
-using EigenVector = Vector<Eigen::Matrix<double, Eigen::Dynamic, 1>>;
-using EigenMatrix = Matrix<EigenWrapper, EigenVector>;
+class EigenVectorWrapper : public Eigen::Matrix<double, Eigen::Dynamic, 1>
+{
+public:
+
+    using Real = double;
+    using Base = Eigen::Matrix<double, Eigen::Dynamic, 1>;
+
+    template <typename... Args>
+        EigenVectorWrapper(Args&&... t) : Base(std::forward<Args>(t)...) {}
+
+    template <typename T>
+    EigenMatrixWrapper operator*(T&& t)
+    {
+        return this->Base::operator*(std::forward<T>(t));
+    }
+
+};
+
+using EigenVector = Vector<EigenVectorWrapper>;
+using EigenMatrix = Matrix<EigenMatrixWrapper, EigenVector>;
 using I           = MatrixIdentity<double, EigenMatrix>;
 using Zero        = MatrixZero<EigenMatrix>;
 

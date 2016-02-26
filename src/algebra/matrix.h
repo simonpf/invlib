@@ -40,8 +40,21 @@ class Matrix : public Base
 
 public:
 
+    using Real       = typename Base::Real;
     using VectorBase = Vector;
     using MatrixBase = Matrix;
+
+    class ElementIterator;
+
+    ElementIterator begin()
+    {
+        return ElementIterator(this);
+    }
+
+    ElementIterator end()
+    {
+        return ElementIterator();
+    }
 
     // -------------------- //
     //     Constructors     //
@@ -159,4 +172,53 @@ public:
 
 };
 
+/**
+ * \brief Iterator for matrix element access.
+ *
+ * Provides an interface for element-wise access of matrix elements. Accesses
+ * elements using <tt>Base::operator()(unsigned int, unsigned int)</tt>. Assumes
+ * that the number of rows and columns in the matrix can be obtained from the
+ * member functions <tt>rows()</tt> and <tt>cols()</tt>, respectively. Assumes
+ * indexing to starting at 0.
+ *
+ * \tparam Base The base matrix type.
+ * \tparam Vector The corresponding vector type.
+ */
+template
+<
+typename Base,
+typename Vector
+>
+class Matrix<Base,Vector>::ElementIterator
+{
+public:
+
+    using MatrixType = Matrix<Base,Vector>;
+
+    ElementIterator() {}
+
+    ElementIterator(MatrixType* M_)
+        : M(M_), i(0), j(0), k(0), m(M_->rows()), n(M_->cols()) {}
+
+    Real& operator*()
+    {
+        return M->operator()(i,j);
+    }
+
+    Real& operator++()
+    {
+        k++; i = k / n; j = k % n;
+    }
+
+    template <typename T>
+    bool  operator!=(T dummy)
+    {
+        return !(k == n*m);
+    }
+
+private:
+
+    MatrixType *M;
+    unsigned int i, j, k, n, m;
+};
 #endif // ALGEBRA_MATRIX
