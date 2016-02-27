@@ -32,27 +32,29 @@ public:
     >
     int step( Vector             &dx,
               const Vector       &x,
-              Real               &cost,
               const Vector       &g,
               const Matrix       &B,
               const CostFunction &J )
     {
+        if (step_count == 0)
+            current_cost = J.cost_function(x);
+
         bool found_step = false;
         while (!found_step)
         {
             auto C = B + lambda * D;
-            dx = inv(C) * g;
-            Vector xnew(x - dx);
+            dx = -1.0 * inv(C) * g;
+            Vector xnew = x + dx;
             Real new_cost = J.cost_function(xnew);
 
-            if (new_cost < cost)
+            if (new_cost < current_cost)
             {
                 if (lambda >= (threshold * decrease))
                     lambda /= decrease;
                 else
                     lambda = 0;
 
-                cost = new_cost;
+                current_cost = new_cost;
                 found_step = true;
             }
 
@@ -78,7 +80,6 @@ public:
             }
         }
         step_count++;
-        current_cost = cost;
         Logger::step(*this);
         return 0;
     }

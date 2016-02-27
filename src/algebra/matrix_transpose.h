@@ -90,8 +90,8 @@ public:
 
     operator Matrix() const
     {
-        Matrix C(A.transpose());
-        return C;
+        Matrix tmp = A.transpose();
+        return tmp;
     }
 
 private:

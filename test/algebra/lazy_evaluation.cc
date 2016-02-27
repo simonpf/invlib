@@ -2,6 +2,7 @@
 #include "algebra/Eigen.h"
 #include "../utility.h"
 #include <stdio.h>
+#include <iostream>
 
 template <typename T> void foo(T a);
 
@@ -35,5 +36,8 @@ int main( int argc, const char** argv )
     H = A - A - A - A - A - A;
     w = (A + B) * inv(C + D) * v;
 
-    printf("H(0,0) = %f \n v(0) = %f \n", maximum_error(w,v), w(0));
+    auto R = random_positive_definite<EigenMatrix>(4);
+    auto S = random<EigenMatrix>(4,4);
+    std::cout << inv(R).operator EigenMatrix() << std::endl;
+    //printf("H(0,0) = %f \n v(0) = %f \n", maximum_error(w,v), w(0));
 }

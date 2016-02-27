@@ -1,3 +1,5 @@
+#ifndef ALGEBRA_EIGEN_H
+#define ALGEBRA_EIGEN_H
 
 #include "Eigen/Dense"
 
@@ -16,10 +18,6 @@ public:
     template <typename ...Args>
     EigenMatrixWrapper( Args &&... params)
         : Base(std::forward<Args>(params)...) {}
-
-    EigenMatrixWrapper(const Base& B)
-        : Base(B) {}
-
 
     template <typename T>
     EigenMatrixWrapper transpose_multiply(const T& B) const
@@ -58,7 +56,7 @@ public:
         EigenVectorWrapper(Args&&... t) : Base(std::forward<Args>(t)...) {}
 
     template <typename T>
-    EigenMatrixWrapper operator*(T&& t)
+    EigenMatrixWrapper operator*(T&& t) const
     {
         return this->Base::operator*(std::forward<T>(t));
     }
@@ -79,3 +77,5 @@ double dot(const EigenVector &v, const EigenVector &w)
 {
     return v.dot(w);
 }
+
+#endif // ALGEBRA_EIGEN_H

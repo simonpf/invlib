@@ -91,6 +91,17 @@ public:
         return tmp1.solve(v);
     }
 
+    // ------------------ //
+    //     Transpose      //
+    // ------------------ //
+
+    Matrix transpose() const
+    {
+        Matrix tmp1 = B;
+        Matrix tmp2 = A.multiply(tmp1);
+        tmp1 = tmp2.transpose();
+        return tmp1;
+    }
 
     MatrixProduct( const T1 &Op1, const T2 &Op2 )
         : A(Op1), B(Op2) {}
@@ -110,11 +121,14 @@ public:
         return Sum<T3>(*this, C);
     }
 
-    /* template <typename T3> */
-    /* auto operator+(const T3 &C) const -> Sum<T3> */
-    /* { */
-    /*     return typename Sum<T3>::type(A, B * C); */
-    /* } */
+    template <typename T3>
+    using Difference = MatrixDifference<MatrixProduct , T3, Matrix>;
+
+    template <typename T3>
+    auto operator-(const T3& C) const -> Difference<T3>
+    {
+        return Difference<T3>(*this, C);
+    }
 
     operator Matrix() const
     {

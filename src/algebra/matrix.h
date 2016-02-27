@@ -1,6 +1,8 @@
 #ifndef ALGEBRA_MATRIX
 #define ALGEBRA_MATRIX
 
+#include <type_traits>
+
 #include "matrix_product.h"
 #include "matrix_inverse.h"
 #include "matrix_sum.h"
@@ -43,6 +45,7 @@ public:
     using Real       = typename Base::Real;
     using VectorBase = Vector;
     using MatrixBase = Matrix;
+    using I = MatrixIdentity<Real, Matrix>;
 
     class ElementIterator;
 
@@ -59,6 +62,14 @@ public:
     // -------------------- //
     //     Constructors     //
     // -------------------- //
+
+    template
+    <
+    typename T,
+    typename = std::enable_if<!std::is_same<Matrix, std::decay<T>>::value>
+    >
+    Matrix( T && t)
+        : Base(std::forward<T>(t)) {}
 
     Matrix()
         : Base() {}

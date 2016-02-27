@@ -58,12 +58,11 @@ public:
     >
     int step( Vector       &dx,
               const Vector &x,
-              Real         &cost,
               const Vector &g,
               const Matrix &B,
               const CostFunction &J)
     {
-        dx = inv(B) * g;
+        dx = -1.0 * inv(B) * g;
         return 0;
     }
 
