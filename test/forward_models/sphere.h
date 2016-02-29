@@ -28,7 +28,7 @@ public:
     {
         Matrix J; J.resize(m,n);
         for (unsigned int i = 0; i < n; i++)
-            J(0,i) = v(i);
+            J(0,i) = 2.0 * v(i);
         return J;
     }
 

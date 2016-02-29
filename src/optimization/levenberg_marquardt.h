@@ -3,6 +3,7 @@
 
 #include "algebra/matrix_identity.h"
 #include "levenberg_marquardt_logger.h"
+#include <iostream>
 
 template
 <
@@ -20,7 +21,7 @@ public:
 
 
     LevenbergMarquardt(const DampingMatrix &D_)
-        : tol(1e-5), max_iter(10000), lambda(10.0), maximum(1000.0), decrease(2.0),
+        : tol(1e-5), max_iter(10000), lambda(10.0), maximum(10.0), decrease(2.0),
           increase(3.0), threshold(1.0), D(D_), current_cost(0.0), step_count(0)
     {}
 
@@ -73,6 +74,7 @@ public:
                     else
                     {
                         lambda = maximum + 1.0;
+                        current_cost = new_cost;
                         break;
 
                     }

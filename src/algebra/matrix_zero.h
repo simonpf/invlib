@@ -41,7 +41,9 @@ public:
     template <typename T>
     T multiply(const T& B) const
     {
-        return T(0.0 * B);
+        T t = B;
+        t *= 0.0;
+        return t;
     }
 
     // ------------------ //
@@ -55,7 +57,8 @@ public:
 
     Vector solve(const Vector &v) const
     {
-        Vector tmp(0.0 * v);
+        Vector tmp; tmp.resize(v.cols());
+        tmp *= 0.0;
         return tmp;
     }
 
@@ -86,5 +89,14 @@ public:
     }
 
 };
+
+template
+<
+typename T
+>
+MatrixZero<T> inv( const MatrixZero<T> &A )
+{
+    return MatrixZero<T>{};
+}
 
 #endif // ALGEBRA_MATRIX_ZERO_H

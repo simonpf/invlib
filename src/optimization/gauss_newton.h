@@ -66,13 +66,13 @@ public:
         return 0;
     }
 
-    unsigned int maximum_iterations()
+    unsigned int& maximum_iterations()
     { return max_iter; }
 
     void maximum_iterations(unsigned int n)
     { max_iter = n; }
 
-    Real &tolerance()
+    Real& tolerance()
     { return tol; }
 
 private:

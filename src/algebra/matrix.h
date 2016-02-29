@@ -8,6 +8,7 @@
 #include "matrix_sum.h"
 #include "matrix_difference.h"
 #include "matrix_identity.h"
+#include "matrix_zero.h"
 
 /**
  * \brief Wrapper class for symbolic matrix computations.
@@ -144,6 +145,8 @@ public:
             (*this)(i,i) += B.scale();
         }
     }
+
+    void accum(const MatrixZero<Matrix> &Z) {}
 
     void accum(const Matrix &B)
     {
