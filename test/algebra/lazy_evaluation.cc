@@ -1,4 +1,5 @@
 #include "algebra.h"
+#include "algebra/solver.h"
 #include "algebra/Eigen.h"
 #include "utility.h"
 #include <stdio.h>
@@ -35,14 +36,14 @@ int main( int argc, const char** argv )
     }
 
     set_identity(A);
-    A(1,1) = 3.0; A(3,3) = 4.0;
-    H = A - A - A - A - A - A;
-    NormalizeDiagonal<EigenMatrix> T(H);
-    w = (A + B) * inv(C + D) * v;
+    A *= 2.0;
 
-    auto R = random_positive_definite<EigenMatrix>(4);
-    auto S = random<EigenMatrix>(4,4);
-    EigenMatrix H_trans = inv(T.apply(H));
-    std::cout << H_trans << std::endl << " --- " << std::endl << H << std::endl;
+    A = random_positive_definite<EigenMatrix>(n);
+    ConjugateGradient CG{};
+    w = A * CG.solve(A, v);
+
+    std::cout << A << std::endl;
+    std::cout << v << std::endl << " --- " << std::endl;
+    std::cout << w << std::endl;
     //printf("H(0,0) = %f \n v(0) = %f \n", maximum_error(w,v), w(0));
 }

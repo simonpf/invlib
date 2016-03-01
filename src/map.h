@@ -7,7 +7,7 @@
 /*! file map.h
  * \brief Maximum A Posteriori Estimators
  *
- * This provides class templates for the inversion of a given forward model
+ * This file provides class templates for the inversion of a given forward model
  * using maximum a posteriori estimators. That means that a solution of the
  * inverse problem is obtained by minimizing the cost function
  *
