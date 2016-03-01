@@ -90,7 +90,7 @@ public:
     Matrix(const Base&& B)
         : Base(B) {}
 
-    operator const Matrix()
+    operator Matrix() const
     {
         return *this;
     }

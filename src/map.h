@@ -31,7 +31,7 @@
 /* \brief Formulation enum specifiying which formulation of the MAP estimator
  * to use.
  *
- * For details on the form see template specialization.
+ * For details on the form see template specializations.
  */
 enum class Formulation {STANDARD, NFORM, MFORM};
 
