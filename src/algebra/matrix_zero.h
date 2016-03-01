@@ -57,7 +57,7 @@ public:
 
     Vector solve(const Vector &v) const
     {
-        Vector tmp; tmp.resize(v.cols());
+        Vector tmp; tmp.resize(v.rows());
         tmp *= 0.0;
         return tmp;
     }

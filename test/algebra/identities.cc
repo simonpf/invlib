@@ -3,6 +3,7 @@
 #include "algebra.h"
 #include "algebra/Eigen.h"
 #include "utility.h"
+#include "test_types.h"
 
 constexpr double EPS = 1e-10;
 constexpr double zero = 0.0;
@@ -12,17 +13,15 @@ template
 <
 typename Matrix
 >
-void algebraic_identities(unsigned int m,
-                          unsigned int k,
-                          unsigned int n)
+void identities_test( unsigned int m,
+                      unsigned int k,
+                      unsigned int n )
 {
 
     auto A = random<Matrix>(m, k);
     auto B = random<Matrix>(m, k);
     auto C = random<Matrix>(k, n);
     auto D = random<Matrix>(k, n);
-
-    boost::unit_test::tolerance(static_cast<double>(EPS));
 
     // Addition.
 
@@ -96,6 +95,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(identities,
         unsigned int k = 1 + rand() % 100;
         unsigned int m = 1 + rand() % 100;
         unsigned int n = 1 + rand() % 100;
-        algebraic_identities<T>(m, k, n);
+        identities_test<T>(m, k, n);
     }
 }

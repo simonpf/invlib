@@ -147,7 +147,7 @@ public:
     ElementIterator() {}
 
     ElementIterator(VectorType* v_)
-        : v(v_), k(0), n(v_->cols()) {}
+        : v(v_), k(0), n(v_->rows()) {}
 
     const Real& operator*()
     {

@@ -2,6 +2,8 @@
 #define ALGEBRA_TRANSFORMATION
 
 #include <cmath>
+#include <utility>
+#include <iostream>
 
 template
 <
@@ -81,10 +83,10 @@ public:
     // -------------------- //
 
     template <typename T2>
-        using Sum = MatrixSum<Transformation, T2, Matrix>;
+        using Sum = MatrixSum<Transformation, T2&&, Matrix>;
 
     template<typename T2>
-    Sum<T2> operator+(const T2 &B) const
+    Sum<T2> operator+(const T2 &&B) const
     {
         return Sum<T2>{*this, B};
     }
@@ -119,12 +121,13 @@ private:
 class Identity
 {
 public:
-    template <typename T>
 
     /**
     * \brief Apply identity.
     */
-    const T&& apply(const T&& t)
+    template <typename T>
+    constexpr auto apply(T&& t) const
+        -> decltype(std::forward<T>(t))
     {
         return std::forward<T>(t);
     }
@@ -175,7 +178,7 @@ public:
     void apply_vector(Vector &v) const
     {
         unsigned int m;
-        m = v.cols();
+        m = v.rows();
 
         for (unsigned int i = 0; i < m; i++)
         {
