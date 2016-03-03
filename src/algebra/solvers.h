@@ -4,7 +4,7 @@
 #include "algebra.h"
 #include <iostream>
 
-/*! file solver.h
+/** file solver.h
  * \brief Solver for linear systems.
  *
  * This file contains class that provide solvers for linear systems of the form
@@ -18,35 +18,39 @@
  *
  */
 
-/*! \brief Standard solver forwarding to underlying member functions.
+/** \brief Standard solver forwarding to underlying member functions.
  *
  * The Standard solver simply forwards the call to solve() to the underlying
  * member function Matrix::solve(const Vector&).
  */
 class Standard
 {
+public:
     template
     <
     typename Vector,
     typename Matrix
     >
-    Matrix solve(const Matrix&A, const Vector& v)
+    Vector solve(const Matrix&A, const Vector& v)
     {
         return A.solve(v);
     }
 };
 
-/*! \brief Conjugate gradient solver.
+/** \brief Conjugate gradient solver.
  *
  * The conjugate gradient solver computes an iterative solution of the system
- * using the conjugate gradient method. The tolerance is given as template
- * parameter to the class.
+ * using the conjugate gradient method. The convergence criterion used is the
+ * Euclidean norm of the residual.
  *
  */
 class ConjugateGradient
 {
 
 public:
+
+    ConjugateGradient(double tol)
+        : tolerance(tol) {}
 
     template
     <
@@ -66,7 +70,7 @@ public:
         r = A * x - v;
         p = -1.0 * r;
 
-        for (unsigned int i = 0; i < n; i++)
+        while (r.norm() > tolerance)
         {
             alpha = dot(r, r) / dot(p, A * p);
             xnew  = x + alpha *     p;
@@ -82,6 +86,9 @@ public:
 
         return x;
     }
+
+private:
+    double tolerance;
 };
 
 #endif // ALGEBRA_SOLVER

@@ -2,6 +2,7 @@
 #define OPTIMIZATION_GAUSS_NEWTON_H
 
 #include <stdio.h>
+#include "solvers.h"
 
 template <typename T>
 void foo( T );
@@ -10,13 +11,15 @@ template
 <
 typename Real,
 typename CostFunction,
-typename Vector
+typename Vector,
+typename Solver = 
 >
 int gauss_newton( CostFunction &J,
                   const Vector &x0,
                   Vector       &xi,
                   unsigned int max_iter,
-                  Real         tol )
+                  Real         tol,
+                  Solver = Solver() )
 {
 
     bool converged     = false;

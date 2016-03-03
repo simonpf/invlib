@@ -8,4 +8,6 @@ SET(CMAKE_CXX_FLAGS "-O3")
 
 add_executable(maplib lazy_evaluation.cc)
 add_executable(identities identities.cc)
+add_executable(solver solver.cc)
+add_executable(precision_matrix precision_matrix.cc)
 add_executable(transformation transformation.cc)

@@ -2,6 +2,7 @@
 #include "algebra/solver.h"
 #include "algebra/Eigen.h"
 #include "utility.h"
+#include "precision_matrix.h"
 #include <stdio.h>
 #include <iostream>
 
@@ -38,12 +39,13 @@ int main( int argc, const char** argv )
     set_identity(A);
     A *= 2.0;
 
-    A = random_positive_definite<EigenMatrix>(n);
-    ConjugateGradient CG{};
-    w = A * CG.solve(A, v);
+    A = random_positive_definite<decltype(A)>(n);
+    PrecisionMatrix<EigenMatrix> Sinv(A);
 
-    std::cout << A << std::endl;
-    std::cout << v << std::endl << " --- " << std::endl;
+    B = inv(A) * inv(Sinv);
+
+    std::cout << A << std::endl << " --- " << std::endl;
+    std::cout << B << std::endl << " --- " << std::endl;
     std::cout << w << std::endl;
     //printf("H(0,0) = %f \n v(0) = %f \n", maximum_error(w,v), w(0));
 }

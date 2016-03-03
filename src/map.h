@@ -4,7 +4,7 @@
 #include "algebra.h"
 #include <iostream>
 
-/*! file map.h
+/** file map.h
  * \brief Maximum A Posteriori Estimators
  *
  * This file provides class templates for the inversion of a given forward model
@@ -28,7 +28,7 @@
  *
  */
 
-/* \brief Formulation enum specifiying which formulation of the MAP estimator
+/** \brief Formulation enum specifiying which formulation of the MAP estimator
  * to use.
  *
  * For details on the form see template specializations.
