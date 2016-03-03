@@ -2,6 +2,7 @@
 #define MAP_H
 
 #include "algebra.h"
+#include "algebra/solvers.h"
 #include <iostream>
 
 /** file map.h
@@ -71,7 +72,7 @@ typename Real,
 typename Vector,
 typename Matrix,
 typename SaMatrix,
-typename SxMatrix
+typename SeMatrix
 >
 class MAPBase
 {
@@ -84,21 +85,29 @@ public:
     {
         Vector dy = y - yi;
         Vector dx = xa - x;
-        return dot(dy, inv(Sx) * dy) + dot(dx, inv(Sa) * dx);
+        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
     }
 
     Real cost_function(const Vector &x) const
     {
         Vector dy = F.evaluate(x) - *y_ptr;
         Vector dx = xa - x;
-        return dot(dy, inv(Sx) * dy) + dot(dx, inv(Sa) * dx);
+        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
+    }
+
+    Matrix gain_matrix(const Vector &x) const
+    {
+        Matrix K = F.Jacobian(x);
+        Matrix SeInvK = inv(Se) * K;
+        Matrix G = inv(transp(K) * SeInvK + inv(Sa)) * SeInvK;
+        return G;
     }
 
     MAPBase( ForwardModel &F_,
             const Vector   &xa_,
             const SaMatrix &Sa_,
-            const SxMatrix &Sx_ )
-        : F(F_), xa(xa_), Sa(Sa_), Sx(Sx_), K(), y_ptr(nullptr)
+            const SeMatrix &Se_ )
+        : F(F_), xa(xa_), Sa(Sa_), Se(Se_), K(), y_ptr(nullptr)
     {
         n = F_.n;
         m = F_.m;
@@ -115,7 +124,7 @@ protected:
     const Vector   *y_ptr;
     const Matrix     K;
     const SaMatrix &Sa;
-    const SxMatrix &Sx;
+    const SeMatrix &Se;
 };
 
 template
@@ -125,7 +134,7 @@ typename Real,
 typename Vector,
 typename Matrix,
 typename SaMatrix,
-typename SxMatrix,
+typename SeMatrix,
 Formulation Form = Formulation::STANDARD
 >
 class MAP;
@@ -137,26 +146,27 @@ typename Real,
 typename Vector,
 typename Matrix,
 typename SaMatrix,
-typename SxMatrix
+typename SeMatrix
 >
-class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix, Formulation::STANDARD>
-    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix>
+class MAP<ForwardModel, Real, Vector, Matrix,
+          SaMatrix, SeMatrix, Formulation::STANDARD>
+    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
 {
 
 public:
 
-    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix>;
+    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>;
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
-    using Base::Sa; using Base:: Sx;
+    using Base::Sa; using Base:: Se;
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
          const Vector   &xa_,
          const SaMatrix &Sa_,
-         const SxMatrix &Sx_ )
-        : Base(F_, xa_, Sa_, Sx_) {}
+         const SeMatrix &Se_ )
+        : Base(F_, xa_, Sa_, Se_) {}
 
     template<typename Minimizer>
     int compute( Vector       &x,
@@ -176,7 +186,7 @@ public:
         while (iter < M.maximum_iterations())
         {
             auto K   = F.Jacobian(x);
-            auto tmp = transp(K) * inv(Sx);
+            auto tmp = transp(K) * inv(Se);
             auto H   = tmp * K + inv(Sa);
             Vector g = tmp * (yi - y) + inv(Sa) * (x - xa);
 
@@ -202,26 +212,26 @@ typename Real,
 typename Vector,
 typename Matrix,
 typename SaMatrix,
-typename SxMatrix
+typename SeMatrix
 >
-class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix, Formulation::NFORM>
-    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix>
+class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix, Formulation::NFORM>
+    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
 {
 
 public:
 
-    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix>;
+    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>;
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
-    using Base::Sa; using Base:: Sx;
+    using Base::Sa; using Base:: Se;
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
          const Vector   &xa_,
          const SaMatrix &Sa_,
-         const SxMatrix &Sx_ )
-        : Base(F_, xa_, Sa_, Sx_) {}
+         const SeMatrix &Se_ )
+        : Base(F_, xa_, Sa_, Se_) {}
 
     template<typename Minimizer>
     int compute( Vector       &x,
@@ -241,7 +251,7 @@ public:
         while (iter < M.maximum_iterations())
         {
             auto K   = F.Jacobian(x);
-            auto tmp = transp(K) * inv(Sx);
+            auto tmp = transp(K) * inv(Se);
             Matrix H = tmp * K + inv(Sa);
 
             Vector g = tmp * (yi - y) + inv(Sa) * (x - xa);
@@ -268,25 +278,33 @@ typename Real,
 typename Vector,
 typename Matrix,
 typename SaMatrix,
-typename SxMatrix
+typename SeMatrix
 >
-class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix, Formulation::MFORM>
-    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix>
+class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix, Formulation::MFORM>
+    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
 {
 
 public:
 
-    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SxMatrix>;
+    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>;
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
-    using Base::Sa; using Base:: Sx;
+    using Base::Sa; using Base:: Se;
 
     MAP( ForwardModel &F_,
          const Vector   &xa_,
          const SaMatrix &Sa_,
-         const SxMatrix &Sx_ )
-        : Base(F_, xa_, Sa_, Sx_) {}
+         const SeMatrix &Se_ )
+        : Base(F_, xa_, Sa_, Se_) {}
+
+    Matrix gain_matrix(const Vector &x) const
+    {
+        Matrix K = F.Jacobian(x);
+        Matrix SaKT = Sa * transp(K);
+        Matrix G = SaKT * inv(K * SaKT + Se);
+        return G;
+    }
 
     Real cost_function(const Vector &x,
                        const Vector &y,
@@ -294,14 +312,14 @@ public:
     {
         Vector dy(y - yi);
         Vector dx(xa - x);
-        return dot(dy, inv(Sx) * dy) + dot(dx, inv(Sa) * dx);
+        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
     }
 
     Real cost_function(const Vector &x) const
     {
         Vector dy(F.evaluate(x) - *y_ptr);
         Vector dx = xa + (-1.0) * Sa * transp(K) * x;
-        return dot(dy, inv(Sx) * dy) + dot(dx, inv(Sa) * dx);
+        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
     }
 
     template<typename Minimizer>
@@ -322,7 +340,7 @@ public:
         {
             auto K   = F.Jacobian(x);
             auto tmp = Sa * transp(K);
-            Matrix H   = Sx + K * tmp;
+            Matrix H   = Se + K * tmp;
             Vector g = y - yi + K * (x - xa);
 
             M.step(dx, xa, g, H, (*this));
@@ -331,7 +349,7 @@ public:
             yold = yi;
             yi = F.evaluate(x);
             Vector dy = yi - yold;
-            Vector r = Sx * H * Sx * dy;
+            Vector r = Se * H * Se * dy;
 
             if ((dot(dy, r) / m) < M.tolerance())
             {

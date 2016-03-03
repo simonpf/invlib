@@ -1,7 +1,7 @@
 #ifndef OPTIMIZATION_LEVENBERG_MARQUARDT_H
 #define OPTIMIZATION_LEVENBERG_MARQUARDT_H
 
-#include "algebra/matrix_identity.h"
+#include "algebra/solvers.h"
 #include "levenberg_marquardt_logger.h"
 #include <iostream>
 
@@ -9,6 +9,7 @@ template
 <
 typename Real,
 typename DampingMatrix,
+typename Solver = Standard,
 Verbosity V = Verbosity::SILENT,
 std::ostream &stream = std::cout
 >
@@ -20,9 +21,10 @@ class LevenbergMarquardt
 public:
 
 
-    LevenbergMarquardt(const DampingMatrix &D_)
+    LevenbergMarquardt(const DampingMatrix &D_, Solver solver = Solver())
         : tol(1e-5), max_iter(10000), lambda(10.0), maximum(10.0), decrease(2.0),
-          increase(3.0), threshold(1.0), D(D_), current_cost(0.0), step_count(0)
+        increase(3.0), threshold(1.0), D(D_), current_cost(0.0), step_count(0),
+        s(solver)
     {}
 
     template
@@ -44,7 +46,7 @@ public:
         while (!found_step)
         {
             auto C = B + lambda * D;
-            dx = -1.0 * inv(C) * g;
+            dx = -1.0 * s.solve(C, g);
             Vector xnew = x + dx;
             Real new_cost = J.cost_function(xnew);
 
@@ -118,6 +120,8 @@ private:
 
     // Positive definite matrix defining the trust region sphere r < ||Mx||.
     DampingMatrix D;
+
+    Solver s;
 
 };
 

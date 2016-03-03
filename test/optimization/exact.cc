@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE optimization exact
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
+#include "algebra/solvers.h"
 #include "optimization.h"
 #include "optimization/test_functions.h"
 #include "utility.h"
@@ -28,6 +29,9 @@ void exact_minimization(unsigned int n)
     Vector dx; dx.resize(n);
 
     SphereFunction<Real, Vector, Matrix> J(n);
+
+    // Using standard solver.
+
     I D{};
     LevenbergMarquardt<Real, typename Matrix::I> LM(D);
     LM.lambda_start() = 0.0;
@@ -38,12 +42,26 @@ void exact_minimization(unsigned int n)
 
     LM.step(dx, x0, g, H, J);
     Vector x = x0 + dx;
-
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 
     GN.step(dx, x0, g, H, J);
     x = x0 + dx;
+    BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 
+    // Using CG solver.
+
+    ConjugateGradient cg(EPS);
+    LevenbergMarquardt<Real, typename Matrix::I, ConjugateGradient> LM_CG(D, cg);
+    LM_CG.lambda_start() = 0.0;
+    GaussNewton<Real, ConjugateGradient> GN_CG(cg);
+
+    LM_CG.step(dx, x0, g, H, J);
+    x = x0 + dx;
+    BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
+    std::cout << x << std::endl;
+
+    GN_CG.step(dx, x0, g, H, J);
+    x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 }
 

@@ -22,8 +22,7 @@ Real test_map( unsigned int n,
                bool verbose )
 {
     typedef LevenbergMarquardt<Real,
-                               MatrixIdentity<Real, Matrix>,
-                               Verbosity::SILENT> LM;
+                               MatrixIdentity<Real, Matrix>> LM;
     typedef GaussNewton<Real> GN;
     typedef MAP<TestFunction, double, Vector, Matrix, MatrixIdentity<Real, Matrix>,
                 MatrixIdentity<Real, Matrix>, Formulation::STANDARD> MAP;

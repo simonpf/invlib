@@ -1,5 +1,5 @@
 #include "algebra.h"
-#include "algebra/solver.h"
+#include "algebra/solvers.h"
 #include "algebra/Eigen.h"
 #include "utility.h"
 #include "precision_matrix.h"

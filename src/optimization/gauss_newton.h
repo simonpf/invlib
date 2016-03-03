@@ -2,7 +2,7 @@
 #define OPTIMIZATION_GAUSS_NEWTON_H
 
 #include <stdio.h>
-#include "solvers.h"
+#include "algebra/solvers.h"
 
 template <typename T>
 void foo( T );
@@ -11,15 +11,13 @@ template
 <
 typename Real,
 typename CostFunction,
-typename Vector,
-typename Solver = 
+typename Vector
 >
 int gauss_newton( CostFunction &J,
                   const Vector &x0,
                   Vector       &xi,
                   unsigned int max_iter,
-                  Real         tol,
-                  Solver = Solver() )
+                  Real         tol )
 {
 
     bool converged     = false;
@@ -43,15 +41,21 @@ int gauss_newton( CostFunction &J,
 
 template
 <
-typename Real
+typename Real,
+typename Solver = Standard
 >
 class GaussNewton
 {
 
 public:
 
-    GaussNewton()
-        : tol(1e-5), max_iter(1000) {}
+    GaussNewton(Solver solver_ = Standard())
+    : tol(1e-5), max_iter(1000), solver(solver_) {}
+
+    GaussNewton( Real tolerance,
+                 unsigned int max_iter,
+                 Solver solver_ = Standard() )
+    : tol(tolerance), max_iter(max_iter), solver(solver_) {}
 
     template
     <
@@ -65,7 +69,7 @@ public:
               const Matrix &B,
               const CostFunction &J)
     {
-        dx = -1.0 * inv(B) * g;
+        dx = -1.0 * solver.solve(B, g);
         return 0;
     }
 
@@ -82,6 +86,7 @@ private:
 
     Real tol;
     unsigned int max_iter;
+    Solver solver;
 
 };
 

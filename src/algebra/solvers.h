@@ -1,10 +1,10 @@
-#ifndef ALGEBRA_SOLVER
-#define ALGEBRA_SOLVER
+#ifndef ALGEBRA_SOLVERS
+#define ALGEBRA_SOLVERS
 
 #include "algebra.h"
 #include <iostream>
 
-/** file solver.h
+/** file solvers.h
  * \brief Solver for linear systems.
  *
  * This file contains class that provide solvers for linear systems of the form
@@ -60,7 +60,7 @@ public:
     Vector solve(const Matrix&A, const Vector& v)
     {
 
-        using Real = typename Matrix::Real;
+        using Real = typename Vector::Real;
 
         unsigned int n = v.rows();
         Real tol, alpha, beta, rnorm;
@@ -70,6 +70,7 @@ public:
         r = A * x - v;
         p = -1.0 * r;
 
+        int i = 0;
         while (r.norm() > tolerance)
         {
             alpha = dot(r, r) / dot(p, A * p);
@@ -81,7 +82,6 @@ public:
             x = xnew;
             r = rnew;
             p = pnew;
-
         }
 
         return x;
@@ -91,5 +91,5 @@ private:
     double tolerance;
 };
 
-#endif // ALGEBRA_SOLVER
+#endif // ALGEBRA_SOLVERS
 

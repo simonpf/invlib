@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE algebra solver
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
-#include "algebra/solver.h"
+#include "algebra/solvers.h"
 #include "algebra/Eigen.h"
 #include "utility.h"
 #include "test_types.h"
@@ -16,7 +16,7 @@ template
 <
 typename Matrix
 >
-void solver_test( unsigned int n)
+void solver_test(unsigned int n)
 {
 
     using Vector = typename Matrix::VectorBase;
@@ -36,7 +36,6 @@ void solver_test( unsigned int n)
     error = maximum_error(v, w);
     BOOST_TEST((error < EPS), "CG solver error: " << error);
 }
-
 BOOST_AUTO_TEST_CASE_TEMPLATE(solver,
                               T,
                               matrix_types)

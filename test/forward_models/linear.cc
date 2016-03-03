@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE forward_models linear
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
+#include "algebra/solvers.h"
 #include "map.h"
 #include "optimization.h"
 #include "forward_models/linear.h"
@@ -40,9 +41,11 @@ void linear_test(unsigned int n)
     MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::MFORM>
         mform(F, xa, Sa, Se);
 
+    // Test inversion using standard solver.
+
+    I Id{};
     GaussNewton<Real> GN{};
     GN.tolerance() = 1e-9; GN.maximum_iterations() = 1000;
-    I Id{};
     LevenbergMarquardt<Real, I> LM(Id);
     LM.tolerance() = 1e-9; LM.maximum_iterations() = 1000;
 
@@ -60,6 +63,24 @@ void linear_test(unsigned int n)
     BOOST_TEST((e1 < EPS), "Error STD - NFORM = " << e1);
     BOOST_TEST((e2 < EPS), "Error STD - MFORM = " << e2);
     BOOST_TEST((e3 < EPS), "Error STD - MFORM = " << e3);
+
+    // Test inversion using CG solver.
+
+    ConjugateGradient cg(1e-5);
+    GaussNewton<Real, ConjugateGradient> GN_CG(cg);
+    GN_CG.tolerance() = 1e-9; GN.maximum_iterations() = 1000;
+    LevenbergMarquardt<Real, I, ConjugateGradient> LM_CG(Id, cg);
+    LM_CG.tolerance() = 1e-9; LM.maximum_iterations() = 1000;
+
+    std.compute(x_std_lm, y, LM_CG);
+    std.compute(x_std_gn, y, GN_CG);
+    nform.compute(x_n_gn, y, GN_CG);
+    mform.compute(x_m_gn, y, GN_CG);
+
+    BOOST_TEST((e1 < EPS), "Error STD - NFORM CG = " << e1);
+    BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);
+    BOOST_TEST((e3 < EPS), "Error STD - MFORM CG = " << e3);
+
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)
