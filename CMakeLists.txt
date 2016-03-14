@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (maplib)
+project (invlib)
 include_directories(src test)
 set (CMAKE_CXX_STANDARD 11)
 include_directories(/home/simon/Build/Eigen/)

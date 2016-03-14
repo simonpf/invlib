@@ -5,9 +5,12 @@
 #include "utility.h"
 #include "test_types.h"
 
+namespace invlib
+{
+
 constexpr double EPS = 1e-10;
 constexpr double zero = 0.0;
-constexpr unsigned int ntests = 100;
+constexpr unsigned int ntests = 1000;
 
 template
 <
@@ -97,4 +100,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(identities,
         unsigned int n = 1 + rand() % 100;
         identities_test<T>(m, k, n);
     }
+}
+
 }

@@ -1,3 +1,14 @@
+/** \file algebra/transformation.h
+ *
+ * \brief Contains the Transformation class template representing generic
+ * coordinate transformation.
+ *
+ * Also provides two concrete transformation classes, one being the identity
+ * transformation and the other the scaling by the reciprocal of the square
+ * root of the diagonal elements of a matrix.
+ *
+ */
+
 #ifndef ALGEBRA_TRANSFORMATION
 #define ALGEBRA_TRANSFORMATION
 
@@ -5,11 +16,13 @@
 #include <utility>
 #include <iostream>
 
+namespace invlib
+{
+
 template
 <
 typename T1,
-typename T2,
-typename Matrix
+typename T2
 >
 class MatrixProduct;
 
@@ -68,13 +81,13 @@ public:
 
     Matrix invert() const
     {
-        Matrix tmp = operator Matrix();
+        Matrix tmp = *this;
         return tmp.invert();
     }
 
-    Matrix solve(const Vector & v) const
+    Vector solve(const Vector & v) const
     {
-        Matrix tmp = operator Matrix();
+        Matrix tmp = *this;
         return tmp.solve(v);
     }
 
@@ -83,10 +96,10 @@ public:
     // -------------------- //
 
     template <typename T2>
-        using Sum = MatrixSum<Transformation, T2&&, Matrix>;
+        using Sum = MatrixSum<Transformation, T2, Matrix>;
 
     template<typename T2>
-    Sum<T2> operator+(const T2 &&B) const
+    Sum<T2> operator+(T2 &&B) const
     {
         return Sum<T2>{*this, B};
     }
@@ -95,23 +108,23 @@ public:
     using Difference = MatrixDifference<Transformation, T2, Matrix>;
 
     template <typename T2>
-    auto operator-(const T2 &C) const -> Difference<T2> const
+    auto operator-(T2 &&C) const -> Difference<T2> const
     {
         return Difference<T2>(*this, C);
     }
 
     template <typename T2>
-        using Product = MatrixProduct<Transformation, T2, Matrix>;
+        using Product = MatrixProduct<Transformation, T2>;
 
     template<typename T2>
-    Product<T2> operator*(const T2 &B) const
+    Product<T2> operator*(T2 &&B) const
     {
         return Product<T2>{*this, B};
     }
 
 private:
 
-    const T1 A;
+    T1 A;
     const Transform& t;
 };
 
@@ -200,5 +213,7 @@ private:
     const Matrix& A;
 
 };
+
+}
 
 #endif // ALGEBRA_TRANSFORMATION

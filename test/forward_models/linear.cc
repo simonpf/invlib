@@ -9,6 +9,8 @@
 #include "test_types.h"
 #include <iostream>
 
+using namespace invlib;
+
 constexpr double EPS = 1e-9;
 constexpr int ntests = 100;
 
@@ -81,6 +83,7 @@ void linear_test(unsigned int n)
     BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);
     BOOST_TEST((e3 < EPS), "Error STD - MFORM CG = " << e3);
 
+    std::cout << "test " << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)

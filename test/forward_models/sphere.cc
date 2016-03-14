@@ -8,6 +8,8 @@
 #include "test_types.h"
 #include <iostream>
 
+using namespace invlib;
+
 constexpr double EPS = 1e-9;
 constexpr int ntests = 100;
 
@@ -38,7 +40,7 @@ void sphere_test(unsigned int n)
         mform(F, xa, Sa, Se);
 
     GaussNewton<Real> GN{};
-    GN.tolerance() = 1e-10; GN.maximum_iterations() = 1000;
+    GN.tolerance() = 1e-15; GN.maximum_iterations() = 1000;
 
     Vector x_std, x_n, x_m;
     std.compute(x_std, y, GN);
@@ -54,9 +56,9 @@ void sphere_test(unsigned int n)
 
     // Test inversion using CG solver.
 
-    ConjugateGradient cg(1e-5);
+    ConjugateGradient cg(1e-12);
     GaussNewton<Real, ConjugateGradient> GN_CG(cg);
-    GN_CG.tolerance() = 1e-10; GN_CG.maximum_iterations() = 1000;
+    GN_CG.tolerance() = 1e-15; GN_CG.maximum_iterations() = 1000;
 
     std.compute(x_std, y, GN_CG);
     nform.compute(x_n, y, GN_CG);
@@ -74,7 +76,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(sphere, T, matrix_types)
     srand(time(NULL));
     for (unsigned int i = 0; i < ntests; i++)
     {
-        unsigned int n = 1 + rand() % 100;
+        unsigned int n = 10;
         sphere_test<T>(n);
     }
 }

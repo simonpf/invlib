@@ -4,6 +4,13 @@
 #include "algebra.h"
 #include <iostream>
 
+// -------------------- //
+// Forward Declarations //
+// -------------------- //
+
+namespace invlib
+{
+
 template
 <
 typename Matrix
@@ -63,11 +70,18 @@ public:
 
     using Vector = typename Matrix::VectorBase;
 
+    PrecisionMatrix(const Matrix& A_)
+        : A(A_) {}
+
+    // ------------------- //
+    // Algebraic Operators //
+    // ------------------- //
+
     template <typename T>
     using Product = MatrixProduct<PrecisionMatrix, T, Matrix>;
 
     template <typename T>
-    Product<T> operator*(const T& B) const
+    Product<T> operator*(T &&B) const
     {
         return Product<T>(*this, B);
     }
@@ -76,14 +90,10 @@ public:
     using Sum = MatrixSum<PrecisionMatrix, T, Matrix>;
 
     template <typename T>
-    Product<T> operator+(const T& B) const
+    Product<T> operator+(T &&B) const
     {
         return Sum<T>(*this, B);
     }
-
-    PrecisionMatrix(const Matrix& A_)
-        : A(A_) {}
-
 
     Matrix multiply(const Matrix& B) const
     {
@@ -107,6 +117,7 @@ public:
 private:
 
     const Matrix& A;
+
 };
 
 /** \brief Inversion of precision matrices.
@@ -125,6 +136,8 @@ typename Matrix
 const Matrix& inv(const PrecisionMatrix<Matrix> &A)
 {
     return A.A;
+}
+
 }
 
 #endif // PRECISION_MATRIX_H

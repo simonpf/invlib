@@ -7,6 +7,9 @@
 #include "test_types.h"
 #include <iostream>
 
+namespace invlib
+{
+
 constexpr double EPS = 1e-10;
 constexpr unsigned int ntests = 1000;
 
@@ -55,4 +58,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(precision,
         unsigned int n = 1 + rand() % 100;
         precision_test<T>(4);
     }
+}
+
 }

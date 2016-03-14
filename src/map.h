@@ -29,6 +29,9 @@
  *
  */
 
+namespace invlib
+{
+
 /** \brief Formulation enum specifiying which formulation of the MAP estimator
  * to use.
  *
@@ -150,7 +153,7 @@ typename SeMatrix
 >
 class MAP<ForwardModel, Real, Vector, Matrix,
           SaMatrix, SeMatrix, Formulation::STANDARD>
-    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
+    : public MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
 {
 
 public:
@@ -215,7 +218,7 @@ typename SaMatrix,
 typename SeMatrix
 >
 class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix, Formulation::NFORM>
-    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
+    : public MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
 {
 
 public:
@@ -281,7 +284,7 @@ typename SaMatrix,
 typename SeMatrix
 >
 class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix, Formulation::MFORM>
-    : public ::MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
+    : public MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
 {
 
 public:
@@ -361,4 +364,5 @@ public:
     }
 };
 
+}
 #endif // MAP_H

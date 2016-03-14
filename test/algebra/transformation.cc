@@ -9,6 +9,9 @@ constexpr double EPS = 1e-10;
 constexpr double zero = 0.0;
 constexpr unsigned int ntests = 100;
 
+namespace invlib
+{
+
 template
 <
 typename T
@@ -50,4 +53,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)
         unsigned int n = 1 + rand() % 100;
         transformation_test<T>(n);
     }
+}
+
 }

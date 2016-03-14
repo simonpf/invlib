@@ -4,6 +4,9 @@
 #include "algebra.h"
 #include <iostream>
 
+namespace invlib
+{
+
 /** file solvers.h
  * \brief Solver for linear systems.
  *
@@ -90,6 +93,8 @@ public:
 private:
     double tolerance;
 };
+
+}
 
 #endif // ALGEBRA_SOLVERS
 

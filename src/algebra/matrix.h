@@ -1,3 +1,10 @@
+/** \file algebra/matrix.h
+ *
+ * \brief Contains Matrix class template for symbolic computations on generic
+ * matrix types.
+ *
+ */
+
 #ifndef ALGEBRA_MATRIX
 #define ALGEBRA_MATRIX
 
@@ -9,6 +16,9 @@
 #include "matrix_difference.h"
 #include "matrix_identity.h"
 #include "matrix_zero.h"
+
+namespace invlib
+{
 
 /**
  * \brief Wrapper class for symbolic matrix computations.
@@ -137,8 +147,12 @@ public:
         this->Base::operator-=(B);
     }
 
-    template<typename Real>
-    void accum(const MatrixIdentity<Real,Matrix> &B)
+    template
+    <
+    typename T,
+    typename = enable_if<is_same<MatrixIdentity<Real, Matrix>, decay<T> > >
+    >
+    void accum(T &&B)
     {
         for (unsigned int i = 0; i < this->rows(); i++)
         {
@@ -153,20 +167,28 @@ public:
         this->operator+=(B);
     }
 
+    // ----------------- //
+    // Addition operator //
+    // ----------------- //
+
     template <typename T>
-        using Sum = MatrixSum<Matrix, T, Matrix>;
+        using Sum = MatrixSum<const Matrix&, T, Matrix>;
 
     template<typename T>
-    Sum<T> operator+(const T &B) const
+    Sum<T> operator+(T &&B) const
     {
-        return Sum<T>{*this, B};
+        return Sum<T>(*this, B);
     }
 
-    template <typename T>
-    using Difference = MatrixDifference<Matrix, T, Matrix>;
+    // ------------------- //
+    // Difference operator //
+    // ------------------- //
 
     template <typename T>
-    auto operator-(const T &C) const -> Difference<T> const
+    using Difference = MatrixDifference<const Matrix&, T, Matrix>;
+
+    template <typename T>
+    auto operator-(T &&C) const -> Difference<T>
     {
         return Difference<T>(*this, C);
     }
@@ -176,12 +198,12 @@ public:
     // ----------------------- //
 
     template <typename T>
-        using Product = MatrixProduct<Matrix, T, Matrix>;
+        using Product = MatrixProduct<const Matrix&, T>;
 
     template<typename T>
-    Product<T> operator*(const T &B) const
+    Product<T> operator*(T &&B) const
     {
-        return Product<T>{*this, B};
+        return Product<T>(*this, B);
     }
 
 };
@@ -235,4 +257,8 @@ private:
     MatrixType *M;
     unsigned int i, j, k, n, m;
 };
+
+}
+
 #endif // ALGEBRA_MATRIX
+

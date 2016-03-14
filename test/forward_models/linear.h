@@ -3,6 +3,9 @@
 
 #include <utility.h>
 
+namespace invlib
+{
+
 /**
  * \brief Linear forward model for testing.
  *
@@ -47,5 +50,7 @@ private:
     Matrix K;
 
 };
+
+}
 
 #endif // FORWARD_MODELS_LINEAR_H

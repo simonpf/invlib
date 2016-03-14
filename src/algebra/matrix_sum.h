@@ -1,13 +1,25 @@
+/** \file algebra/matrix_sum.h
+ *
+ * \brief Proxy class for computing the sum of two algebraic expressions.
+ *
+ */
+
 #ifndef ALGEBRA_SUM_H
 #define ALGEBRA_SUM_H
 
 #include <type_traits>
 
+namespace invlib
+{
+
+// -------------------- //
+// Forward Declarations //
+// -------------------- //
+
 template
 <
 typename T1,
-typename T2,
-typename Matrix
+typename T2
 >
 class MatrixProduct;
 template
@@ -19,6 +31,19 @@ typename Matrix
 >
 class MatrixDifference;
 
+/** \brief Proxy class for computing the sum of two algebraic expressions.
+ *
+ * The MatrixSum class template provides a proxy class template for computing the
+ * sum of two algebraic expressions. The class expects the left hand side
+ * operand to be convertible to either a vector or a matrix, which then must
+ * provide a member function accumulate, which can be called with the right
+ * hand operand as only argument.
+ *
+ * \tparam T1 The type of the left hand side operand
+ * \tparam T2 the type of the right hand side operand
+ * \tparam Matrix The underlying matrix type used.
+ *
+ */
 template
 <
 typename T1,
@@ -30,11 +55,12 @@ class MatrixSum
 
 public:
 
+    using Real = typename Matrix::VectorBase::Real;
     using MatrixBase = Matrix;
     using VectorBase = typename Matrix::VectorBase;
     using Vector = VectorBase;
 
-    MatrixSum( const T1 &Op1, const T2 &Op2 )
+    MatrixSum(T1 Op1, T2 Op2)
         : A(Op1), B(Op2) {}
 
     // ------------------ //
@@ -99,12 +125,12 @@ public:
     // ----------------------- //
 
     template <typename T3>
-    using Product = MatrixProduct<MatrixSum, T3, Matrix>;
+    using Product = MatrixProduct<MatrixSum, T3>;
 
     template<typename T3>
-    auto operator*(const T3& C) const -> Product<T3>
+    auto operator*(T3 &&C) const -> Product<T3>
     {
-        return Product<T3>(*this, C);
+        return Product<T3>{*this, C};
     }
 
     // ------------------ //
@@ -115,7 +141,7 @@ public:
     using Sum = MatrixSum<MatrixSum, T3, Matrix>;
 
     template <typename T3>
-    auto operator+(const T3 &C) const -> Sum<T3> const
+    auto operator+(T3 &&C) const -> Sum<T3> const
     {
         return Sum<T3>(*this, C);
     }
@@ -124,7 +150,7 @@ public:
     using Difference = MatrixDifference<MatrixSum, T3, Matrix>;
 
     template <typename T3>
-    auto operator-(const T3 &C) const -> Difference<T3> const
+    auto operator-(T3 &&C) const -> Difference<T3> const
     {
         return Difference<T3>(*this, C);
     }
@@ -146,21 +172,11 @@ public:
 private:
 
     // Operand references.
-    typedef typename
-        std::conditional<std::is_same<T1, VectorBase>::value, const VectorBase&, T1>::type A1;
-
-    typedef typename
-        std::conditional<std::is_same<T1, Matrix>::value, const Matrix&, T1>::type A2;
-
-    typedef typename
-        std::conditional<std::is_same<T2, VectorBase>::value, const VectorBase&, T2>::type B1;
-
-    typedef typename
-        std::conditional<std::is_same<T2, Matrix>::value, const Matrix&, T2>::type B2;
-
-    A2 A;
-    B2 B;
+    T1 A;
+    T2 B;
 
 };
+
+}
 
 #endif // ALGEBRA_SUM_H

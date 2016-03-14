@@ -1,44 +1,45 @@
+/** \file optimization/gauss_newton.h
+ *
+ * \brief Contains GaussNewton class template implementing the Gauss-Newton
+ * optimization scheme.
+ *
+ */
+
 #ifndef OPTIMIZATION_GAUSS_NEWTON_H
 #define OPTIMIZATION_GAUSS_NEWTON_H
 
 #include <stdio.h>
 #include "algebra/solvers.h"
 
-template <typename T>
-void foo( T );
-
-template
-<
-typename Real,
-typename CostFunction,
-typename Vector
->
-int gauss_newton( CostFunction &J,
-                  const Vector &x0,
-                  Vector       &xi,
-                  unsigned int max_iter,
-                  Real         tol )
+namespace invlib
 {
 
-    bool converged     = false;
-    unsigned int iter  = 0;
-
-    Vector dx;
-    xi = x0;
-
-    while (!converged && (iter < max_iter))
-    {
-
-        dx = J.step(xi);
-
-        if (J.criterion(xi, dx) < tol)
-            converged = true;
-
-        xi -= dx;
-        iter++;
-    }
-}
-
+/**
+ * \brief Gauss-Newton method.
+ *
+ * Class template for a generic Gauss-Newton optimizer. Provides the function
+ * step, which computes one step \f$ d\vec{x} \f$ of the Gauss-Newton method:
+ *
+ * \f[
+ *    d\vec{x} &= -\mathbf{H}^{-1} \vec{g}
+ * \f]
+ *
+ * where \f$ \mathbf{H} \f$ is the (approximate) Hessian of the cost function
+ * and \f$ \vec{g} \f$ its gradient. The next iteration vector can then be
+ * computed using \f$ \vec{x}_{i+1} = \vec{x}_{i} + d\vec{x} \f$.
+ *
+ * The method used for the solution of the subproblem
+ *
+ * \f[
+ *    \mathbf{H}} d\vec{x} = -\vec{g}
+ * \f]
+ *
+ * can be defined using the @Solver type. The default is to use the
+ * the solve() member function of the given Hessian.
+ *
+ * \tparam Real The floating point type used to represent scalars.
+ * \tparam Solver The Solver type to be used for the subproblem.
+ */
 template
 <
 typename Real,
@@ -89,5 +90,7 @@ private:
     Solver solver;
 
 };
+
+}
 
 #endif //OPTIMIZATION_GAUSS_NEWTON

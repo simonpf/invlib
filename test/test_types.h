@@ -1,9 +1,10 @@
 #ifndef TEST_TEST_TYPES_H
 #define TEST_TEST_TYPES_H
 
-#include <algebra/Eigen.h>
 #include <boost/mpl/list.hpp>
+#include <interfaces/arts_wrapper.h>
 
-using matrix_types = boost::mpl::list<EigenMatrix>;
+using ArtsDense  = invlib::Matrix<ArtsMatrix<Matrix>, invlib::Vector<ArtsVector>>;
+using matrix_types = boost::mpl::list<ArtsDense>;
 
 #endif // TEST_TEST_TYPES_H

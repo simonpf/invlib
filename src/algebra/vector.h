@@ -1,10 +1,19 @@
+/** \file algebra/vector.h
+ *
+ * \brief Contains Vector class template for symbolic computations on generic
+ * vector types.
+ *
+ */
+
 #ifndef ALGEBRA_VECTOR
 #define ALGEBRA_VECTOR
 
 #include "matrix_sum.h"
-
 #include <utility>
 #include <iostream>
+
+namespace invlib
+{
 
 /**
  * \brief Wrapper class for symbolic computations involving vectors.
@@ -15,7 +24,7 @@
  * - Addition: operator+()
  * - Subtraction: operator-()
  *
- * Those operations return a proxy type, representing the computation, that
+ * Those operations return a proxy type representing the computation, that
  * can be combined with the other matrix operations. The computation is delayed
  * until the resulting proxy object is converted to a matrix or a vector.
  *
@@ -30,62 +39,91 @@ class Vector : public Base
 {
 public:
 
+    // ------------------- //
+    //  Element Iterator   //
+    // ------------------- //
+
     class ElementIterator;
+
+    /*!
+     *\return An element iterator object pointing to the first element
+     *in the vector.
+     */
     ElementIterator begin() {return ElementIterator(this);};
-    ElementIterator end() {return ElementIterator();};
+
+    /*!
+     *\return An element iterator pointing to the end of the vector.
+     */
+    ElementIterator end()   {return ElementIterator();};
 
     struct LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED
     {
         using VectorBase = Vector;
     };
 
-    template <typename T>
-    using Product = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED;
+    // -------------- //
+    //  Type Aliases  //
+    // -------------- //
 
-    using Real = typename Base::Real;
-    using VectorBase = Vector;
-    using MatrixBase = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED;
+    /* template <typename T> */
+    /* using Product = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED; */
 
-    Vector()
-        : Base() {}
+    /*! The basic scalar type. */
+    using RealType   = typename Base::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename Base::VectorType;
+    /*! The basic matrix type. */
+    using MatrixType = typename Base::MatrixType;
+    /*! The type of the result of the expression */
+    using ResultType = Vector;
 
-    // ----------- //
-    //   Addition  //
-    // ----------- //
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    Vector add(const Vector &v) const
-    {
-        Vector w(this->Base::operator+(v));
-        return w;
-    }
+    /*! Default constructor. */
+    Vector() : Base() = default;
 
-    void accum(const Vector &B)
-    {
-        this->operator+=(B);
-    }
+    /*! Default copy constructor.
+     *
+     * Call the Base copy constructor, which should perform a deep copy of
+     * the provided vector v.
+     *
+     * /param v The vector v to be copied from.
+     */
+    Vector(const Vector& v) = default;
 
-    void subtract(const Vector &B)
-    {
-        this->operator-=(B);
-    }
+    // Moving vectors is not supported.
+    Vector(Vector&& v)      = delete;
 
-    // ----------- //
-    //   Scaling   //
-    // ----------  //
+    /*! Default assignment operator.
+     *
+     * Call the Base assignment operator, which should copy the values of
+     * the provided vector v into this object.
+     *
+     * \param v The vector v to be assigned from.
+     */
+    Vector& operator=(const Vector& v) = default;
 
-    template <typename Real>
-    Vector scale(Real c) const
-    {
-        Vector v(this->Base::operator*(c));
-        return v;
-    }
+    // Moving vectors is not supported.
+    Vector& operator=(Vector&& v) = default;
+
+    /*! Move base object into vector.
+     *
+     * Moves the provided base object into the vector. In this way results
+     * from arithmetic operations on the base type can be moved directly
+     * into a Vector object in order to avoid expensive copying.
+     *
+     * \param v The base vector to be moved from.
+     */
+    Vector(const Base&& v);
 
     // ------------------ //
     // Addition Operator  //
     // -----------------  //
 
     template <typename T>
-        using Sum = MatrixSum<Vector, T, MatrixBase>;
+        using Sum = MatrixSum<const Vector &, T, MatrixBase>;
 
     template<typename T>
     Sum<T> operator+(const T &B) const
@@ -95,7 +133,7 @@ public:
     }
 
     template <typename T>
-    using Difference = MatrixDifference<Vector, T, MatrixBase>;
+    using Difference = MatrixDifference<const Vector &, T, MatrixBase>;
 
     template <typename T>
     auto operator-(const T &C) const -> Difference<T> const
@@ -103,17 +141,6 @@ public:
         return Difference<T>(*this, C);
     }
 
-    Vector(const Vector& v) = default;
-    Vector(Vector&& v)      = default;
-
-    Vector& operator=(const Vector& v) = default;
-    Vector& operator=(Vector&& v) = default;
-
-    Vector(const Base& v)
-        : Base(v) {}
-
-    Vector(Base&& v)
-        : Base(v) {}
 
 };
 
@@ -170,5 +197,7 @@ private:
     VectorType *v;
     unsigned int k, n;
 };
+
+}
 
 #endif // ALGEBRA_VECTOR

@@ -6,6 +6,9 @@
 #include "utility.h"
 #include "test_types.h"
 
+namespace invlib
+{
+
 constexpr double EPS = 1e-10;
 constexpr unsigned int ntests = 1000;
 
@@ -26,7 +29,7 @@ void solver_test(unsigned int n)
     Vector w; w.resize(n);
 
     Standard std{};
-    ConjugateGradient cg(1e-12);
+    ConjugateGradient cg(1e-20);
 
     w = A * std.solve(A, v);
     double error = maximum_error(v, w);
@@ -46,4 +49,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(solver,
         unsigned int n = 1 + rand() % 100;
         solver_test<T>(n);
     }
+}
+
 }

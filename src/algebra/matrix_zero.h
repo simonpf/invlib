@@ -3,6 +3,24 @@
 
 #include "matrix_inverse.h"
 
+
+/** \file algebra/matrix_zero.h
+ *
+ * \brief Contains MatrixZero class representing a generic zero matrix.
+ *
+ * Also provides and overload of the inv() function.
+ *
+ */
+namespace invlib
+{
+
+/** \brief Generic zero matrix.
+ *
+ * Represents the zero matrix, i.e. the identity matrix of matrix addition.
+ *
+ * \tparam Matrix The underlying matrix type.
+ *
+ */
 template
 <
 typename Matrix
@@ -80,7 +98,7 @@ public:
     // ----------------------- //
 
     template <typename T>
-    using Product = MatrixProduct<MatrixZero, T, Matrix>;
+    using Product = MatrixProduct<MatrixZero, T>;
 
     template <typename T>
     Product<T> operator*(const T &A) const
@@ -90,6 +108,13 @@ public:
 
 };
 
+/** \brief Generic zero matrix.
+ *
+ * Represents the zero matrix, i.e. the identity matrix of matrix addition.
+ *
+ * \tparam Matrix The underlying matrix type.
+ *
+ */
 template
 <
 typename T
@@ -99,4 +124,7 @@ MatrixZero<T> inv( const MatrixZero<T> &A )
     return MatrixZero<T>{};
 }
 
+}
+
 #endif // ALGEBRA_MATRIX_ZERO_H
+

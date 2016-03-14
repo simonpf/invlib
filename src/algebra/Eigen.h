@@ -8,6 +8,9 @@
 #include "matrix_zero.h"
 #include "matrix.h"
 
+namespace invlib
+{
+
 class EigenMatrixWrapper : public Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 {
 public:
@@ -76,6 +79,8 @@ using Zero        = MatrixZero<EigenMatrix>;
 double dot(const EigenVector &v, const EigenVector &w)
 {
     return v.dot(w);
+}
+
 }
 
 #endif // ALGEBRA_EIGEN_H

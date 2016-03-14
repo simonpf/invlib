@@ -1,7 +1,15 @@
+/** \file optimization/minimize.h
+ *
+ * \brief Provides the function template minimize() which implements a genereic
+ * minimization algorithm using a provided optimizer object.
+ *
+ */
+
 #ifndef OPTIMIZATION_MINIMIZE_H
 #define OPTIMIZATION_MINIMIZE_H
 
-#include <iostream>
+namespace invlib
+{
 
 /**
  * \brief Generic minimization
@@ -72,6 +80,8 @@ int minimize( CostFunction &J,
         iter++;
     }
     return 0;
+}
+
 }
 
 #endif // OPTIMIZATION_MINIMIZE

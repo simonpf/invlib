@@ -1,3 +1,10 @@
+/** \file optimization/levenberg_marquardt.h
+ *
+ * \brief Contains the LevenbergMarquardt class template implementing the
+ * Gauss-Newton optimization scheme.
+ *
+ */
+
 #ifndef OPTIMIZATION_LEVENBERG_MARQUARDT_H
 #define OPTIMIZATION_LEVENBERG_MARQUARDT_H
 
@@ -5,6 +12,42 @@
 #include "levenberg_marquardt_logger.h"
 #include <iostream>
 
+namespace invlib
+{
+
+/**
+ * \brief Levenberg-Marquardt method.
+ *
+ * Class template for a generic Levenberg-Marquardt optimizer. Provides the
+ * function step, which computes one step \f$ d\vec{x} \f$ of the
+ * Levenberg-Marquardt method:
+ *
+ * \f[
+ *    d\vec{x} &= -(\mathbf{H} + \lambda \mathbf{D})^{-1} \vec{g}
+ * \f]
+ *
+ * where \f$ \mathbf{H} \f$ is the (approximate) Hessian of the cost function
+ * and \f$ \vec{g} \f$ its gradient and \f$ \mathbf{D} \f$ is a user provided
+ * positive definite matrix.
+ *
+ * The value of \f$ \lambda \f$ is adapted depending on how well the cost
+ * function can be approximated by a quadratic function.
+ *
+ * The next iteration vector can be computed from \f$ d\vec{x} \f$ using
+ * \f$ \vec{x}_{i+1} = \vec{x}_{i} + d\vec{x} \f$.
+ *
+ * The method used for the solution of the subproblem
+ *
+ * \f[
+ *    \mathbf{H}} d\vec{x} = -\vec{g}
+ * \f]
+ *
+ * can be defined using the @Solver type. The default is to use the
+ * the solve() member function of the given Hessian.
+ *
+ * \tparam Real The floating point type used to represent scalars.
+ * \tparam Solver The Solver type to be used for the subproblem.
+ */
 template
 <
 typename Real,
@@ -150,6 +193,8 @@ private:
 /*         stream << std::setw(10) << derived.lambda; */
 /*     } */
 /* }; */
+
+}
 
 #endif // OPTIMIZATION_LEVENBERG_MARQUARDT_H
 

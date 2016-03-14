@@ -2,13 +2,7 @@ template
 <
 typename Real
 >
-MatrixArchetype::DenseMatrix() {}
-
-template
-<
-typename Real
->
-MatrixArchetype::DenseMatrix(const DenseMatrix &A)
+MatrixArchetype<Real>::MatrixArchetype(const MatrixArchetype<Real> &A)
     : m(A.rows()), n(A.cols())
 {
     delete data;
@@ -20,9 +14,11 @@ template
 <
 typename Real
 >
-MatrixArchetype::operator=(const DenseMatrix &A)
-    : m(A.rows()), n(A.cols())
+MatrixArchetype<Real>& MatrixArchetype<Real>::operator=(const MatrixArchetype &A)
+    
 {
+    m = A.rows();
+    n = A.cols();
     delete data;
     data = new Real[m * n];
     std::copy(std::begin(A.data), std::end(A.data), std::begin(data));
@@ -32,7 +28,7 @@ template
 <
 typename Real
 >
-void MatrixArchetype::resize(unsigned int i, unsigned int j)
+void MatrixArchetype<Real>::resize(unsigned int i, unsigned int j)
 {
     m = i;
     n = j;
@@ -44,7 +40,7 @@ template
 <
 typename Real
 >
-Real & MatrixArchetype::operator()(unsigned int i, unsigned int j)
+Real & MatrixArchetype<Real>::operator()(unsigned int i, unsigned int j)
 {
     assert((0 <= i) && (i < m));
     assert((0 <= j) && (i < n));
@@ -56,7 +52,7 @@ template
 <
 typename Real
 >
-Real MatrixArchetype::operator()(unsigned int i, unsigned int j) const
+Real MatrixArchetype<Real>::operator()(unsigned int i, unsigned int j) const
 {
     assert((0 <= i) && (i < m));
     assert((0 <= j) && (i < n));
@@ -68,7 +64,7 @@ template
 <
 typename Real
 >
-unsigned int MatrixArchetype::cols() const
+unsigned int MatrixArchetype<Real>::cols() const
 {
     return n;
 }
@@ -77,7 +73,7 @@ template
 <
 typename Real
 >
-unsigned int MatrixArchetype::rows() const
+unsigned int MatrixArchetype<Real>::rows() const
 {
     return m;
 }
@@ -86,7 +82,7 @@ template
 <
 typename Real
 >
-void MatrixArchetype::accumulate(const DenseMatrix &B)
+void MatrixArchetype<Real>::accumulate(const MatrixArchetype &B)
 {
     for (unsigned int i = 0; i < m; i++)
     {
@@ -101,7 +97,7 @@ template
 <
 typename Real
 >
-void MatrixArchetype::subtract(const DenseMatrix &B)
+void MatrixArchetype<Real>::subtract(const MatrixArchetype &B)
 {
     for (unsigned int i = 0; i < m; i++)
     {
@@ -116,11 +112,12 @@ template
 <
 typename Real
 >
-void MatrixArchetype DenseMatrix::multiply(const DenseMatrix &B) const
+auto MatrixArchetype<Real>::multiply(const MatrixArchetype<Real> &B) const
+    -> MatrixArchetype
 {
-    std::assert(n == B.rows());
+    assert(n == B.rows());
 
-    MatrixArchetype C; C.resize(m, B.cols());
+    MatrixArchetype<Real> C; C.resize(m, B.cols());
 
     for (unsigned int h = 0; h < m; h++)
     {
@@ -141,11 +138,16 @@ template
 <
 typename Real
 >
-void MatrixArchetype DenseMatrix::multiply(const DenseVector &v) const
+template
+<
+typename Vector    
+>
+auto MatrixArchetype<Real>::multiply(const Vector &v) const
+    -> Vector
 {
-    std::assert(m == v.rows());
+    assert(m == v.rows());
 
-    DenseVector w; 
+    Vector w; 
     w.resize(m);
 
     for (unsigned int i = 0; i < m; i++)
@@ -164,7 +166,7 @@ template
 <
 typename Real
 >
-void MatrixArchetype DenseMatrix::scale(Real c)
+void MatrixArchetype<Real>::scale(Real c)
 {
     for (unsigned int i = 0; i < m; i++)
     {
