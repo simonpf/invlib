@@ -93,8 +93,14 @@ public:
      */
     Vector(const Vector& v) = default;
 
-    // Moving vectors is not supported.
-    Vector(Vector&& v)      = delete;
+    /*! Default move constructor.
+     *
+     * Call the Base move constructor, which should perform a deep copy of
+     * the provided vector v.
+     *
+     * /param v The vector v to be moved from.
+     */
+    Vector(Vector&& v)      = default;
 
     /*! Default assignment operator.
      *
@@ -105,7 +111,13 @@ public:
      */
     Vector& operator=(const Vector& v) = default;
 
-    // Moving vectors is not supported.
+    /*! Default move assignment operator.
+     *
+     * Call the Base move assignment operator, which should copy the values of
+     * the provided vector v into this object.
+     *
+     * \param v The vector v to be moved from.
+     */
     Vector& operator=(Vector&& v) = default;
 
     /*! Move base object into vector.
@@ -116,39 +128,50 @@ public:
      *
      * \param v The base vector to be moved from.
      */
-    Vector(const Base&& v);
+    Vector(Base&& v);
 
-    // ------------------ //
-    // Addition Operator  //
-    // -----------------  //
+    // --------------------- //
+    // Arithmetic Operators  //
+    // --------------------- //
 
+    /*! Proxy type for the sum of two vectors. */
     template <typename T>
         using Sum = MatrixSum<const Vector &, T, MatrixBase>;
 
+    /*! Create sum expression.
+     *
+     * \tparam T The type of the object to add to the vector.
+     * \return The algebraic expression object representing the sum of this
+     * this vector and the given argument.
+     */
     template<typename T>
-    Sum<T> operator+(const T &B) const
-    {
+    Sum<T> operator+(T &&B) const;
 
-        return Sum<T>(*this, B);
-    }
-
+    /*! Proxy type for the difference of two vectors. */
     template <typename T>
     using Difference = MatrixDifference<const Vector &, T, MatrixBase>;
 
+    /*! Create difference expression.
+     *
+     * \tparam The type of the object to add to the vector.
+     * \return The algebraic expression object representing the difference
+     * of this vector and the given argument.
+     */
     template <typename T>
-    auto operator-(const T &C) const -> Difference<T> const
-    {
-        return Difference<T>(*this, C);
-    }
-
+	auto operator-(const T &C) const -> Difference<T>;
 
 };
 
+/*! Dot product of two vectors.
+ *
+ * The dot product is computed by callling the dot(T t) member function
+ * of the first argument vector with the second argument vector are argument.
+ *
+ * \tparam Base The fundamental vector type.
+ * \return The dot product of the two vectors.
+ */
 template<typename Base>
-auto dot(const Vector<Base>& v, const Vector<Base>& w) -> decltype(v.dot(w))
-{
-    return v.dot(w);
-}
+auto dot(const Vector<Base>& v, const Vector<Base>& w) -> decltype(v.dot(w));
 
 /**
  * \brief Iterator for element-wise acces.
@@ -198,6 +221,8 @@ private:
     unsigned int k, n;
 };
 
-}
+#include "vector.cpp"
+
+}      // namespace invlib
 
 #endif // ALGEBRA_VECTOR
