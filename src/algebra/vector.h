@@ -95,8 +95,8 @@ public:
 
     /*! Default move constructor.
      *
-     * Call the Base move constructor, which should perform a deep copy of
-     * the provided vector v.
+     * Call the Base move constructor, which should move the data references
+     * from the vector v into this Vector object. 
      *
      * /param v The vector v to be moved from.
      */
@@ -126,7 +126,7 @@ public:
      * from arithmetic operations on the base type can be moved directly
      * into a Vector object in order to avoid expensive copying.
      *
-     * \param v The base vector to be moved from.
+     * \param v The the temporarye vector of base type to be moved from.
      */
     Vector(Base&& v);
 
@@ -138,11 +138,11 @@ public:
     template <typename T1>
         using Sum = MatrixSum<const Vector &, T1, MatrixType>;
 
-    /*! Create sum expression.
+    /*! Create sum arithmetic expression.
      *
-     * \tparam T1 The type of the object to add to the vector.
-     * \return The algebraic expression object representing the sum of this
-     * this vector and the given argument.
+     * \tparam T1 The type of the object to add to this vector.
+     * \return An algebraic expression object representing the sum of
+     * this vector and the provided argument.
      */
     template<typename T1>
     Sum<T1> operator+(T1 &&v) const;
@@ -151,10 +151,10 @@ public:
     template <typename T1>
     using Difference = MatrixDifference<const Vector &, T1, MatrixType>;
 
-    /*! Create difference expression.
+    /*! Create difference algebraic expression.
      *
-     * \tparam The type of the object to add to the vector.
-     * \return The algebraic expression object representing the difference
+     * \tparam The type of object to subtract from the vector.
+     * \return An algebraic expression object representing the difference
      * of this vector and the given argument.
      */
     template <typename T1>
