@@ -54,7 +54,7 @@ public:
     /*!
      *\return An element iterator pointing to the end of the vector.
      */
-    ElementIterator end()   {return ElementIterator();};
+    ElementIterator end()   {return ElementIterator(this, rows());};
 
     struct LEFT1_VECTOR_MULTIPLY_NOT1_SUPPORTED
     {
@@ -192,26 +192,13 @@ class Vector<Base>::ElementIterator
 {
 public:
 
-    ElementIterator() {}
+    ElementIterator() = default;
+    ElementIterator(VectorType* v_);
+    ElementIterator(VectorType* v_, unsigned int k);
 
-    ElementIterator(VectorType* v_)
-        : v(v_), k(0), n(v_->rows()) {}
-
-    RealType operator*()
-    {
-        return v->operator()(k);
-    }
-
-    RealType& operator++()
-    {
-        k++;
-    }
-
-    template <typename T1>
-    bool  operator!=(T1 dummy)
-    {
-        return !(k == n);
-    }
+    RealType operator*();
+    RealType& operator++();
+    bool operator!=(ElementIterator it);
 
 private:
 

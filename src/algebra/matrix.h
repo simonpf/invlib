@@ -70,7 +70,7 @@ public:
     /*!
      *\return An element iterator pointing to the end of the matrix.
      */
-    ElementIterator end() {return ElementIterator();}
+    ElementIterator end() {return ElementIterator(this, rows(), cols());}
 
     // -------------- //
     //  Type Aliases  //
@@ -230,9 +230,9 @@ public:
 
 };
 
-// ------------------------------- //
-//  Matrix::ElementIterator Class  //
-// ------------------------------- //
+// ---------------------- //
+//  ElementIterator Class //
+// ---------------------- //
 
 /**
  * \brief Iterator for matrix element access.
@@ -258,13 +258,12 @@ public:
 
     ElementIterator() = default;
     ElementIterator(MatrixType* M_);
-        : M(M_), i(0), j(0), k(0), m(M_->rows()), n(M_->cols()) {}
+    ElementIterator(MatrixType* M_, unsigned int i, unsigned int j);
 
     RealType& operator*();
     RealType& operator++();
 
-    template <typename T>
-    bool  operator!=(T);
+    bool operator!=(ElementIterator it);
 
 private:
 

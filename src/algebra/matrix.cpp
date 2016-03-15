@@ -45,13 +45,22 @@ auto operator*(T &&B) const
     return Product<T>(*this, B);
 }
 
-// ------------------------------- //
-//  Matrix::ElementIterator Class  //
-// ------------------------------- //
+// ----------------------- //
+//  ElementIterator Class  //
+// ----------------------- //
 
 template<typename Base>
-Matrix<Base>::ElementIterator::ElementIterator(MatrixType *M_);
+Matrix<Base>::ElementIterator::ElementIterator(MatrixType *M_)
     : M(M_), i(0), j(0), k(0), m(M_->rows()), n(M_->cols())
+{
+    // Nothing to do here.
+}
+
+template<typename Base>
+Matrix<Base>::ElementIterator::ElementIterator(MatrixType *M_,
+                                               unsigned int i_,
+                                               unsigned int j_)
+    : M(M_), i(i_), j(j_), k(i_ * j_), m(M_->rows()), n(M_->cols())
 {
     // Nothing to do here.
 }
@@ -63,7 +72,7 @@ Matrix<Base>::ElementIterator::operator*()
 }
 
 template<typename Base>
-Matrix<Base>::ElementIterator::RealType& operator++();
+Matrix<Base>::ElementIterator::RealType& operator++()
 {
     k++;
     i = k / n;
@@ -71,8 +80,7 @@ Matrix<Base>::ElementIterator::RealType& operator++();
 }
 
 template<typename Base>
-template <typename T>
-bool Matrix<Base>::ElementIterator::operator!=(T)
+bool Matrix<Base>::ElementIterator::operator!=(ElementIterator it)
 {
-    return !(k == n*m);
+    return (k != it.k);
 }
