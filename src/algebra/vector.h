@@ -56,7 +56,7 @@ public:
      */
     ElementIterator end()   {return ElementIterator();};
 
-    struct LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED
+    struct LEFT1_VECTOR_MULTIPLY_NOT1_SUPPORTED
     {
         using VectorBase = Vector;
     };
@@ -65,8 +65,8 @@ public:
     //  Type Aliases  //
     // -------------- //
 
-    /* template <typename T> */
-    /* using Product = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED; */
+    /* template <typename T1> */
+    /* using Product = LEFT1_VECTOR_MULTIPLY_NOT1_SUPPORTED; */
 
     /*! The basic scalar type. */
     using RealType   = typename Base::RealType;
@@ -82,7 +82,7 @@ public:
     // ------------------------------- //
 
     /*! Default constructor. */
-    Vector() : Base() = default;
+    Vector() = default;
 
     /*! Default copy constructor.
      *
@@ -135,21 +135,21 @@ public:
     // --------------------- //
 
     /*! Proxy type for the sum of two vectors. */
-    template <typename T>
-        using Sum = MatrixSum<const Vector &, T, MatrixBase>;
+    template <typename T1>
+        using Sum = MatrixSum<const Vector &, T1, MatrixType>;
 
     /*! Create sum expression.
      *
-     * \tparam T The type of the object to add to the vector.
+     * \tparam T1 The type of the object to add to the vector.
      * \return The algebraic expression object representing the sum of this
      * this vector and the given argument.
      */
-    template<typename T>
-    Sum<T> operator+(T &&B) const;
+    template<typename T1>
+    Sum<T1> operator+(T1 &&v) const;
 
     /*! Proxy type for the difference of two vectors. */
-    template <typename T>
-    using Difference = MatrixDifference<const Vector &, T, MatrixBase>;
+    template <typename T1>
+    using Difference = MatrixDifference<const Vector &, T1, MatrixType>;
 
     /*! Create difference expression.
      *
@@ -157,14 +157,14 @@ public:
      * \return The algebraic expression object representing the difference
      * of this vector and the given argument.
      */
-    template <typename T>
-	auto operator-(const T &C) const -> Difference<T>;
+    template <typename T1>
+    Difference<T1> operator-(T1 &&v) const;
 
 };
 
 /*! Dot product of two vectors.
  *
- * The dot product is computed by callling the dot(T t) member function
+ * The dot product is computed by callling the dot(T1 t) member function
  * of the first argument vector with the second argument vector are argument.
  *
  * \tparam Base The fundamental vector type.
@@ -192,25 +192,23 @@ class Vector<Base>::ElementIterator
 {
 public:
 
-    using VectorType = Vector<Base>;
-
     ElementIterator() {}
 
     ElementIterator(VectorType* v_)
         : v(v_), k(0), n(v_->rows()) {}
 
-    const Real& operator*()
+    RealType operator*()
     {
         return v->operator()(k);
     }
 
-    Real& operator++()
+    RealType& operator++()
     {
         k++;
     }
 
-    template <typename T>
-    bool  operator!=(T dummy)
+    template <typename T1>
+    bool  operator!=(T1 dummy)
     {
         return !(k == n);
     }
