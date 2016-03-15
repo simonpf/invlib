@@ -7,7 +7,7 @@
 #ifndef ALGEBRA_SUM_H
 #define ALGEBRA_SUM_H
 
-#include <type_traits>
+#include "traits.h"
 
 namespace invlib
 {
@@ -27,7 +27,7 @@ template
 <
 typename T1,
 typename T2,
-typename Matrix
+typename MatrixType
 >
 class MatrixDifference;
 
@@ -41,141 +41,194 @@ class MatrixDifference;
  *
  * \tparam T1 The type of the left hand side operand
  * \tparam T2 the type of the right hand side operand
- * \tparam Matrix The underlying matrix type used.
+ * \tparam MatrixType The underlying matrix type used.
  *
  */
 template
 <
 typename T1,
-typename T2,
-typename Matrix
+typename T2
 >
 class MatrixSum
 {
 
 public:
 
-    using Real = typename Matrix::VectorBase::Real;
-    using MatrixBase = Matrix;
-    using VectorBase = typename Matrix::VectorBase;
-    using Vector = VectorBase;
+    /*! The basic scalar type. */
+    using RealType   = typename decay<T2>::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename decay<T2>::VectorType;
+    /*! The basic matrix type. */
+    using MatrixType = typename decay<T2>::MatrixType;
+    /*! The type of the result of the expression */
+    using ResultType = typename decay<T2>::ResultType;
 
-    MatrixSum(T1 Op1, T2 Op2)
-        : A(Op1), B(Op2) {}
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    // ------------------ //
-    //   Multiplication   //
-    // ------------------ //
+    /*!
+     * Create a proxy object for the two given algebraic expressions.
+     */
+    MatrixSum(T1 Op1, T2 Op2);
 
-    Vector multiply(const Vector &v) const
-    {
-        Vector tmp = B.multiply(v);
-        tmp += A.multiply(v);
-        return tmp;
-    }
+    /*! Default copy constructor.
+     * 
+     * Proxy objects are lightweight and can be efficiently copied. However,
+     * note that there is no caching in place to reuse the results from identical
+     * arithmetic operations.
+     *
+     * \todo Enable caching.
+     *
+     */
+    MatrixSum(const MatrixSum &) = default;
 
-    Matrix multiply(const Matrix &C) const
-    {
-        Matrix tmp1 = A;
-        tmp1.accum(B);
-        Matrix tmp2 = tmp1.multiply(C);
-        return tmp2;
-    }
+    /*! Default move constructor. */
+    MatrixSum(MatrixSum &&) = default;
 
-    // ------------------ //
-    //      Addition      //
-    // ------------------ //
+    /*! Default assignment operator. */
+    MatrixSum & operator=(const MatrixSum &) = default;
+    MatrixSum & operator=(MatrixSum &&)      = delete;
 
-    Matrix add(const Matrix &C) const
-    {
-        Matrix tmp = A;
-        tmp.accum(B);
-        tmp.accum(C);
-        return C;
-    }
+    /*! Default destructor. */
+    ~MatrixSum() = default;
 
-    Matrix subtract(const Matrix &C) const
-    {
-        Matrix tmp = A;
-        tmp.accum(B);
-        tmp.accum(C);
-        return tmp;
-    }
+    // --------------------- //
+    //   Nested Evaluation   //
+    // --------------------- //
 
-    // ------------------ //
-    //     Inversion      //
-    // ------------------ //
+    /*! Multiply sum expression by a vector.
+     *
+     * Avoids explicit evaluation of the sum by passing the vector down
+     * the expression tree and returning the sum of the matrix-vector products
+     * of both summands \f$A\f$ and \f$B\f$ and the given vector \f$v\f$. This
+     * is done by calling the multiply(const VectorType&) member function of the
+     * summands.
+     *
+     * \param v The vector v to multiply the sum by.
+     * \return The matrix-vector product \f$(A + B)v\f$
+     */
+    VectorType multiply(const VectorType &v) const;
 
-    Matrix invert() const
-    {
-        Matrix tmp = A;
-        tmp.accum(B);
-        return tmp.invert();
-    }
+    /*! Multiply sum expression by a matrix.
+     *
+     * Evaluates the sum \f$D = A + B\$f represented by this object and multiplies
+     * the result \f$D\f$ by the given matrix \f$C\f$.
+     *
+     * \param C The matrix \f$C\f$ to multiply the sum by.
+     * \return The matrix-matrix product \f$(A + B)C\f$
+     */
+    MatrixType multiply(const MatrixType &C) const;
 
-    Vector solve(const Vector &v) const
-    {
-        Matrix tmp = A;
-        tmp.accum(B);
-        return tmp.solve(v);
-    }
+    /*! Solve this linear system.
+     *
+     * Solve the linear system \f$Cx = v\f$ for the linear system
+     * corresponding to this matrix sum \f$C = A + B\f$. The solution
+     * requires the evaluation of the matrix sum and thus the
+     * allocation of an additional matrix. The solution of the linear
+     * system is delegated to the fundamental matrix type by calling
+     * the solve(const VectorType&) member function of the result of
+     * this sum.
+     *
+     * \param The right hand side vector \f$v\f$ \return The solution
+     * vector of the linear system \f$x\f$
+     */
+    VectorType solve(const VectorType &v) const;
 
-    // ----------------------- //
-    // Multiplication Operator //
-    // ----------------------- //
+    /*! Invert this matrix sum.
+     *
+     * Inver the sum \f$C = A + B\f$ represented by this algebraic
+     * expression.  The inversion requires the evaluation of the
+     * matrix sum and thus the allocation of an additional matrix. The
+     * solution of the linear system is delegated to the fundamental
+     * matrix type by calling the invert() member function of the
+     * result of this sum.
+     *
+     * \return The inverse of the matrix represented by this algebraic
+     * expression.
+     */
+    MatrixType invert() const;
 
+    // --------------------- //
+    // Arithmetic Operators  //
+    // --------------------- //
+
+    /*!
+     * Proxy type template for a product sum of this type and another algebraic
+     * expression of given type.
+     */
     template <typename T3>
     using Product = MatrixProduct<MatrixSum, T3>;
 
+    /*! Create product arithmetic expression.
+     *
+     * \tparam T3 The type of the object to multiply this sum with.
+     * \param C   The object to multiply this sum with.
+     * \return An algebraic expression object representing the product of
+     * this sum and the provided argument.
+     *
+     * \todo Add static asserts.
+     */
     template<typename T3>
-    auto operator*(T3 &&C) const -> Product<T3>
-    {
-        return Product<T3>{*this, C};
-    }
+    Product<T3> operator*(T3 &&C) const;
 
-    // ------------------ //
-    //  Nested  Addition  //
-    // ------------------ //
-
+    /*!
+     * Proxy type template for a nested sum of this sum and another algebraic
+     * expression of given type.
+     */
     template <typename T3>
-    using Sum = MatrixSum<MatrixSum, T3, Matrix>;
+    using Sum = MatrixSum<MatrixSum, T3>;
 
+    /*! Create sum arithmetic expression.
+     *
+     * \tparam T3 The type of the object to add to this sum with.
+     * \param C   The object to add to this sum with.
+     * \return An algebraic expression object representing the sum of
+     * this sum and the provided argument.
+     *
+     * \todo Add static asserts.
+     */
     template <typename T3>
-    auto operator+(T3 &&C) const -> Sum<T3> const
-    {
-        return Sum<T3>(*this, C);
-    }
+    Sum<T3> operator+(T3 &&C) const;
 
+    /*!
+     * Proxy type template for the difference sum of this sum and another algebraic
+     * expression of given type.
+     */
     template <typename T3>
-    using Difference = MatrixDifference<MatrixSum, T3, Matrix>;
+    using Difference = MatrixDifference<MatrixSum, T3, MatrixType>;
 
+    /*! Create difference arithmetic expression.
+     *
+     * \tparam T3 The type of the object to subtract from this sum with.
+     * \param   C The object to subtract from this sum.
+     * \return An algebraic expression object representing the difference of
+     * this sum and the provided argument.
+     *
+     * \todo Add static asserts.
+     */
     template <typename T3>
-    auto operator-(T3 &&C) const -> Difference<T3> const
-    {
-        return Difference<T3>(*this, C);
-    }
+    Difference<T3> operator-(T3 &&C) const;
 
-    operator Matrix() const
-    {
-        Matrix tmp = A;
-        tmp.accum(B);
-        return tmp;
-    }
-
-    operator Vector() const
-    {
-        Vector tmp = A;
-        tmp.accum(B);
-        return tmp;
-    }
+    /*! Evaluate sum.
+     *
+     * Evaluate the sum \f$C = A + B\f$ represented by this algebraic
+     * expression. Evaluates the left hand operand \f$A\f$ to the
+     * ResultType and the uses the accumulate member function to add
+     * the right hand operand \f$B\f$ to the result.
+     *
+     * \return The evaluated sum represented by this algebraic expression.
+     */
+    operator ResultType() const;
 
 private:
 
-    // Operand references.
     T1 A;
     T2 B;
 
 };
+
+#include "matrix_sum.cpp"
 
 }
 
