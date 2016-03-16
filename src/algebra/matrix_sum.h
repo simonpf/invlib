@@ -26,8 +26,7 @@ template
 
 <
 typename T1,
-typename T2,
-typename MatrixType
+typename T2
 >
 class MatrixDifference;
 
@@ -47,7 +46,7 @@ class MatrixDifference;
 template
 <
 typename T1,
-typename T2
+typename T2 
 >
 class MatrixSum
 {
@@ -73,7 +72,7 @@ public:
     MatrixSum(T1 Op1, T2 Op2);
 
     /*! Default copy constructor.
-     * 
+     *
      * Proxy objects are lightweight and can be efficiently copied. However,
      * note that there is no caching in place to reuse the results from identical
      * arithmetic operations.
@@ -130,8 +129,8 @@ public:
      * the solve(const VectorType&) member function of the result of
      * this sum.
      *
-     * \param The right hand side vector \f$v\f$ \return The solution
-     * vector of the linear system \f$x\f$
+     * \param The right hand side vector \f$v\f$
+     * \return The solution vector of the linear system \f$x\f$
      */
     VectorType solve(const VectorType &v) const;
 
@@ -154,7 +153,7 @@ public:
     // --------------------- //
 
     /*!
-     * Proxy type template for a product sum of this type and another algebraic
+     * Proxy type template for a product of this sum expression and another algebraic
      * expression of given type.
      */
     template <typename T3>
@@ -181,7 +180,7 @@ public:
 
     /*! Create sum arithmetic expression.
      *
-     * \tparam T3 The type of the object to add to this sum with.
+     * \tparam T3 The type of the object to add to this sum.
      * \param C   The object to add to this sum with.
      * \return An algebraic expression object representing the sum of
      * this sum and the provided argument.
@@ -196,7 +195,7 @@ public:
      * expression of given type.
      */
     template <typename T3>
-    using Difference = MatrixDifference<MatrixSum, T3, MatrixType>;
+    using Difference = MatrixDifference<MatrixSum, T3>;
 
     /*! Create difference arithmetic expression.
      *

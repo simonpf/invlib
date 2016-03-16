@@ -104,7 +104,7 @@ public:
     }
 
     template <typename T2>
-    using Difference = MatrixDifference<Transformation, T2, Matrix>;
+    using Difference = MatrixDifference<Transformation, T2>;
 
     template <typename T2>
     auto operator-(T2 &&C) const -> Difference<T2> const

@@ -152,7 +152,7 @@ public:
 
     /*! Proxy type for the difference of two vectors. */
     template <typename T1>
-    using Difference = MatrixDifference<const Vector &, T1, MatrixType>;
+    using Difference = MatrixDifference<const Vector &, T1>;
 
     /*! Create difference algebraic expression.
      *

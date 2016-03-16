@@ -195,7 +195,7 @@ public:
      * algebraic expression of given type.
      */
     template <typename T>
-    using Difference = MatrixDifference<const Matrix&, T, Matrix>;
+    using Difference = MatrixDifference<const Matrix&, T>;
 
     /*! Create difference arithmetic expression.
      *

@@ -276,7 +276,7 @@ public:
      * of type T3.
      */
     template <typename T3>
-    using Difference = MatrixDifference<MatrixProduct , T3, MatrixType>;
+    using Difference = MatrixDifference<MatrixProduct , T3>;
 
     /*! Create a nested matrix difference.
      * 
