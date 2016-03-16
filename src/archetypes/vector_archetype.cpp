@@ -1,70 +1,47 @@
-template
-<
-typename Real
->
+template <typename Real>
 VectorArchetype<Real>::VectorArchetype(const VectorArchetype<Real> &v)
     : n(v.rows())
 {
-    delete data;
-    data = new Real[n];
-    std::copy(std::begin(v.data), std::end(v.data), std::begin(data));
+    data = std::unique_ptr<Real[]>(new Real[n]);
+    std::copy(&v.data[0], &v.data[n], &data[0]);
 }
 
-template
-<
-typename Real
->
-VectorArchetype<Real>& VectorArchetype<Real>::operator=(const VectorArchetype<Real> &v)
+template <typename Real>
+auto VectorArchetype<Real>::operator=(const VectorArchetype<Real> &v)
+    -> VectorArchetype &
 {
     n = v.rows();
-    delete data;
-    data = new Real[n];
-    std::copy(std::begin(v.data), std::end(v.data), std::begin(data));
+    data = std::unique_ptr<Real[]>(new Real[n]);
+    std::copy(&v.data[0], &v.data[n], &data[0]);
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 void VectorArchetype<Real>::resize(unsigned int i)
 {
     n = i;
-    delete data;
-    data = new Real[n];
+    data = std::unique_ptr<Real[]>(new Real[n]);
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 Real & VectorArchetype<Real>::operator()(unsigned int i)
 {
     return data[i];
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 Real VectorArchetype<Real>::operator()(unsigned int i) const
 {
     return data[i];
 }
 
 
-template
-<
-typename Real
->
+template <typename Real>
 unsigned int VectorArchetype<Real>::rows() const
 {
     return n;
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 void VectorArchetype<Real>::accumulate(const VectorArchetype<Real> &v)
 {
     assert(n == v.rows());
@@ -75,10 +52,7 @@ void VectorArchetype<Real>::accumulate(const VectorArchetype<Real> &v)
     }
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 void VectorArchetype<Real>::subtract(const VectorArchetype<Real>& v)
 {
     assert(n == v.rows());
@@ -89,10 +63,7 @@ void VectorArchetype<Real>::subtract(const VectorArchetype<Real>& v)
     }
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 void VectorArchetype<Real>::scale(Real c)
 {
     for (unsigned int i = 0; i < n; i++)
@@ -101,19 +72,13 @@ void VectorArchetype<Real>::scale(Real c)
     }
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 Real norm(const VectorArchetype<Real> &v)
 {
     return sqrt(dot(v, v));
 }
 
-template
-<
-typename Real
->
+template <typename Real>
 Real dot(const VectorArchetype<Real> &v, const VectorArchetype<Real> &w)
 {
     Real sum = 0.0;
@@ -124,10 +89,7 @@ Real dot(const VectorArchetype<Real> &v, const VectorArchetype<Real> &w)
     return sum;
 }
     
-template
-<
-typename Real
->
+template <typename Real>
 std::ostream & operator<<(std::ostream &out, const VectorArchetype<Real>& v)
 {
     out << "[";
@@ -137,4 +99,3 @@ std::ostream & operator<<(std::ostream &out, const VectorArchetype<Real>& v)
     }
     out << v(v.rows() - 1) << "] " << std::endl;
 }
-	
