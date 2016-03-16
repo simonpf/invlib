@@ -52,21 +52,21 @@ auto MatrixSum<T1, T2>::operator*(T3 &&C) const
 template<typename T1, typename T2>
     template <typename T3>
 auto MatrixSum<T1, T2>::operator+(T3 &&C) const
-    -> Sum<T3> const
+    -> Sum<T3>
 {
     return Sum<T3>(*this, C);
 }
 
 template<typename T1, typename T2>
-template <typename T3>
+    template <typename T3>
 auto MatrixSum<T1, T2>::operator-(T3 &&C) const
-    -> Difference<T3> const
+    -> Difference<T3>
 {
     return Difference<T3>(*this, C);
 }
 
 template<typename T1, typename T2>
-MatrixSum<T1, T2>::operator ResultType()
+MatrixSum<T1, T2>::operator ResultType() const
 {
     ResultType C = A;
     C.accumulate(B);

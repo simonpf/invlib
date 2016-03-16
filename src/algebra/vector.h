@@ -49,14 +49,14 @@ public:
      *\return An element iterator object pointing to the first element
      *in the vector.
      */
-    ElementIterator begin() {return ElementIterator(this);};
+    ElementIterator begin();
 
     /*!
      *\return An element iterator pointing to the end of the vector.
      */
-    ElementIterator end()   {return ElementIterator(this, rows());};
+    ElementIterator end();
 
-    struct LEFT1_VECTOR_MULTIPLY_NOT1_SUPPORTED
+    struct LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED
     {
         using VectorBase = Vector;
     };
@@ -76,6 +76,9 @@ public:
     using MatrixType = typename Base::MatrixType;
     /*! The type of the result of the expression */
     using ResultType = Vector;
+    /*! The type of the result of the expression */
+    template<typename T1>
+    using Product = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -136,7 +139,7 @@ public:
 
     /*! Proxy type for the sum of two vectors. */
     template <typename T1>
-        using Sum = MatrixSum<const Vector &, T1, MatrixType>;
+        using Sum = MatrixSum<const Vector &, T1>;
 
     /*! Create sum arithmetic expression.
      *

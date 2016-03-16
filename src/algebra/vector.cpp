@@ -4,7 +4,24 @@
 
 template <typename Base>
 Vector<Base>::Vector(Base &&v)
-    : Base(std::forward<Base>(v)) {}
+    : Base(std::forward<Base>(v))
+{
+    // Nothing to do here.
+}
+
+template <typename Base>
+auto Vector<Base>::begin()
+    -> ElementIterator
+{
+    return ElementIterator(this);
+}
+
+template <typename Base>
+auto Vector<Base>::end()
+    -> ElementIterator
+{
+    return ElementIterator(this, this->rows());
+};
 
 template <typename Base>
     template <typename T1>
@@ -54,21 +71,13 @@ auto Vector<Base>::ElementIterator::operator*()
 
 template<typename Base>
 auto Vector<Base>::ElementIterator::operator++()
-    -> RealType
+    -> RealType&
 {
     k++;
 }
 
 template<typename Base>
-auto Vector<Base>::ElementIterator::operator++()
-    -> RealType
-{
-    k++;
-}
-
-template<typename Base>
-auto Vector<Base>::ElementIterator::operator!=()
-    -> RealType
+bool Vector<Base>::ElementIterator::operator!=(ElementIterator it)
 {
     return (k != it.k);
 }

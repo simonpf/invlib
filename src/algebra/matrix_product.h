@@ -20,9 +20,14 @@ namespace invlib
 
 template
 <
+typename Base
+>
+class Vector;
+
+template
+<
 typename T1,
-typename T2,
-typename Matrix
+typename T2
 >
 class MatrixSum;
 
@@ -67,13 +72,13 @@ class MatrixProduct
 public:
 
     /*! The basic scalar type. */
-    using RealType   = typename T2::RealType;
+    using RealType   = typename decay<T2>::RealType;
     /*! The basic vector type  */
-    using VectorType = typename T2::VectorType;
+    using VectorType = typename decay<T2>::VectorType;
     /*! The basic matrix type. */
-    using MatrixType = typename T2::MatrixType;
+    using MatrixType = typename decay<T2>::MatrixType;
     /*! The type of the result of the expression */
-    using ResultType = typename T2::ResultType;
+    using ResultType = typename decay<T2>::ResultType;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -102,15 +107,15 @@ public:
      *
      */
     MatrixProduct(const MatrixProduct &) = default;
-    MatrixProduct(MatrixProduct &&)      = delete;
 
-    /*! Default assignment operator.
-     */
+    /*! Default move constuctor. */
+    MatrixProduct(MatrixProduct &&)      = default;
+
+    /*! Default assignment operator. */
     MatrixProduct & operator=(const MatrixProduct &) = default;
     MatrixProduct & operator=(MatrixProduct &&)      = delete;
 
-    /*! Default destructor.
-     */
+    /*! Default destructor. */
     ~MatrixProduct() = default;
 
     // --------------------- //
@@ -251,7 +256,7 @@ public:
      * of type T3.
      */
     template <typename T3>
-    using Sum = MatrixSum<MatrixProduct , T3, MatrixType>;
+    using Sum = MatrixSum<MatrixProduct , T3>;
 
     /*! Create a nested matrix sum.
      * 

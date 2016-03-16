@@ -87,7 +87,7 @@ public:
     // ----------------- //
 
     template <typename T>
-    using Sum = MatrixSum<MatrixTranspose, T, Matrix>;
+    using Sum = MatrixSum<MatrixTranspose, T>;
 
     template<typename T>
     Sum<T> operator+(T &&B)

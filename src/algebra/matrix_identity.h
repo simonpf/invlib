@@ -30,8 +30,7 @@ class MatrixProduct;
 template
 <
 typename T1,
-typename T2,
-typename Matrix
+typename T2
 >
 class MatrixSum;
 
@@ -113,7 +112,7 @@ public:
     // ----------------- //
 
     template <typename T>
-    using Sum = MatrixSum<MatrixIdentity, T, Matrix>;
+    using Sum = MatrixSum<MatrixIdentity, T>;
 
     template<typename T>
     Sum<T> operator+(T &&B) const

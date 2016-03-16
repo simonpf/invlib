@@ -5,9 +5,8 @@ typename Real
 MatrixArchetype<Real>::MatrixArchetype(const MatrixArchetype<Real> &A)
     : m(A.rows()), n(A.cols())
 {
-    delete data;
-    data = new Real[m * n];
-    std::copy(std::begin(A.data), std::end(A.data), std::begin(data));
+    data = std::unique_ptr<Real[]>(new Real[m * n]);
+    std::copy(&A.data[0], &A.data[1], &data[0]);
 }
 
 template
@@ -15,13 +14,12 @@ template
 typename Real
 >
 MatrixArchetype<Real>& MatrixArchetype<Real>::operator=(const MatrixArchetype &A)
-    
 {
     m = A.rows();
     n = A.cols();
-    delete data;
-    data = new Real[m * n];
-    std::copy(std::begin(A.data), std::end(A.data), std::begin(data));
+
+    data = std::unique_ptr<Real[]>(new Real[m * n]);
+    std::copy(&A.data[0], &A.data[1], &data[0]);
 }
 
 template
@@ -32,8 +30,7 @@ void MatrixArchetype<Real>::resize(unsigned int i, unsigned int j)
 {
     m = i;
     n = j;
-    delete data;
-    data = new Real[m * n];
+    data = std::unique_ptr<Real[]>(new Real[m * n]);
 }
 
 template

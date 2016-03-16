@@ -9,11 +9,18 @@
 #define ARCHETYPES_MATRIX_ARCHETYPE
 
 #include "vector_archetype.h"
+#include <memory>
+#include <iterator>
 
-/*! Matrix archtype for matrix algebra.
+// ------------------------  //
+//   Matrix Archetype Class  //
+// ------------------------  //
+
+/*! Matrix archtype.
  * 
  * Implements a straight forward dense matrix class to verify the 
- * generic matrix algebra.
+ * generic matrix algebra and illustrate the interface to the
+ * fundamental matrix type.
  *
  * \tparam The floating point type used to represent scalars.
  */
@@ -48,7 +55,7 @@ public:
     MatrixArchetype(const MatrixArchetype &);
 
     // Moves are not supported.
-    MatrixArchetype(MatrixArchetype &&)            = delete;
+    MatrixArchetype(MatrixArchetype &&) = default;
 
     /*! Assignment operator.
      *
@@ -59,7 +66,7 @@ public:
     MatrixArchetype& operator=(const MatrixArchetype &);
 
     // Moves are not supports.
-    MatrixArchetype& operator=(MatrixArchetype &&) = delete;
+    MatrixArchetype& operator=(MatrixArchetype &&) = default;
 
     /*!
      * Frees all resources occupied by the matrix object.
@@ -159,10 +166,10 @@ public:
 private:
 
     unsigned int n,m;
-    Real *data;
+    std::unique_ptr<Real[]> data;
 
 };
 
-#include "matrix_archetype.cc"
+#include "matrix_archetype.cpp"
 
 #endif

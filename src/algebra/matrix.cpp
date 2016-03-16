@@ -4,7 +4,21 @@
 
 template<typename Base>
 Matrix<Base>::Matrix(Base &&b)
-    : Base(forward<Base>(b)) {}
+    : Base(std::forward<Base>(b)) {}
+
+template<typename Base>
+auto Matrix<Base>::begin()
+    -> ElementIterator
+{
+    return ElementIterator(this);
+}
+
+template<typename Base>
+auto Matrix<Base>::end()
+    -> ElementIterator
+{
+    return ElementIterator(this, this->rows(), this->cols());
+}
 
 template <typename Base>
     template <typename RealType2>
@@ -24,7 +38,7 @@ void Matrix<Base>::accumulate(const MatrixZero<Matrix> &Z)
 
 template <typename Base>
     template<typename T>
-auto operator+(T &&B) const
+auto Matrix<Base>::operator+(T &&B) const
     -> Sum<T>
 {
     return Sum<T>(*this, B);
@@ -32,14 +46,14 @@ auto operator+(T &&B) const
 
 template <typename Base>
     template <typename T>
-auto operator-(T &&B) const -> Difference<T>
+auto Matrix<Base>::operator-(T &&B) const -> Difference<T>
 {
     return Difference<T>(*this, B);
 }
 
 template <typename Base>
     template<typename T>
-auto operator*(T &&B) const
+auto Matrix<Base>::operator*(T &&B) const
     -> Product<T>
 {
     return Product<T>(*this, B);
@@ -66,13 +80,15 @@ Matrix<Base>::ElementIterator::ElementIterator(MatrixType *M_,
 }
 
 template<typename Base>
-Matrix<Base>::ElementIterator::operator*()
+auto Matrix<Base>::ElementIterator::operator*()
+    -> RealType&
 {
     return M->operator()(i,j);
 }
 
 template<typename Base>
-Matrix<Base>::ElementIterator::RealType& operator++()
+auto Matrix<Base>::ElementIterator::operator++()
+    -> RealType&
 {
     k++;
     i = k / n;
@@ -80,7 +96,8 @@ Matrix<Base>::ElementIterator::RealType& operator++()
 }
 
 template<typename Base>
-bool Matrix<Base>::ElementIterator::operator!=(ElementIterator it)
+auto Matrix<Base>::ElementIterator::operator!=(ElementIterator it)
+    -> bool
 {
     return (k != it.k);
 }

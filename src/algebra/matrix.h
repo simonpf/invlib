@@ -8,13 +8,14 @@
 #ifndef ALGEBRA_MATRIX
 #define ALGEBRA_MATRIX
 
-#include <type_traits>
+#include <utility>
 
 #include "matrix_product.h"
 #include "matrix_sum.h"
 #include "matrix_difference.h"
 #include "matrix_identity.h"
 #include "matrix_zero.h"
+#include "traits.h"
 
 namespace invlib
 {
@@ -65,12 +66,12 @@ public:
      *\return An element iterator object pointing to the first element
      *in the matrix.
      */
-    ElementIterator begin() {return ElementIterator(this);}
+    ElementIterator begin();
 
     /*!
      *\return An element iterator pointing to the end of the matrix.
      */
-    ElementIterator end() {return ElementIterator(this, rows(), cols());}
+    ElementIterator end();
 
     // -------------- //
     //  Type Aliases  //
@@ -99,8 +100,7 @@ public:
     /* Matrix( T && t) */
     /*     : Base(std::forward<T>(t)) {} */
 
-    /* Matrix() */
-    /*     : Base() {} */
+    Matrix() = default;
 
     /*! Default copy constructor.
      *
@@ -179,7 +179,7 @@ public:
      * of given type.
      */
     template <typename T>
-        using Sum = MatrixSum<const Matrix&, T, Matrix>;
+        using Sum = MatrixSum<const Matrix&, T>;
 
     /*! Create sum arithmetic expression.
      *
@@ -188,10 +188,7 @@ public:
      * this matrix and the provided argument.
      */
     template<typename T>
-    Sum<T> operator+(T &&B) const
-    {
-        return Sum<T>(*this, B);
-    }
+	Sum<T> operator+(T &&B) const;
 
     /*
      * Proxy template type for the difference of a matrix and another 
@@ -224,9 +221,6 @@ public:
      */
     template<typename T>
     Product<T> operator*(T &&B) const;
-    {
-        return Product<T>(*this, B);
-    }
 
 };
 
@@ -254,8 +248,6 @@ class Matrix<Base>::ElementIterator
 {
 public:
 
-    using MatrixType = Matrix<Base,VectorType>;
-
     ElementIterator() = default;
     ElementIterator(MatrixType* M_);
     ElementIterator(MatrixType* M_, unsigned int i, unsigned int j);
@@ -271,6 +263,8 @@ private:
     unsigned int i, j, k, n, m;
 
 };
+
+#include "matrix.cpp"
 
 }
 
