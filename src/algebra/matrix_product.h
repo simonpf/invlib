@@ -312,7 +312,7 @@ private:
 
 };
 
-#include "matrix_product.cc"
+#include "matrix_product.cpp"
 
 }      // namespace invlib
 

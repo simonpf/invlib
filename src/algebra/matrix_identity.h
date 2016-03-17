@@ -74,6 +74,12 @@ public:
     /*! Create scaled matrix identity */
     MatrixIdentity(RealType c_);
 
+    MatrixIdentity(const MatrixIdentity &) = default;
+    MatrixIdentity(MatrixIdentity &&)      = default;
+
+    MatrixIdentity & operator=(const MatrixIdentity &) = default;
+    MatrixIdentity & operator=(MatrixIdentity &&)      = default;
+
     /*! Return scaling factor of matrix */
     RealType scale() const;
 
