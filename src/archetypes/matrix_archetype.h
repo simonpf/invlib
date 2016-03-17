@@ -151,10 +151,19 @@ public:
      * \return The matrix containing the result \f$w\f$ of the matrix-vector
      *  product.
      */
-    VectorType multiply(const VectorType &) const;
+    VectorType multiply(const VectorType &v) const;
 
+    /*! Solve linear system.
+     *
+     * \return The solution \f$w\f$ of the linear system \f$Aw = v\f$
+     * corresponding to this matrix \f$A\f$
+     */
     VectorType solve(const VectorType &) const;
 
+    /*! Invert matrix.
+     *
+     * \return The inverse \f$A^{-1}\f$ of this matrix \f$A\f$.
+     */
     MatrixType invert() const;
 
     /*! Scale matrix.
@@ -163,7 +172,41 @@ public:
      */
     void scale(Real c);
 
+    /*! Transpose matrix.
+     *
+     * \return A Matrix \f$C = A^T\f$ containing the transpose of the matrix
+     * \f$A\f$.
+     */
+    MatrixType transpose();
+
+    /*! Combined transpose and multiply by matrix.
+     *
+     * Provided for efficiency reasons, since the transpose operation and the
+     * product can be efficiently combined.
+     *
+     * \return The product \f$C = A^T B\f$ of this matrix \f$A\f$ and the provided
+     * argument \f$B\f$.
+     */
+    MatrixType transpose_multiply(const MatrixType&) const;
+
+    /*! Combined transpose and multiply by vector.
+     *
+     * Provided for efficiency reasons, since the transpose operation and the
+     * product can be efficiently combined.
+     *
+     * \return The product \f$w = A^T v\f$ of this matrix \f$A\f$ and the provided
+     * vector \f$v\f$.
+     */
+    VectorType transpose_multiply(const VectorType&) const;
+
+    /*! Helper function to compute the QR decomposition of a matrix. Not
+     * required by the matrix algebra interface.
+     */
     MatrixType QR() const;
+
+    /*! Helper function to backsubstitute a given QR decomposition. Not
+     * required by the matrix algebra interface.
+     */
     VectorType backsubstitution(const VectorType &) const;
 
 private:

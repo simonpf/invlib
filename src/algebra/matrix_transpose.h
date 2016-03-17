@@ -57,10 +57,10 @@ public:
 
     MatrixTranspose(T1 A);
 
-    MatrixTranspose(const T1 &) = default;
-    MatrixTranspose(T1 &&)      = default;
+    MatrixTranspose(const MatrixTranspose &) = default;
+    MatrixTranspose(MatrixTranspose &&)      = default;
 
-    MatrixTranspose & operator=(const MatrixTranspose) = default;
+    MatrixTranspose & operator=(const MatrixTranspose &) = default;
     MatrixTranspose & operator=(MatrixTranspose &&) = default;
 
     // --------------------- //
@@ -70,7 +70,7 @@ public:
     /*! Multiply this transposed expression by a vector.
      *
      * Evaluates the algebraic expression and uses the
-     * multiply_tranpose(const VectorType &) member function of the
+     * tranpose_multiply(const VectorType &) member function of the
      * MatrixType class to multiply this expression by the supplied argument v.
      *
      * \param v The vector to multiply this transposed expression by.
@@ -82,7 +82,7 @@ public:
     /*! Multiply this transposed expression by matrix.
      *
      * Evaluates the algebraic expression and uses the
-     * multiply_tranpose(const MatrixType &) member function of the
+     * tranpose_multiply(const MatrixType &) member function of the
      * MatrixType class to multiply this expression by the supplied argumnt B.
      *
      * \param B The matrix to multiply this transposed expression by.
@@ -127,11 +127,7 @@ public:
     template<typename T2>
     Product<T2> operator*(T2 &&A) const;
 
-    operator ResultType() const
-    {
-        MatrixType B = A.transpose();
-        return B;
-    }
+    operator ResultType() const;
 
 private:
 
@@ -149,13 +145,10 @@ private:
  * of the given algebraic expression.
  *
  */
-template
-<
-typename T1
->
-MatrixTranspose<T1, typename decay<T1>::MatrixBase> transp(T1 &&A)
+template <typename T1>
+MatrixTranspose<T1> transp(T1 &&A)
 {
-    return MatrixTranspose<T1, typename decay<T1>::MatrixBase>(A);
+    return MatrixTranspose<T1>(A);
 }
 
 #include "matrix_transpose.cpp"

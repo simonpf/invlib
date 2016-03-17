@@ -105,7 +105,7 @@ template <typename Real>
 auto MatrixArchetype<Real>::multiply(const VectorType &v) const
     -> VectorType
 {
-    assert(m == v.rows());
+    assert(n == v.rows());
 
     VectorType w;
     w.resize(m);
@@ -251,6 +251,66 @@ auto MatrixArchetype<Real>::backsubstitution(const VectorType &b) const
         d(i) = c(i) - sum;
     }
     return d;
+}
+
+template<typename Real>
+auto MatrixArchetype<Real>::transpose()
+    -> MatrixType
+{
+    MatrixType B{}; B.resize(n, m);
+
+    for (unsigned int i = 0; i < m; i++)
+    {
+        for (unsigned int j = 0; j < n; j++)
+        {
+            B(j,i) = (*this)(i,j);
+        }
+    }
+    return B;
+}
+
+template <typename Real>
+auto MatrixArchetype<Real>::transpose_multiply(const MatrixArchetype<Real> &B) const
+    -> MatrixArchetype
+{
+    assert(m == B.rows());
+
+    MatrixArchetype<Real> C; C.resize(n, B.cols());
+
+    for (unsigned int h = 0; h < m; h++)
+    {
+	for (unsigned int i = 0; i < B.cols(); i++)
+	{
+	    Real sum = 0.0;
+	    for (unsigned int j = 0; j < m; j++)
+	    {
+		sum += (*this)(j, h) * B(j, i);
+	    }
+	    C(h, i) = sum;
+	}
+    }
+    return C;
+}
+
+template <typename Real>
+auto MatrixArchetype<Real>::transpose_multiply(const VectorType &v) const
+    -> VectorType
+{
+    assert(m == v.rows());
+
+    VectorType w;
+    w.resize(n);
+
+    for (unsigned int i = 0; i < n; i++)
+    {
+	Real sum = 0.0;
+	for (unsigned int j = 0; j < m; j++)
+	{
+	    sum += (*this)(j, i) * v(j);
+	}
+	w(i) = sum;
+    }
+    return w;
 }
 
 template <typename Real>

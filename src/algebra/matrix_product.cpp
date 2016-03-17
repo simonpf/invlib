@@ -36,7 +36,7 @@ typename T2
 auto MatrixProduct<T1, T2>::invert() const
     -> MatrixType
 {
-    auto       D = A.multiply(B);
+    MatrixType D = this->operator ResultType();
     MatrixType E = D.invert();
     return E;
 }
