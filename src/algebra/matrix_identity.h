@@ -1,17 +1,17 @@
+/** \file algebra/matrix_identity.h
+ *
+ * \brief Symbolic identity matrix.
+ *
+ * Contains the class invlib::Matrixidentity which implements a generic,
+ * symbolic identity matrix which can be used to form algebraic expressions.
+ *
+ */
+
 #ifndef ALGEBRA_MATRIX_IDENTITY_H
 #define ALGEBRA_MATRIX_IDENTITY_H
 
 #include <iostream>
 #include <traits.h>
-
-/** \file algebra/matrix_identity.h
- *
- * \brief Generic identity matrix.
- *
- * Contains the class invlib::Matrixidentity which implements a generic
- * identity matrix and overloads for relevant algebraic operations.
- *
- */
 
 namespace invlib
 {
@@ -34,17 +34,20 @@ typename T2
 >
 class MatrixSum;
 
-/** \brief Generic matrix identity.
+// --------------------- //
+// Class MatrixIdentity  //
+// --------------------- //
+
+/** \brief Symbolic matrix identity.
  *
  * A class template representing a (scaled) matrix identity matrix.
  *
- * \tparam Real The floating point type used for scalars.
- * \tparam Matrix The underlying Matrix type that is used.
+ * \tparam RealType The floating point type used for scalars.
+ * \tparam MatrixType The underlying MatrixType type that is used.
  *
  */
 template
 <
-typename Real,
 typename Matrix
 >
 class MatrixIdentity
@@ -52,103 +55,51 @@ class MatrixIdentity
 
 public:
 
-    using MatrixBase = Matrix;
+    /*! The basic scalar type. */
+    using RealType   = typename Matrix::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename Matrix::VectorType;
+    /*! The basic matrix type. */
+    using MatrixType = Matrix;
+    /*! The basic matrix type. */
+    using ResultType = Matrix;
 
-    // ----------------- //
-    //   Constructors    //
-    // ----------------- //
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    MatrixIdentity() : c(1.0) {}
+    /*! Create true matrix identity (no scaling) */
+    MatrixIdentity();
 
-    MatrixIdentity(Real c_) : c(c_) {}
+    /*! Create scaled matrix identity */
+    MatrixIdentity(RealType c_);
 
-    // ------------------ //
-    //      Addition      //
-    // ------------------ //
+    /*! Return scaling factor of matrix */
+    RealType scale() const;
 
-    Matrix add(const Matrix& B) const
-    {
-        Matrix C(B);
+    // --------------------- //
+    //   Nested Evaluation   //
+    // --------------------- //
 
-        for (unsigned int i = 0; i < B.cols(); i++)
-        {
-            C(i,i) += c;
-        }
+    template <typename T1>
+    T1 && multiply(T1 &&B) const;
 
-        return C;
-    }
+    template <typename t1>
+    t1 && solve(t1 &&b) const;
 
-    MatrixIdentity add(const MatrixIdentity& B) const
-    {
-        return MatrixIdentity(c + B.c);
-    }
+    // --------------------- //
+    // Arrithmetic Operators //
+    // --------------------- //
 
-    // ------------------ //
-    //   Multiplication   //
-    // ------------------ //
+    template <typename T1>
+    using Product = MatrixProduct<MatrixIdentity, T1>;
 
-    template <typename T>
-    T multiply(const T& B) const
-    {
-        return B.scale(c); // Use perfect forwarding here!
-    }
-
-    const Real& scale() const
-    {
-        return c;
-    }
-
-    // ---------- //
-    //   Scaling  //
-    // ---------- //
-
-    MatrixIdentity scale(Real d) const
-    {
-        return MatrixIdentity(c * d); // Use perfect forwarding here!
-    }
-
-    // ----------------- //
-    // Addition Operator //
-    // ----------------- //
-
-    template <typename T>
-    using Sum = MatrixSum<MatrixIdentity, T>;
-
-    template<typename T>
-    Sum<T> operator+(T &&B) const
-    {
-        return Sum<T>(*this, B);
-    }
-
-    // ----------------------- //
-    // Multiplication Operator //
-    // ----------------------- //
-
-    template <typename T>
-    using Product = MatrixProduct<MatrixIdentity, T>;
-
-    template<typename T>
-    Product<T> operator*(T &&A) const
-    {
-        return Product<T>(*this, A);
-    }
-
-    MatrixIdentity invert() const
-    {
-        MatrixIdentity A(1.0 / c);
-        return A;
-    }
-
-    template<typename Vector>
-    Vector solve(const Vector& v) const
-    {
-        Vector w((1.0 / c) * v);
-        return w;
-    }
+    template<typename T1>
+    Product<T1> operator*(T1 &&A) const;
 
 private:
 
-    Real c;
+    RealType c;
 
 };
 
@@ -157,27 +108,26 @@ private:
  * Overload of the * operator for multiplication of an algebraic
  * expression by a scalar.
  *
- * \tparam T The type of the algebraic expression.
+ * \tparam T1 The type of the algebraic expression.
  *
  * \param c The scaling factor.
  * \param B The algebraic expression to be scaled.
- *
  * \return A matrix product proxy object with a scaled identity matrix and
  * the given algebraic expression as operands.
  */
 template
 <
-typename T,
-typename Real = typename decay<T>::Real,
-typename Matrix = typename decay<T>::MatrixBase,
-typename = disable_if< is_same<decay<T>, MatrixIdentity<Real, Matrix> > >
+typename T1,
+typename RealType = typename decay<T1>::RealType,
+typename MatrixType = typename decay<T1>::MatrixBase,
+typename = disable_if< is_same<decay<T1>, MatrixIdentity<MatrixType> > >
 >
-auto operator*(double c, T&& B)
-    -> MatrixProduct<MatrixIdentity<Real, Matrix>, T>
+auto operator*(double c, T1&& B)
+    -> MatrixProduct<MatrixIdentity<MatrixType>, T1>
 
 {
-    using I = MatrixIdentity<Real, Matrix>;
-    using P = typename I::template Product<T>;
+    using I = MatrixIdentity<MatrixType>;
+    using P = typename I::template Product<T1>;
     return P(I(c), B);
 }
 
@@ -186,22 +136,21 @@ auto operator*(double c, T&& B)
  * Overload of the * operator for multiplication of an identity
  * matrix by a scalar.
  *
- * \tparam T The underlying matrix type of the identity matrix object.
+ * \tparam T1 The underlying matrix type of the identity matrix object.
  *
  * \param c The scaling factor.
  * \param B The identity matrix object to be scaled.
- *
  * \return A scaled identity matrix object.
  *
  */
 template
 <
-typename T,
-typename Real = double
+typename T1,
+typename RealType = double
 >
 auto operator*(double c,
-               const MatrixIdentity<Real, T>& B)
-    -> MatrixIdentity<Real, T>
+               const MatrixIdentity<T1>& B)
+    -> MatrixIdentity<T1>
 {
     return B.scale(c);
 }
@@ -210,25 +159,23 @@ auto operator*(double c,
  *
  * Compute the inverse of a (scaled) identity matrix.
  *
- * \tparam T The underlying matrix type of the identity matrix object.
- *
+ * \tparam T1 The underlying matrix type of the identity matrix object.
  * \param B The identity matrix to be inverted.
- *
  * \return The inverted identity matrix object.
  *
  */
 template
 <
-typename Real,
-typename T
+typename T1
 >
-auto inv(const MatrixIdentity<Real,T> &A)
-    -> MatrixIdentity<Real, typename T::MatrixBase>
+auto inv(const MatrixIdentity<T1> &A)
+    -> MatrixIdentity<T1>
 {
-    return MatrixIdentity<Real, T>(1.0 / A.scale());
+    return MatrixIdentity<T1>(1.0 / A.scale());
 }
 
-}
+#include "matrix_identity.cpp"
 
-#endif //ALGEBRA_MATRIX_IDENTITY_H
+}      // namespace invlib
 
+#endif // ALGEBRA_MATRIX_IDENTITY_H

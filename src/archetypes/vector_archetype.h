@@ -184,7 +184,7 @@ Real norm(const VectorArchetype<Real> &v);
 /*! Stream vector to string */
 template <typename Real>
 std::ostream & operator<<(std::ostream &, const VectorArchetype<Real>&);
-    
+
 #include "vector_archetype.cpp"
 
 #endif // ARCHETYPES_VECTOR_ARCHETYPE_H

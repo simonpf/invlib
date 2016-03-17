@@ -22,7 +22,7 @@ auto Matrix<Base>::end()
 
 template <typename Base>
     template <typename RealType2>
-void Matrix<Base>::accumumulate(const MatrixIdentity<RealType2, Matrix> &B)
+void Matrix<Base>::accumumulate(const MatrixIdentity<Matrix> &B)
 {
     for (unsigned int i = 0; i < this->rows(); i++)
     {

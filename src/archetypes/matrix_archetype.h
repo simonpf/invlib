@@ -17,8 +17,8 @@
 // ------------------------  //
 
 /*! Matrix archtype.
- * 
- * Implements a straight forward dense matrix class to verify the 
+ *
+ * Implements a straight forward dense matrix class to verify the
  * generic matrix algebra and illustrate the interface to the
  * fundamental matrix type.
  *
@@ -33,7 +33,7 @@ class MatrixArchetype
 public:
 
     /*! The floating point type used to represent scalars. */
-    using RealType   = double;
+    using RealType   = Real;
     /*! The fundamental vector type used for the matrix algebra.*/
     using VectorType = VectorArchetype<Real>;
     /*! The fundamental matrix type used for the matrix algebra.*/
@@ -151,11 +151,11 @@ public:
      * \return The matrix containing the result \f$w\f$ of the matrix-vector
      *  product.
      */
-    template
-    <
-    typename Vector
-    > 
-    Vector multiply(const Vector &) const;
+    VectorType multiply(const VectorType &) const;
+
+    VectorType solve(const VectorType &) const;
+
+    MatrixType invert() const;
 
     /*! Scale matrix.
      *
@@ -163,12 +163,19 @@ public:
      */
     void scale(Real c);
 
+    MatrixType QR() const;
+    VectorType backsubstitution(const VectorType &) const;
+
 private:
 
     unsigned int n,m;
     std::unique_ptr<Real[]> data;
 
 };
+
+/*! Stream vector to string */
+template <typename Real>
+std::ostream & operator<<(std::ostream &, const MatrixArchetype<Real>&);
 
 #include "matrix_archetype.cpp"
 

@@ -209,6 +209,10 @@ public:
     template <typename T3>
     Difference<T3> operator-(T3 &&C) const;
 
+    // -----------------//
+    //     Evaluation   //
+    // ---------------- //
+
     /*! Evaluate sum.
      *
      * Evaluate the sum \f$C = A + B\f$ represented by this algebraic

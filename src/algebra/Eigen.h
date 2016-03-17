@@ -68,7 +68,7 @@ public:
 
 using EigenVector = Vector<EigenVectorWrapper>;
 using EigenMatrix = Matrix<EigenMatrixWrapper, EigenVector>;
-using I           = MatrixIdentity<double, EigenMatrix>;
+using I           = MatrixIdentity<EigenMatrix>;
 using Zero        = MatrixZero<EigenMatrix>;
 
 /* EigenVector operator+(const EigenVector &u, const EigenVector &v) */

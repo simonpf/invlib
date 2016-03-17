@@ -1,6 +1,3 @@
-#ifndef ALGEBRA_MATRIX_INVERSE
-#define ALGEBRA_MATRIX_INVERSE
-
 /** \file algebra/matrix_inverse.h
  *
  * \brief Proxy class for computing matrix inverses.
@@ -13,6 +10,8 @@
  * object from a given algebraic expression.
  *
  */
+#ifndef ALGEBRA_MATRIX_INVERSE
+#define ALGEBRA_MATRIX_INVERSE
 
 #include <traits.h>
 
@@ -37,6 +36,10 @@ typename T2
 >
 class MatrixSum;
 
+// --------------------- //
+// MatrixType Inverse Class  //
+// --------------------- //
+
 /** \brief Proxy class for computing matrix inverses.
  *
  * The MatrixDifference class template provides a template proxy class
@@ -50,92 +53,150 @@ class MatrixSum;
  * has to be solved. All other operations require the inversion of the matrix.
  *
  * A MatrixInverse object can be used in another operation or converted to
- * an object of type Matrix. To this end, the T1 type is required to provide
+ * an object of type MatrixType. To this end, the T1 type is required to provide
  * the member functions
  *
- * - Vector solve(const typename Vector&)
- * - Matrix invert()
+ * - VectorType solve(const typename VectorType&)
+ * - MatrixType invert()
  *
  * for solving the associated linear system of equations and inverting the
  * corresponding matrix, respectively.
  *
  * \tparam T1 The type of the algebraic expression to invert.
- * \tparam Matrix The underlying matrix type.
+ * \tparam MatrixType The underlying matrix type.
  *
  */
 template
 <
-typename T1,
-typename Matrix
+typename T1
 >
 class MatrixInverse
 {
 public:
 
-    using MatrixBase = Matrix;
-    using VectorBase = typename Matrix::VectorBase;
-    using Vector = VectorBase;
+    /*! The basic scalar type. */
+    using RealType   = typename decay<T1>::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename decay<T1>::VectorType;
+    /*! The basic matrix type. */
+    using MatrixType = typename decay<T1>::MatrixType;
+    /*! The type of the result of the expression */
+    using ResultType = MatrixType;
 
-    MatrixInverse(T1 A_)
-        : A(A_) {}
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    operator Matrix() const
-    {
-        Matrix B = A.invert();
-        return B;
-    }
+    /*! Create an arithmetic expression representing the inverse of another
+     * arithmetic expression.
+     *
+     * \param A The arithmetic expression to invert.
+     *
+     */
+    MatrixInverse(const T1 &A);
 
-    // ----------------- //
-    //     Addition      //
-    // ----------------- //
-
-    Matrix add(const Matrix &B) const
-    {
-        Matrix C = A.invert() + B;
-        return C;
-    }
-
-    // ----------------- //
-    //   Multiplication  //
-    // ----------------- //
-
-    Vector multiply(const Vector &v) const
-    {
-        Vector w = A.solve(v);
-        return w;
-    }
-
-    Matrix multiply(const Matrix &B) const
-    {
-        Matrix C = A.invert() * B;
-        return C;
-    }
-
-    // -------------------------- //
-    //   Multiplication Operator  //
-    // -------------------------- //
-
-    template<typename T>
-        using Product = MatrixProduct<MatrixInverse, T>;
-
-    template <typename T>
-    auto operator*(T &&B) const -> Product<T>
-    {
-        return Product<T>(*this, B);
-    }
+    MatrixInverse(const MatrixInverse &) = default;
+    MatrixInverse(MatrixInverse &&)      = default;
+    MatrixInverse & operator=(const MatrixInverse &) = default;
+    MatrixInverse & operator=(MatrixInverse &&)      = default;
 
     // --------------------- //
-    //   Addition  Operator  //
+    //   Nested Evaluation   //
     // --------------------- //
 
-    template<typename T>
-    using Sum = MatrixSum<MatrixInverse, T>;
+    /* Compute product of this matrix inverse and given vector.
+     *
+     * Does not evaluate this matrix inverse but instead solves the
+     * corresponding linear system which is less costly.
+     *
+     * \param v The vector to multiply the inverse by.
+     * \return The vector \f$w = A^{-1} v\f$.
+     */
+    VectorType multiply(const VectorType &v) const;
 
-    template <typename T>
-    auto operator+(T &&B) const -> Sum<T>
-    {
-        return Sum<T>(*this, B);
-    }
+    /* Compute product of this matrix inverse and a given matrix.
+     *
+     * Evaluates matrix inverse and multiplies result by the given matrix.
+     *
+     * \param B The matrix to multiply this inverse by.
+     * \return The matrix \f$C = A^{-1} B\f$.
+     *
+     * \todo Could be optimized by combining inversion and product.
+     */
+    MatrixType multiply(const MatrixType &B) const;
+
+    // --------------------- //
+    // Arithmetic Operators  //
+    // --------------------- //
+
+    /*!
+     * Proxy type template for a product of this inverse expression and
+     * another algebraic expression of given type.
+     */
+    template<typename T2>
+    using Product = MatrixProduct<MatrixInverse, T2>;
+
+    /*! Create algebraic expression for the product of this inverse and another
+     * given algebraic expression.
+     *
+     * \tparam The type of the algebraic expression to multiply this matrix
+     * by.
+     * \param B The algebraic expression to multiply this matrix inverse by.
+     * \return An algebraic expression representing the product of this matrix
+     * inverse and the algebraic expression B.
+     */
+    template <typename T2>
+    Product<T2> operator*(T2 &&B) const;
+
+    /*!
+     * Proxy type template for the sum of this inverse expression and
+     * another algebraic expression of given type.
+     */
+    template<typename T2>
+    using Sum = MatrixSum<MatrixInverse, T2>;
+
+    /*! Create algebraic expression for the sum of this inverse and another
+     * given algebraic expression.
+     *
+     * \tparam The type of the algebraic expression add to this matrix inverse.
+     *
+     * \param B The algebraic expression to add to this matrix inverse.
+     * \return An algebraic expression representing the sum of this matrix
+     * inverse and the algebraic expression B.
+     */
+    template <typename T2>
+    Sum<T2> operator+(T2 &&B) const;
+
+    /*!
+     * Proxy type template for the difference of this inverse expression and
+     * another algebraic expression of given type.
+     */
+    template<typename T2>
+    using Difference = MatrixDifference<MatrixInverse, T2>;
+
+    /*! Create algebraic expression for the difference of this inverse and another
+     * given algebraic expression.
+     *
+     * \tparam The type of the algebraic expression subtact from this matrix inverse.
+     *
+     * \param B The algebraic expression to subtract from this matrix inverse.
+     * \return An algebraic expression representing the difference of this matrix
+     * inverse and the algebraic expression B.
+     */
+    template <typename T2>
+    Difference<T2> operator-(T2 &&B) const;
+
+    // -----------------//
+    //     Evaluation   //
+    // ---------------- //
+
+    /*! Evaluate matrix inverse.
+     *
+     * Evaluates the matrix inverse by first converting the expression
+     * to MatrixType and then calling the member function invert() of
+     * the fundamental matrix type.
+     */
+    operator ResultType() const;
 
 private:
 
@@ -145,16 +206,16 @@ private:
 
 /** \brief Inverse of an algebraic expression.
  *
- * Creates a proxy object of type
- * MatrixInverse<T, typename T::MatrixBase> will evaluate to either
- * inversion of the corresponding matrix or solution of the corresponding
- * linear system.
+ * Creates a proxy object of type MatrixInverse<T2> will evaluate to
+ * either inversion of the corresponding matrix or solution of the
+ * corresponding linear system.
  *
- * If the resulting MatrixInverse object is multiplied from the right with
- * a vector the corresponding linear system will only be solved. All other
- * operations will result in the inversion of the corresponding system.
+ * If the resulting MatrixInverse object is multiplied from the right
+ * with a vector the corresponding linear system will only be
+ * solved. All other operations will result in the inversion of the
+ * corresponding system.
  *
- * \tparam T The type of the algebraic expression.
+ * \tparam T2 The type of the algebraic expression.
  *
  * \param A The algebraic expression to be inverted.
  *
@@ -162,16 +223,12 @@ private:
  * expression.
  *
  */
-template
-<
-typename T
->
-    MatrixInverse<T, typename decay<T>::MatrixBase> inv(T &&A)
-{
-    return MatrixInverse<T, typename decay<T>::MatrixBase>(A);
-}
+template <typename T2>
+MatrixInverse<T2> inv(T2 &&A);
 
-}
+#include "matrix_inverse.cpp"
+
+}      // namespace invlib
 
 #endif // ALGEBRA_MATRIX_INVERSE
 

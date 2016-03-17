@@ -89,7 +89,7 @@ public:
      */
     using ResultType = Matrix;
     /*! Identity matrix type corresponding to the Matrix type */
-    using Identity = MatrixIdentity<RealType, Matrix>;
+    using Identity = MatrixIdentity<Matrix>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -162,7 +162,7 @@ public:
      * \param  The identity matrix to accumulate into this matrix.
      */
     template <typename RealType2>
-	void accumumulate(const MatrixIdentity<RealType2, Matrix> &B);
+	void accumumulate(const MatrixIdentity<Matrix> &B);
 
     /*! Accumulate zero matrix into this matrix.
      *

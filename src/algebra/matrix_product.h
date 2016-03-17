@@ -47,7 +47,7 @@ class MatrixSum;
  * The result of the product must be either of matrix type or vector type,
  * depending of the result type of the right hand operator. The computation
  * of the product is invoked, when the product is converted to its result type.
- * 
+ *
  *
  * The class expects the right hand
  * operator to be convertible to either a vector or a matrix and the left
@@ -98,7 +98,7 @@ public:
         : A(A_), B(B_) {}
 
     /*! Default copy constructor.
-     * 
+     *
      * Proxy objects are lightweight and can be efficiently copied. However,
      * note that there is no caching in place to reuse the results from identical
      * arithmetic operations.
@@ -239,7 +239,7 @@ public:
     using Product = MatrixProduct<T1, NestedProduct<T3>>;
 
     /*! Create a nested matrix product.
-     * 
+     *
      * Creates a proxy object for the product of the given matrix product
      * and another algebraic object C of type T3.
      *
@@ -259,7 +259,7 @@ public:
     using Sum = MatrixSum<MatrixProduct , T3>;
 
     /*! Create a nested matrix sum.
-     * 
+     *
      * Creates a proxy object for the sum of the given matrix product
      * and another algebraic object C of type T3.
      *
@@ -279,7 +279,7 @@ public:
     using Difference = MatrixDifference<MatrixProduct , T3>;
 
     /*! Create a nested matrix difference.
-     * 
+     *
      * Creates a proxy object for the difference of the given matrix product
      * and another algebraic object C of type T3.
      *
