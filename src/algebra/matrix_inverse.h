@@ -37,7 +37,7 @@ typename T2
 class MatrixSum;
 
 // --------------------- //
-// MatrixType Inverse Class  //
+//  MatrixInverse Class  //
 // --------------------- //
 
 /** \brief Proxy class for computing matrix inverses.
@@ -124,6 +124,16 @@ public:
      * \todo Could be optimized by combining inversion and product.
      */
     MatrixType multiply(const MatrixType &B) const;
+
+    /*! Evaluates the algebraic expression and multiplies it
+     * from the right by the given vector.
+     */
+    VectorType solve(const VectorType &v) const;
+
+    /*! The inverse of the inverse of an expression is just the result of the
+     * expression itself.
+     */
+    MatrixType invert() const;
 
     // --------------------- //
     // Arithmetic Operators  //

@@ -25,6 +25,13 @@ auto Vector<Base>::end()
 
 template <typename Base>
     template <typename T1>
+void Vector<Base>::operator+=(T1 &&Z)
+{
+    this->accumulate(std::forward<T1>(Z));
+}
+
+template <typename Base>
+    template <typename T1>
 auto Vector<Base>::operator+(T1 &&v) const
     -> Sum<T1>
 {
@@ -38,10 +45,17 @@ auto Vector<Base>::operator-(T1 &&v) const -> Difference<T1>
     return Difference<T1>(*this, std::forward<T1>(v));
 }
 
-template<typename Base>
-auto dot(const Vector<Base>& v, const Vector<Base>& w) -> decltype(v.dot(w))
+template
+<
+typename T1,
+typename T2,
+typename VectorType = typename T1::VectorType
+>
+auto dot(const T1 &v, const T2 &w)
+    -> typename VectorType::RealType
 {
-    return v.dot(w);
+    return dot(static_cast<typename VectorType::BaseType>(v),
+               static_cast<typename VectorType::BaseType>(w));
 }
 
 // ------------------------------- //

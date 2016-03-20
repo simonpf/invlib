@@ -63,10 +63,10 @@ public:
     Vector solve(const Matrix&A, const Vector& v)
     {
 
-        using Real = typename Vector::Real;
+        using RealType = typename Vector::RealType;
 
         unsigned int n = v.rows();
-        Real tol, alpha, beta, rnorm;
+        RealType tol, alpha, beta, rnorm;
         Vector x, r, p, xnew, rnew, pnew;
 
         x = v;

@@ -167,19 +167,18 @@ public:
      */
     friend Real dot<>(const VectorArchetype&, const VectorArchetype&);
 
+    /*! Euclidean norm of a vector.
+    *
+    * \return The Euclidean norm of this vector.
+    */
+    Real norm();
+
 private:
 
     unsigned int n;
     std::unique_ptr<Real[]> data;
 
 };
-
-/*! Euclidean norm of a vector.
- *
- * \return The Euclidean norm of this vector.
- */
-template <typename Real>
-Real norm(const VectorArchetype<Real> &v);
 
 /*! Stream vector to string */
 template <typename Real>

@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE algebra identities
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
-#include "algebra/Eigen.h"
 #include "utility.h"
 #include "test_types.h"
 
@@ -10,7 +9,7 @@ namespace invlib
 
 constexpr double EPS = 1e-10;
 constexpr double zero = 0.0;
-constexpr unsigned int ntests = 1000;
+constexpr unsigned int ntests = 100;
 
 template
 <

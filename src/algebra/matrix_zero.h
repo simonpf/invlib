@@ -1,130 +1,79 @@
 #ifndef ALGEBRA_MATRIX_ZERO_H
 #define ALGEBRA_MATRIX_ZERO_H
 
+#include <utility>
 #include "matrix_inverse.h"
-
 
 /** \file algebra/matrix_zero.h
  *
- * \brief Contains MatrixZero class representing a generic zero matrix.
- *
- * Also provides and overload of the inv() function.
+ * Contains MatrixZero class representing a generic zero matrix.
+ * Also provides and overload of the inv() function for zero matrices.
  *
  */
 namespace invlib
 {
 
-/** \brief Generic zero matrix.
- *
- * Represents the zero matrix, i.e. the identity matrix of matrix addition.
+ /*! Represents the zero matrix, i.e. the identity matrix of matrix addition.
  *
  * \tparam Matrix The underlying matrix type.
  *
  */
-template
-<
-typename Matrix
->
 class MatrixZero
 {
 
 public:
 
-    using MatrixBase = Matrix;
-    using VectorBase = typename Matrix::VectorBase;
-    using Vector = VectorBase;
-
-    // ----------------- //
-    //   Constructors    //
-    // ----------------- //
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
     MatrixZero() = default;
+
     MatrixZero(const MatrixZero&) = default;
+    MatrixZero(MatrixZero&&)      = default;
+
     MatrixZero& operator= (const MatrixZero&) = default;
+    MatrixZero& operator= (MatrixZero&&)      = default;
 
-    // ------------------ //
-    //      Addition      //
-    // ------------------ //
+    // --------------------- //
+    //   Nested Evaluation   //
+    // --------------------- //
 
-    Matrix add(const Matrix& B) const
-    {
-        Matrix C(B);
-        return C;
-    }
+    template <typename T1>
+    T1 && multiply(T1 &&A) const;
 
-    // ------------------ //
-    //   Multiplication   //
-    // ------------------ //
+    MatrixZero invert() const;
 
-    template <typename T>
-    T multiply(const T& B) const
-    {
-        T t = B;
-        t *= 0.0;
-        return t;
-    }
+    template <typename T1>
+        T1 && solve(T1 && v) const;
 
-    // ------------------ //
-    //     Inversion      //
-    // ------------------ //
+    // --------------------- //
+    // Arithmetic Operators  //
+    // --------------------- //
 
-    MatrixZero invert() const
-    {
-        return MatrixZero();
-    }
+    template <typename T1>
+        using Sum = T1;
 
-    Vector solve(const Vector &v) const
-    {
-        Vector tmp; tmp.resize(v.rows());
-        tmp *= 0.0;
-        return tmp;
-    }
+    template<typename T1>
+    T1 && operator+(T1 &&B) const;
 
-    // ----------------- //
-    // Addition Operator //
-    // ----------------- //
+    template <typename T1>
+    using Product = MatrixProduct<MatrixZero, T1>;
 
-    template <typename T>
-        using Sum = T;
-
-    template<typename T>
-    const T& operator+(const T &B)
-    {
-        return B;
-    }
-
-    // ----------------------- //
-    // Multiplication Operator //
-    // ----------------------- //
-
-    template <typename T>
-    using Product = MatrixProduct<MatrixZero, T>;
-
-    template <typename T>
-    Product<T> operator*(const T &A) const
-    {
-        return Product<T>(*this, A);
-    }
+    template <typename T1>
+    Product<T1> operator*(const T1 &A) const;
 
 };
 
-/** \brief Generic zero matrix.
- *
- * Represents the zero matrix, i.e. the identity matrix of matrix addition.
- *
- * \tparam Matrix The underlying matrix type.
- *
- */
-template
-<
-typename T
->
-MatrixZero<T> inv( const MatrixZero<T> &A )
-{
-    return MatrixZero<T>{};
-}
+ /*! Inverse of inverse matrix, here defined as zero matrix, so that
+  * terms involving the inverse of a zero matrix are simply ignored.
+  *
+  * \return A zero matrix object.
+  */
+MatrixZero inv(const MatrixZero &A);
 
-}
+#include "matrix_zero.cpp"
+
+}      // namespace invlib
 
 #endif // ALGEBRA_MATRIX_ZERO_H
-

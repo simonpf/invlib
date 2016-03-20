@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef ALGEBRA_MATRIX
-#define ALGEBRA_MATRIX
+#ifndef ALGEBRA_MATRIX_H
+#define ALGEBRA_MATRIX_H
 
 #include <utility>
 
@@ -16,6 +16,9 @@
 #include "matrix_identity.h"
 #include "matrix_zero.h"
 #include "traits.h"
+
+template <typename Base>
+class Vector;
 
 namespace invlib
 {
@@ -80,7 +83,7 @@ public:
     /*! The basic scalar type. */
     using RealType   = typename Base::RealType;
     /*! The basic vector type  */
-    using VectorType = typename Base::VectorType;
+    using VectorType = Vector<typename Base::VectorType>;
     /*! The basic matrix type. */
     using MatrixType = Matrix;
     /*!
@@ -88,8 +91,6 @@ public:
      * operator
      */
     using ResultType = Matrix;
-    /*! Identity matrix type corresponding to the Matrix type */
-    using Identity = MatrixIdentity<Matrix>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -161,18 +162,25 @@ public:
      * \tparam The scalar type of the given IdenityMatrix object.
      * \param  The identity matrix to accumulate into this matrix.
      */
-    template <typename RealType2>
-	void accumumulate(const MatrixIdentity<Matrix> &B);
+    void accumulate(const MatrixIdentity<Matrix> &B);
 
     /*! Accumulate zero matrix into this matrix.
      *
      * \param The MatrixZero object to accumulate in to this matrix.
      */
-    void accumulate(const MatrixZero<Matrix> &Z);
+    void accumulate(const MatrixZero &Z);
+
+    void accumulate(const Matrix& B);
 
     // --------------------- //
     // Arithmetic Operators  //
     // --------------------- //
+
+    /*! Just a convenience wrapper for the accumulate member function
+     * of the base type.
+     */
+    template <typename T1>
+    void operator+=(T1 &&Z);
 
     /*!
      * Proxy type template for the sum of a matrix and another algebraic expression
@@ -266,7 +274,7 @@ private:
 
 #include "matrix.cpp"
 
-}
+}      // namespace invlib
 
-#endif // ALGEBRA_MATRIX
+#endif // ALGEBRA_MATRIX_H
 

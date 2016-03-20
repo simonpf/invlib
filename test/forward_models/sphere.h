@@ -19,7 +19,7 @@ public:
     Vector evaluate(const Vector& x)
     {
         Vector w; w.resize(m);
-        w[0] = dot(x,x);
+        w(0) = dot(x,x);
         return w;
     }
 

@@ -19,7 +19,7 @@ auto MatrixSum<T1, T2>::multiply(const MatrixType &C) const
     -> MatrixType
 {
     MatrixType D = A;
-    D.accum(B);
+    D.accumulate(B);
     return D.multiply(C);
 }
 
@@ -28,7 +28,7 @@ auto MatrixSum<T1, T2>::solve(const VectorType &v) const
     -> VectorType
 {
     MatrixType C = A;
-    A.accumulate(B);
+    C.accumulate(B);
     return A.solve(v);
 }
 

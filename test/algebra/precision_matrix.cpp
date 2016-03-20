@@ -2,7 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
 #include "algebra/precision_matrix.h"
-#include "algebra/Eigen.h"
 #include "utility.h"
 #include "test_types.h"
 #include <iostream>
@@ -18,32 +17,31 @@ constexpr unsigned int ntests = 1000;
 // the precision matrix constructed from A to its inverse and vice versa.
 template
 <
-typename Matrix
+typename MatrixType
 >
 void precision_test(unsigned int n)
 {
-    using Vector = typename Matrix::VectorBase;
+    using VectorType = typename MatrixType::VectorType;
 
+    MatrixType A  = random_positive_definite<MatrixType>(n);
+    PrecisionMatrix<MatrixType> P(A);
+    VectorType v = random<VectorType>(n);
 
-    Matrix A  = random_positive_definite<Matrix>(n);
-    PrecisionMatrix<Matrix> P(A);
-    Vector v = random<Vector>(n);
-
-    Matrix B = A * P;
-    Matrix C = inv(A) * inv(P);
-    Matrix I; I.resize(n, n); set_identity(I);
+    MatrixType B = A * P;
+    MatrixType C = inv(A) * inv(P);
+    MatrixType I; I.resize(n, n); set_identity(I);
     double error = maximum_error(B, I);
     BOOST_TEST((error < EPS), "Deviation from identity:" << error);
     error = maximum_error(C, I);
     BOOST_TEST((error < EPS), "Deviations from identity:" << error);
 
-    Matrix D = (Matrix) P;
-    Matrix E = inv(A);
+    MatrixType D = (MatrixType) P;
+    MatrixType E = inv(A);
     error = maximum_error(D, E);
     BOOST_TEST((error < EPS), "Deviation from inv(A): " << error);
 
-    Vector w1 = inv(A) * v;
-    Vector w2 = P * v;
+    VectorType w1 = inv(A) * v;
+    VectorType w2 = P * v;
     error = maximum_error(w1, w2);
     BOOST_TEST((error < EPS), "Vector mult error: " << error);
 }

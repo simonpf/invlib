@@ -21,33 +21,33 @@ typename T
 >
 void sphere_test(unsigned int n)
 {
-    using Real   = typename T::Real;
-    using Vector = typename T::VectorBase;
-    using Matrix = typename T:: MatrixBase;
-    using Model  = Sphere<Matrix>;
+    using RealType   = typename T::RealType;
+    using VectorType = typename T::VectorType;
+    using MatrixType = typename T::MatrixType;
+    using Model      = Sphere<MatrixType>;
 
-    Matrix Se = random_positive_definite<Matrix>(1);
-    Matrix Sa = random_positive_definite<Matrix>(n);
-    Vector xa = random<Vector>(n);
-    Vector y  = random<Vector>(1);
+    MatrixType Se = random_positive_definite<MatrixType>(1);
+    MatrixType Sa = random_positive_definite<MatrixType>(n);
+    VectorType xa = random<VectorType>(n);
+    VectorType y  = random<VectorType>(1);
 
     Model F(n);
-    MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::STANDARD>
-        std(F, xa, Sa, Se);
-    MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::NFORM>
-        nform(F, xa, Sa, Se);
-    MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::MFORM>
-        mform(F, xa, Sa, Se);
+    MAP<Model, RealType, VectorType, MatrixType,
+        MatrixType, MatrixType, Formulation::STANDARD> std(F, xa, Sa, Se);
+    MAP<Model, RealType, VectorType, MatrixType,
+        MatrixType, MatrixType, Formulation::NFORM>    nform(F, xa, Sa, Se);
+    MAP<Model, RealType, VectorType, MatrixType,
+        MatrixType, MatrixType, Formulation::MFORM>    mform(F, xa, Sa, Se);
 
-    GaussNewton<Real> GN{};
+    GaussNewton<RealType> GN{};
     GN.tolerance() = 1e-15; GN.maximum_iterations() = 1000;
 
-    Vector x_std, x_n, x_m;
+    VectorType x_std, x_n, x_m;
     std.compute(x_std, y, GN);
     nform.compute(x_n, y, GN);
     mform.compute(x_m, y, GN);
 
-    Real e1, e2;
+    RealType e1, e2;
     e1 = maximum_error(x_std, x_m);
     e2 = maximum_error(x_std, x_n);
 
@@ -57,7 +57,7 @@ void sphere_test(unsigned int n)
     // Test inversion using CG solver.
 
     ConjugateGradient cg(1e-12);
-    GaussNewton<Real, ConjugateGradient> GN_CG(cg);
+    GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
     GN_CG.tolerance() = 1e-15; GN_CG.maximum_iterations() = 1000;
 
     std.compute(x_std, y, GN_CG);

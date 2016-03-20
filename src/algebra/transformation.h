@@ -41,16 +41,14 @@ class MatrixSum;
  * applies either the void apply_vector(Vector&) or the void apply_matrix(Matrix&)
  * member methods, depending if the algebraic expression is evaluated to a
  * vector or to a matrix. The vector type Vector must be provided by the matrix
- * type via Matrix::VectorBase.
+ * type via .
  *
  * \tparam T1 The type of the algebraic expression.
- * \tparam Matrix The underlying matrix type.
  * \tparam Transform The tansformation type implementing the transformation.
  */
 template
 <
 typename T1,
-typename Matrix,
 typename Transform
 >
 class Transformation
@@ -58,73 +56,64 @@ class Transformation
 
 public:
 
-    using MatrixBase = Matrix;
-    using Vector = typename Matrix::VectorBase;
+    /*! The basic scalar type. */
+    using RealType   = typename decay<T1>::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename decay<T1>::VectorType;
+    /*! The basic matrix type. */
+    using MatrixType = typename decay<T1>::MatrixType;
+    /*! The result type of the arithmetic expression to transform. */
+    using ResultType = typename decay<T1>::ResultType;
 
-    Transformation(const T1 A_, const Transform&& t_)
-        : A(A_), t(t_) {}
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    operator Vector() const
-    {
-        Vector tmp = A;
-        t.apply_vector(tmp);
-        return tmp;
-    }
+    Transformation(T1 A_, Transform t_);
 
-    operator Matrix() const
-    {
-        Matrix tmp = A;
-        t.apply_matrix(tmp);
-        return tmp;
-    }
+    Transformation(const Transformation&) = default;
+    Transformation(Transformation&&)      = default;
 
-    Matrix invert() const
-    {
-        Matrix tmp = *this;
-        return tmp.invert();
-    }
+    Transformation & operator=(const Transformation &) = delete;
+    Transformation & operator=(Transformation &&)      = delete;
 
-    Vector solve(const Vector & v) const
-    {
-        Matrix tmp = *this;
-        return tmp.solve(v);
-    }
+    MatrixType invert() const;
+
+    VectorType solve(const VectorType & v) const;
 
     // -------------------- //
     // Arithmetic Operators //
     // -------------------- //
 
     template <typename T2>
-        using Sum = MatrixSum<Transformation, T2>;
+    using Sum = MatrixSum<Transformation, T2>;
 
     template<typename T2>
-    Sum<T2> operator+(T2 &&B) const
-    {
-        return Sum<T2>{*this, B};
-    }
+    Sum<T2> operator+(T2 &&B) const;
 
     template <typename T2>
     using Difference = MatrixDifference<Transformation, T2>;
 
     template <typename T2>
-    auto operator-(T2 &&C) const -> Difference<T2> const
-    {
-        return Difference<T2>(*this, C);
-    }
+    Difference<T2> operator-(T2 &&C) const;
 
     template <typename T2>
-        using Product = MatrixProduct<Transformation, T2>;
+    using Product = MatrixProduct<Transformation, T2>;
 
     template<typename T2>
-    Product<T2> operator*(T2 &&B) const
-    {
-        return Product<T2>{*this, B};
-    }
+    Product<T2> operator*(T2 &&B) const;
+
+    // ------------------- //
+    //     Evaluation      //
+    // ------------------- //
+
+    operator MatrixType() const;
+    operator VectorType() const;
 
 private:
 
     T1 A;
-    const Transform& t;
+    Transform t;
 };
 
 /**
@@ -137,12 +126,10 @@ public:
     /**
     * \brief Apply identity.
     */
-    template <typename T>
-    constexpr auto apply(T&& t) const
-        -> decltype(std::forward<T>(t))
-    {
-        return std::forward<T>(t);
-    }
+    template <typename T1>
+    constexpr auto apply(T1 &&t)
+        -> decltype(std::forward<T1>(t));
+
 };
 
 /**
@@ -155,64 +142,40 @@ public:
  * elements. When applied to the matrix A itself, the resulting matrix will
  * have only +/- 1.0 on the diagonal.
  *
- * \tparam Matrix The type of the matrix @A_. Must declare the associated vector
- * type as VectorBase.
+ * \tparam MatrixType The type of the matrix @A_. Must declare the associated vector
+ * type as VectorType.
  */
 template
 <
-typename Matrix
+typename MatrixType
 >
 class NormalizeDiagonal
 {
 
 public:
 
-    using Vector = typename Matrix::VectorBase;
+    using VectorType = typename MatrixType::VectorType;
 
-    NormalizeDiagonal(const Matrix &A_)
+    NormalizeDiagonal(const MatrixType &A_)
         : A(A_) {}
 
-    void apply_matrix(Matrix &B) const
-    {
-        unsigned int m, n;
-        m = B.rows();
-        n = B.cols();
+    void apply_matrix(MatrixType &B) const;
+    void apply_vector(VectorType &v) const;
 
-        for (unsigned int i = 0; i < m; i++)
-        {
-            for (unsigned int j = 0; j < n; j++)
-            {
-                B(i,j) *= 1.0 / sqrt(A(i,i) * A(j,j));
-            }
-        }
-    }
+    template <typename T1>
+    using Transform = Transformation<T1, NormalizeDiagonal&>;
 
-    void apply_vector(Vector &v) const
-    {
-        unsigned int m;
-        m = v.rows();
-
-        for (unsigned int i = 0; i < m; i++)
-        {
-            v(i) *= 1.0 / sqrt(A(i,i));
-        }
-    }
-
-    template <typename T>
-    using Transform = Transformation<T, Matrix, NormalizeDiagonal&>;
-
-    template<typename T>
-    Transform<T> apply(const T& A)
-    {
-        return Transform<T>(A, *this);
-    }
+    template <typename T1>
+    Transform<T1> apply(T1&& A);
 
 private:
 
-    const Matrix& A;
+    const MatrixType& A;
 
 };
 
-}
+#include "transformation.cpp"
+
+}      // namespace invlib
 
 #endif // ALGEBRA_TRANSFORMATION

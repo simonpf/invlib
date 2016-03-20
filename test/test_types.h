@@ -2,9 +2,9 @@
 #define TEST_TEST_TYPES_H
 
 #include <boost/mpl/list.hpp>
-#include <interfaces/arts_wrapper.h>
+#include <archetypes/matrix_archetype.h>
 
-using ArtsDense  = invlib::Matrix<ArtsMatrix<Matrix>, invlib::Vector<ArtsVector>>;
-using matrix_types = boost::mpl::list<ArtsDense>;
+using Archetype = invlib::Matrix<MatrixArchetype<double>>;
+using matrix_types = boost::mpl::list<Archetype>;
 
 #endif // TEST_TEST_TYPES_H

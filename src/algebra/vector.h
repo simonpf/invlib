@@ -5,9 +5,10 @@
  *
  */
 
-#ifndef ALGEBRA_VECTOR
-#define ALGEBRA_VECTOR
+#ifndef ALGEBRA_VECTOR_H
+#define ALGEBRA_VECTOR_H
 
+#include "matrix.h"
 #include "matrix_sum.h"
 #include <utility>
 #include <iostream>
@@ -56,9 +57,9 @@ public:
      */
     ElementIterator end();
 
-    struct LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED
+    struct INVALID_TYPE
     {
-        using VectorBase = Vector;
+        using VectorType = Vector;
     };
 
     // -------------- //
@@ -68,17 +69,18 @@ public:
     /* template <typename T1> */
     /* using Product = LEFT1_VECTOR_MULTIPLY_NOT1_SUPPORTED; */
 
+    using BaseType   = Base;
     /*! The basic scalar type. */
     using RealType   = typename Base::RealType;
     /*! The basic vector type  */
-    using VectorType = typename Base::VectorType;
+    using VectorType = Vector;
     /*! The basic matrix type. */
-    using MatrixType = typename Base::MatrixType;
+    using MatrixType = Matrix<typename Base::MatrixType>;
     /*! The type of the result of the expression */
     using ResultType = Vector;
     /*! The type of the result of the expression */
     template<typename T1>
-    using Product = LEFT_VECTOR_MULTIPLY_NOT_SUPPORTED;
+    using Product = INVALID_TYPE;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -99,7 +101,7 @@ public:
     /*! Default move constructor.
      *
      * Call the Base move constructor, which should move the data references
-     * from the vector v into this Vector object. 
+     * from the vector v into this Vector object.
      *
      * /param v The vector v to be moved from.
      */
@@ -137,6 +139,12 @@ public:
     // Arithmetic Operators  //
     // --------------------- //
 
+    /*! Just a convenience wrapper for the accumulate member function
+     * of the base type.
+     */
+    template <typename T1>
+    void operator+=(T1 &&);
+
     /*! Proxy type for the sum of two vectors. */
     template <typename T1>
         using Sum = MatrixSum<const Vector &, T1>;
@@ -165,6 +173,13 @@ public:
 
 };
 
+template <typename T>
+class Id
+{
+public:
+    using type = T;
+};
+
 /*! Dot product of two vectors.
  *
  * The dot product is computed by callling the dot(T1 t) member function
@@ -173,8 +188,14 @@ public:
  * \tparam Base The fundamental vector type.
  * \return The dot product of the two vectors.
  */
-template<typename Base>
-auto dot(const Vector<Base>& v, const Vector<Base>& w) -> decltype(v.dot(w));
+template
+<
+typename T1,
+typename T2,
+typename VectorType = typename T1::VectorType
+>
+auto dot(const T1 &v,const T2 &w)
+    -> typename VectorType::RealType;
 
 /**
  * \brief Iterator for element-wise acces.
@@ -213,4 +234,4 @@ private:
 
 }      // namespace invlib
 
-#endif // ALGEBRA_VECTOR
+#endif // ALGEBRA_VECTOR_H

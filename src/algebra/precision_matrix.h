@@ -1,9 +1,6 @@
 #ifndef PRECISION_MATRIX_H
 #define PRECISION_MATRIX_H
 
-#include "algebra.h"
-#include <iostream>
-
 // -------------------- //
 // Forward Declarations //
 // -------------------- //
@@ -20,8 +17,7 @@ class PrecisionMatrix;
 template
 <
 typename T1,
-typename T2,
-typename Matrix
+typename T2
 >
 class MatrixProduct;
 
@@ -36,14 +32,18 @@ template
 <
 typename Matrix
 >
-const Matrix& inv(const PrecisionMatrix<Matrix> &A);
+const Matrix& inv(PrecisionMatrix<Matrix> A);
+
+// --------------------- //
+// Class PrecisionMatrix //
+// --------------------- //
 
 /**
  * \brief Wrapper to represent precision matrices.
  *
  * The computation of MAP estimators involves covariance matrices mainly
  * through their inverse. In some cases it may thus be beneficial to provide
- * the inverse directly. Using the PrecisionMatrix type to instantiate the
+ * the inverses directly. Using the PrecisionMatrix type to instantiate the
  * MAP class will interpret the matrices given to the MAP constructor as
  * precision matrices.
  *
@@ -57,6 +57,7 @@ const Matrix& inv(const PrecisionMatrix<Matrix> &A);
  * Also provides an overloaded transp() function, that does nothing, since the
  * a precision matrix is by definition symmetric.
  *
+ * \todo Maybe remove in favor of passing inv(S) as parameter to MAP directly.
  */
 template
 <
@@ -67,7 +68,14 @@ class PrecisionMatrix
 
 public:
 
-    using Vector = typename Matrix::VectorBase;
+    /*! The basic scalar type. */
+    using RealType   = typename decay<Matrix>::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename decay<Matrix>::VectorType;
+    /*! The basic matrix type. */
+    using MatrixType = typename decay<Matrix>::MatrixType;
+    /*! The type of the result of the expression */
+    using ResultType = typename decay<Matrix>::ResultType;
 
     PrecisionMatrix(const Matrix& A_)
         : A(A_) {}
@@ -77,7 +85,7 @@ public:
     // ------------------- //
 
     template <typename T>
-    using Product = MatrixProduct<PrecisionMatrix, T, Matrix>;
+    using Product = MatrixProduct<PrecisionMatrix, T>;
 
     template <typename T>
     Product<T> operator*(T &&B) const
@@ -94,24 +102,24 @@ public:
         return Sum<T>(*this, B);
     }
 
-    Matrix multiply(const Matrix& B) const
+    MatrixType multiply(const MatrixType& B) const
     {
-        Matrix tmp = A.invert();
+        MatrixType tmp = A.invert();
         return tmp * B;
     }
 
-    Vector multiply(const Vector& v) const
+    VectorType multiply(const VectorType& v) const
     {
         return A.solve(v);
     }
 
-    operator Matrix() const
+    operator MatrixType() const
     {
-        Matrix tmp = A.invert();
+        MatrixType tmp = A.invert();
         return tmp;
     }
 
-    friend const Matrix& inv<Matrix>(const PrecisionMatrix<Matrix> &A);
+    friend const MatrixType& inv<MatrixType>(PrecisionMatrix A);
 
 private:
 
@@ -132,7 +140,7 @@ template
 <
 typename Matrix
 >
-const Matrix& inv(const PrecisionMatrix<Matrix> &A)
+const Matrix& inv(PrecisionMatrix<Matrix> A)
 {
     return A.A;
 }

@@ -2,7 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
 #include "algebra/solvers.h"
-#include "algebra/Eigen.h"
 #include "utility.h"
 #include "test_types.h"
 
@@ -17,16 +16,16 @@ constexpr unsigned int ntests = 1000;
 // to v up to the precision of the underlying solver.
 template
 <
-typename Matrix
+typename MatrixType
 >
 void solver_test(unsigned int n)
 {
 
-    using Vector = typename Matrix::VectorBase;
+    using VectorType = typename MatrixType::VectorType;
 
-    auto A  = random_positive_definite<Matrix>(n);
-    auto v = random<Vector>(n);
-    Vector w; w.resize(n);
+    auto A  = random_positive_definite<MatrixType>(n);
+    auto v = random<VectorType>(n);
+    VectorType w; w.resize(n);
 
     Standard std{};
     ConjugateGradient cg(1e-20);
@@ -39,6 +38,7 @@ void solver_test(unsigned int n)
     error = maximum_error(v, w);
     BOOST_TEST((error < EPS), "CG solver error: " << error);
 }
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(solver,
                               T,
                               matrix_types)

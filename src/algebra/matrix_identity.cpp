@@ -19,20 +19,46 @@ auto MatrixIdentity<Matrix>::scale() const
 
 template <typename Matrix>
     template <typename T1>
-auto MatrixIdentity<Matrix>::multiply(T1 &&B) const
-    -> T1 &&
+auto MatrixIdentity<Matrix>::multiply(T1 &A) const
+    -> T1
 {
-    B.scale(c);
-    return std::forward<T1>(B);
+    A.scale(c);
+    return A;
 }
 
 template <typename Matrix>
     template <typename T1>
-auto MatrixIdentity<Matrix>::solve(T1 &&B) const
-    -> T1 &&
+auto MatrixIdentity<Matrix>::multiply(const T1 &A) const
+    -> T1
 {
+    T1 B(A);
+    B.scale(c);
+    return B;
+}
+
+template <typename Matrix>
+    template <typename T1>
+auto MatrixIdentity<Matrix>::solve(const T1 &A) const
+    -> T1
+{
+    T1 B(A);
     B.scale(1.0 / c);
-    return std::forward<T1>(B);
+    return B;
+}
+
+template <typename Matrix>
+    template <typename T1>
+auto MatrixIdentity<Matrix>::solve(T1 &A) const
+    -> T1
+{
+    A.scale(1.0 / c);
+    return A;
+}
+
+template <typename Matrix>
+void MatrixIdentity<Matrix>::scale(RealType d)
+{
+    c *= d;
 }
 
 template <typename Matrix>

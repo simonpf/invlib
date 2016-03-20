@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE algebra transformation
 #include <boost/test/included/unit_test.hpp>
 #include "algebra.h"
-#include "algebra/Eigen.h"
 #include "utility.h"
 #include "test_types.h"
 
@@ -19,25 +18,25 @@ typename T
 void transformation_test(unsigned int n)
 {
 
-    using Real   = typename T::Real;
-    using Vector = typename T::VectorBase;
-    using Matrix = typename T::MatrixBase;
+    using RealType   = typename T::RealType;
+    using VectorType = typename T::VectorType;
+    using MatrixType = typename T::MatrixType;
 
-    auto A = random_positive_definite<Matrix>(n);
-    auto B = random_positive_definite<Matrix>(n);
-    auto v = random<Vector>(n);
+    auto A = random_positive_definite<MatrixType>(n);
+    auto B = random_positive_definite<MatrixType>(n);
+    auto v = random<VectorType>(n);
 
-    Real error;
+    RealType error;
 
     // Identity Transformation
     Identity I{};
-    Vector w1 = I.apply(A * B) * I.apply(v);
-    Vector w2 = A * B * v;
+    VectorType w1 = I.apply(A * B) * I.apply(v);
+    VectorType w2 = A * B * v;
     error = maximum_error(w1, w2);
     BOOST_TEST((error < EPS),"maximum_error(w1, w2) = " << error);
 
     // NormalizeDiagonal Transform
-    NormalizeDiagonal<Matrix> t(A);
+    NormalizeDiagonal<MatrixType> t(A);
     w1 = t.apply(inv(t.apply(A)) * t.apply(v));
     w2 = inv(A) * v;
     error = maximum_error(w1, w2);

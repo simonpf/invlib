@@ -1,8 +1,6 @@
 #ifndef ALGEBRA_EIGEN_H
 #define ALGEBRA_EIGEN_H
 
-#include "Eigen/Dense"
-
 #include "matrix_inverse.h"
 #include "matrix_identity.h"
 #include "matrix_zero.h"
@@ -69,7 +67,7 @@ public:
 using EigenVector = Vector<EigenVectorWrapper>;
 using EigenMatrix = Matrix<EigenMatrixWrapper, EigenVector>;
 using I           = MatrixIdentity<EigenMatrix>;
-using Zero        = MatrixZero<EigenMatrix>;
+using Zero        = MatrixZero;
 
 /* EigenVector operator+(const EigenVector &u, const EigenVector &v) */
 /* { */

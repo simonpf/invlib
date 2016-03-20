@@ -46,7 +46,7 @@ class MatrixDifference;
 template
 <
 typename T1,
-typename T2 
+typename T2
 >
 class MatrixSum
 {
@@ -54,13 +54,13 @@ class MatrixSum
 public:
 
     /*! The basic scalar type. */
-    using RealType   = typename decay<T2>::RealType;
+    using RealType   = typename decay<T1>::RealType;
     /*! The basic vector type  */
-    using VectorType = typename decay<T2>::VectorType;
+    using VectorType = typename decay<T1>::VectorType;
     /*! The basic matrix type. */
-    using MatrixType = typename decay<T2>::MatrixType;
+    using MatrixType = typename decay<T1>::MatrixType;
     /*! The type of the result of the expression */
-    using ResultType = typename decay<T2>::ResultType;
+    using ResultType = typename decay<T1>::ResultType;
 
     // ------------------------------- //
     //  Constructors and Destructors   //

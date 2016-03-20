@@ -1,3 +1,5 @@
+#include <iostream>
+
 template <typename Real>
 MatrixArchetype<Real>::MatrixArchetype(const MatrixArchetype<Real> &A)
     : m(A.rows()), n(A.cols())
@@ -277,7 +279,7 @@ auto MatrixArchetype<Real>::transpose_multiply(const MatrixArchetype<Real> &B) c
 
     MatrixArchetype<Real> C; C.resize(n, B.cols());
 
-    for (unsigned int h = 0; h < m; h++)
+    for (unsigned int h = 0; h < n; h++)
     {
 	for (unsigned int i = 0; i < B.cols(); i++)
 	{

@@ -49,7 +49,7 @@ typename T2
 auto MatrixProduct<T1, T2>::solve(const VectorType &u) const
     -> VectorType
 {
-    auto       v = B.solve(u);
+    VectorType v = B.solve(u);
     VectorType w = A.solve(v);
     return w;
 }
@@ -78,3 +78,15 @@ MatrixProduct<T1, T2>::operator ResultType() const
     ResultType D = A.multiply(C);
     return D;
 }
+
+// template
+// <
+// typename T1,
+// typename T2
+// >
+// MatrixProduct<T1, T2>::operator VectorType() const
+// {
+//     VectorType C = B;
+//     VectorType D = A.multiply(C);
+//     return D;
+// }

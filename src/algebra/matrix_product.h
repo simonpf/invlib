@@ -31,6 +31,13 @@ typename T2
 >
 class MatrixSum;
 
+template
+<
+typename T1,
+typename T2
+>
+class MatrixDifference;
+
 // ---------------------  //
 //  Matrix Product Class  //
 // ---------------------  //

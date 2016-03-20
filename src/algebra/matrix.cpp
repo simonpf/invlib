@@ -20,9 +20,15 @@ auto Matrix<Base>::end()
     return ElementIterator(this, this->rows(), this->cols());
 }
 
+
 template <typename Base>
-    template <typename RealType2>
-void Matrix<Base>::accumumulate(const MatrixIdentity<Matrix> &B)
+void Matrix<Base>::accumulate(const Matrix &B)
+{
+    this->Base::accumulate(B);
+}
+
+template <typename Base>
+void Matrix<Base>::accumulate(const MatrixIdentity<Matrix> &B)
 {
     for (unsigned int i = 0; i < this->rows(); i++)
     {
@@ -31,9 +37,16 @@ void Matrix<Base>::accumumulate(const MatrixIdentity<Matrix> &B)
 }
 
 template <typename Base>
-void Matrix<Base>::accumulate(const MatrixZero<Matrix> &Z)
+void Matrix<Base>::accumulate(const MatrixZero &Z)
 {
     // <Insert obscure method to add zeros to elements here>
+}
+
+template <typename Base>
+    template <typename T1>
+void Matrix<Base>::operator+=(T1 &&Z)
+{
+    this->accumulate(std::forward<T1>(Z));
 }
 
 template <typename Base>

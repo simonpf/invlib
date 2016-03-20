@@ -1,6 +1,16 @@
+
 cmake_minimum_required (VERSION 2.6)
 project (invlib)
-include_directories(src test)
+
 set (CMAKE_CXX_STANDARD 11)
-include_directories(/home/simon/Build/Eigen/)
+
+# Check for BOOST library.
+find_package(Boost 1.60.0)
+
+include_directories ("${PROJECT_SOURCE_DIR}/src/"
+                     "${PROJECT_SOURCE_DIR}/test/"
+                     "${Boost_INCLUDE_DIRS}")
+
+# Build tests.
 add_subdirectory(test)
+

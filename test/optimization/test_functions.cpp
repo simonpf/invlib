@@ -22,20 +22,20 @@ typename T
 >
 void random_powers_test(unsigned int n)
 {
-    using Real   = typename T::Real;
-    using Vector = typename T::VectorBase;
-    using Matrix = typename T:: MatrixBase;
-    using I      = typename Matrix::I;
+    using RealType   = typename T::RealType;
+    using VectorType = typename T::VectorType;
+    using MatrixType = typename T::MatrixType;
+    using Identity   = MatrixIdentity<MatrixType>;
 
-    Vector x0 = random<Vector>(n);
-    Vector dx; dx.resize(n);
+    VectorType x0 = random<VectorType>(n);
+    VectorType dx; dx.resize(n);
 
-    RandomPowerFunction<Real, Vector, Matrix> J(n);
-    I D{};
-    LevenbergMarquardt<Real, typename Matrix::I> LM(D);
-    GaussNewton<Real> GN{};
+    RandomPowerFunction<RealType, VectorType, MatrixType> J(n);
+    Identity I{};
+    LevenbergMarquardt<RealType, Identity> LM(I);
+    GaussNewton<RealType> GN{};
 
-    Vector x;
+    VectorType x;
     minimize(J, LM, x0, x, 1000, EPS);
     BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
 

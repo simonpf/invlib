@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <traits.h>
+#include "matrix.h"
 
 namespace invlib
 {
@@ -88,11 +89,18 @@ public:
     // --------------------- //
 
     template <typename T1>
-    T1 && multiply(T1 &&B) const;
+    T1 multiply(T1 &A) const;
 
-    template <typename t1>
-    t1 && solve(t1 &&b) const;
+    template <typename T1>
+    T1 multiply(const T1 &A) const;
 
+    template <typename T1>
+    T1 solve(T1 &A) const;
+
+    template <typename T1>
+    T1 solve(const T1 &A) const;
+
+    void scale(RealType c);
     // --------------------- //
     // Arrithmetic Operators //
     // --------------------- //
@@ -125,7 +133,7 @@ template
 <
 typename T1,
 typename RealType = typename decay<T1>::RealType,
-typename MatrixType = typename decay<T1>::MatrixBase,
+typename MatrixType = typename decay<T1>::MatrixType,
 typename = disable_if< is_same<decay<T1>, MatrixIdentity<MatrixType> > >
 >
 auto operator*(double c, T1&& B)
@@ -151,14 +159,15 @@ auto operator*(double c, T1&& B)
  */
 template
 <
-typename T1,
-typename RealType = double
+typename T1
 >
 auto operator*(double c,
-               const MatrixIdentity<T1>& B)
+               const MatrixIdentity<T1>& A)
     -> MatrixIdentity<T1>
 {
-    return B.scale(c);
+    MatrixIdentity<T1> B(A);
+    B.scale(c);
+    return B;
 }
 
 /** \brief Identity matrix inverse.

@@ -73,9 +73,9 @@ void VectorArchetype<Real>::scale(Real c)
 }
 
 template <typename Real>
-Real norm(const VectorArchetype<Real> &v)
+Real VectorArchetype<Real>::norm()
 {
-    return sqrt(dot(v, v));
+    return sqrt(dot(*this, *this));
 }
 
 template <typename Real>
@@ -88,7 +88,7 @@ Real dot(const VectorArchetype<Real> &v, const VectorArchetype<Real> &w)
     }
     return sum;
 }
-    
+
 template <typename Real>
 std::ostream & operator<<(std::ostream &out, const VectorArchetype<Real>& v)
 {

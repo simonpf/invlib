@@ -22,28 +22,28 @@ typename T
 >
 void exact_minimization(unsigned int n)
 {
-    using Real   = typename T::Real;
-    using Vector = typename T::VectorBase;
-    using Matrix = typename T:: MatrixBase;
-    using I      = typename Matrix::I;
+    using RealType   = typename T::RealType;
+    using VectorType = typename T::VectorType;
+    using MatrixType = typename T::MatrixType;
+    using Identity   = MatrixIdentity<MatrixType>;
 
-    Vector x0 = random<Vector>(n);
-    Vector dx; dx.resize(n);
+    VectorType x0 = random<VectorType>(n);
+    VectorType dx; dx.resize(n);
 
-    SphereFunction<Real, Vector, Matrix> J(n);
+    SphereFunction<RealType, VectorType, MatrixType> J(n);
 
     // Using standard solver.
 
-    I D{};
-    LevenbergMarquardt<Real, typename Matrix::I> LM(D);
+    Identity I{};
+    LevenbergMarquardt<RealType, Identity> LM(I);
     LM.lambda_start() = 0.0;
-    GaussNewton<Real> GN{};
+    GaussNewton<RealType> GN{};
 
     auto g = J.gradient(x0);
     auto H = J.Hessian(x0);
 
     LM.step(dx, x0, g, H, J);
-    Vector x = x0 + dx;
+    VectorType x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 
     GN.step(dx, x0, g, H, J);
@@ -53,9 +53,9 @@ void exact_minimization(unsigned int n)
     // Using CG solver.
 
     ConjugateGradient cg(EPS);
-    LevenbergMarquardt<Real, typename Matrix::I, ConjugateGradient> LM_CG(D, cg);
+    LevenbergMarquardt<RealType, Identity, ConjugateGradient> LM_CG(I, cg);
     LM_CG.lambda_start() = 0.0;
-    GaussNewton<Real, ConjugateGradient> GN_CG(cg);
+    GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
 
     LM_CG.step(dx, x0, g, H, J);
     x = x0 + dx;

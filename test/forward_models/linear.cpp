@@ -24,40 +24,39 @@ typename T
 >
 void linear_test(unsigned int n)
 {
-    using Real   = typename T::Real;
-    using Vector = typename T::VectorBase;
-    using Matrix = typename T:: MatrixBase;
-    using I      = typename Matrix::I;
-    using Model  = Linear<Matrix>;
+    using RealType   = typename T::RealType;
+    using VectorType = typename T::VectorType;
+    using MatrixType = typename T::MatrixType;
+    using Id   = MatrixIdentity<MatrixType>;
+    using Model  = Linear<MatrixType>;
 
-    Matrix Se = random_positive_definite<Matrix>(n);
-    Matrix Sa = random_positive_definite<Matrix>(n);
-    Vector xa = random<Vector>(n);
-    Vector y  = random<Vector>(n);
+    MatrixType Se = random_positive_definite<MatrixType>(n);
+    MatrixType Sa = random_positive_definite<MatrixType>(n);
+    VectorType xa = random<VectorType>(n);
+    VectorType y  = random<VectorType>(n);
 
     Model F(n,n);
-    MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::STANDARD>
-        std(F, xa, Sa, Se);
-    MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::NFORM>
-        nform(F, xa, Sa, Se);
-    MAP<Model, Real, Vector, Matrix, Matrix, Matrix, Formulation::MFORM>
-        mform(F, xa, Sa, Se);
+    MAP<Model, RealType, VectorType, MatrixType,
+        MatrixType, MatrixType, Formulation::STANDARD> std(F, xa, Sa, Se);
+    MAP<Model, RealType, VectorType, MatrixType,
+        MatrixType, MatrixType, Formulation::NFORM>    nform(F, xa, Sa, Se);
+    MAP<Model, RealType, VectorType, MatrixType,
+        MatrixType, MatrixType, Formulation::MFORM>    mform(F, xa, Sa, Se);
 
     // Test inversion using standard solver.
-
-    I Id{};
-    GaussNewton<Real> GN{};
+    Id I{};
+    GaussNewton<RealType> GN{};
     GN.tolerance() = 1e-9; GN.maximum_iterations() = 1000;
-    LevenbergMarquardt<Real, I> LM(Id);
+    LevenbergMarquardt<RealType, Id> LM(I);
     LM.tolerance() = 1e-9; LM.maximum_iterations() = 1000;
 
-    Vector x_std_lm, x_std_gn, x_n_gn, x_m_gn;
+    VectorType x_std_lm, x_std_gn, x_n_gn, x_m_gn;
     std.compute(x_std_lm, y, LM);
     std.compute(x_std_gn, y, GN);
     nform.compute(x_n_gn, y, GN);
     mform.compute(x_m_gn, y, GN);
 
-    Real e1, e2, e3;
+    RealType e1, e2, e3;
     e1 = maximum_error(x_std_lm, x_std_gn);
     e2 = maximum_error(x_std_gn, x_n_gn);
     e3 = maximum_error(x_std_gn, x_m_gn);
@@ -67,11 +66,10 @@ void linear_test(unsigned int n)
     BOOST_TEST((e3 < EPS), "Error STD - MFORM = " << e3);
 
     // Test inversion using CG solver.
-
     ConjugateGradient cg(1e-5);
-    GaussNewton<Real, ConjugateGradient> GN_CG(cg);
+    GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
     GN_CG.tolerance() = 1e-9; GN.maximum_iterations() = 1000;
-    LevenbergMarquardt<Real, I, ConjugateGradient> LM_CG(Id, cg);
+    LevenbergMarquardt<RealType, Id, ConjugateGradient> LM_CG(I, cg);
     LM_CG.tolerance() = 1e-9; LM.maximum_iterations() = 1000;
 
     std.compute(x_std_lm, y, LM_CG);
@@ -82,8 +80,6 @@ void linear_test(unsigned int n)
     BOOST_TEST((e1 < EPS), "Error STD - NFORM CG = " << e1);
     BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);
     BOOST_TEST((e3 < EPS), "Error STD - MFORM CG = " << e3);
-
-    std::cout << "test " << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)
