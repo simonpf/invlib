@@ -1,5 +1,5 @@
-#ifndef ALGEBRA
-#define ALGEBRA
+#ifndef ALGEBRA_H
+#define ALGEBRA_H
 
 #include "algebra/vector.h"
 #include "algebra/matrix.h"
@@ -11,4 +11,4 @@
 #include "algebra/matrix_zero.h"
 #include "algebra/transformation.h"
 
-#endif // ALGEBRA
+#endif // ALGEBRA_H

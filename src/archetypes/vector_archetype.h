@@ -147,7 +147,7 @@ public:
     /*! Subtract from vector.
      *
      * Element-wise subtract another vector from this one.
-     * 
+     *
      * \param v The vector to subtract from this one.
      */
     void subtract(const VectorArchetype &v);

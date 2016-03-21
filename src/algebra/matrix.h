@@ -17,11 +17,12 @@
 #include "matrix_zero.h"
 #include "traits.h"
 
+namespace invlib
+{
+
 template <typename Base>
 class Vector;
 
-namespace invlib
-{
 
 // -------------- //
 //  Matrix Class  //

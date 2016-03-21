@@ -7,8 +7,6 @@
 #include "test_types.h"
 #include <iostream>
 
-using namespace invlib;
-
 constexpr double EPS = 1e-10;
 constexpr int ntests = 100;
 

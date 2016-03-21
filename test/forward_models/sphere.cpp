@@ -8,10 +8,10 @@
 #include "test_types.h"
 #include <iostream>
 
-using namespace invlib;
-
 constexpr double EPS = 1e-9;
 constexpr int ntests = 100;
+
+using namespace invlib;
 
 // Use the sphere function forward model to test the equivalence of the
 // standard, n-form and m-form when using the Gauss-Newton optimizer.

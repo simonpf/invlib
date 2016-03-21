@@ -8,7 +8,6 @@
 #include "test_types.h"
 #include <iostream>
 
-using namespace invlib;
 
 constexpr double EPS = 1e-10;
 constexpr int ntests = 100;
@@ -60,7 +59,6 @@ void exact_minimization(unsigned int n)
     LM_CG.step(dx, x0, g, H, J);
     x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
-    std::cout << x << std::endl;
 
     GN_CG.step(dx, x0, g, H, J);
     x = x0 + dx;

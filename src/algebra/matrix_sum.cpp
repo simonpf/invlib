@@ -29,7 +29,7 @@ auto MatrixSum<T1, T2>::solve(const VectorType &v) const
 {
     MatrixType C = A;
     C.accumulate(B);
-    return A.solve(v);
+    return C.solve(v);
 }
 
 template<typename T1, typename T2>
@@ -37,8 +37,8 @@ auto MatrixSum<T1, T2>::invert() const
     -> MatrixType
 {
     MatrixType C = A;
-    A.accumulate(B);
-    return A.invert();
+    C.accumulate(B);
+    return C.invert();
 }
 
 template<typename T1, typename T2>

@@ -35,7 +35,7 @@ void precision_test(unsigned int n)
     error = maximum_error(C, I);
     BOOST_TEST((error < EPS), "Deviations from identity:" << error);
 
-    MatrixType D = (MatrixType) P;
+    MatrixType D = P;
     MatrixType E = inv(A);
     error = maximum_error(D, E);
     BOOST_TEST((error < EPS), "Deviation from inv(A): " << error);

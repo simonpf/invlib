@@ -190,7 +190,7 @@ public:
         {
             auto K   = F.Jacobian(x);
             auto tmp = transp(K) * inv(Se);
-            auto H   = tmp * K + inv(Sa);
+            auto H = tmp * K + inv(Sa);
             Vector g = tmp * (yi - y) + inv(Sa) * (x - xa);
 
             if ((g.norm() / n) < M.tolerance())
@@ -200,7 +200,6 @@ public:
             }
 
             M.step(dx, x, g, H, (*this));
-
             x += dx;
             yi = F.evaluate(x);
             iter++;
@@ -365,4 +364,5 @@ public:
 };
 
 }
+
 #endif // MAP_H

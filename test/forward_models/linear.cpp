@@ -27,8 +27,8 @@ void linear_test(unsigned int n)
     using RealType   = typename T::RealType;
     using VectorType = typename T::VectorType;
     using MatrixType = typename T::MatrixType;
-    using Id   = MatrixIdentity<MatrixType>;
-    using Model  = Linear<MatrixType>;
+    using Id     = invlib::MatrixIdentity<MatrixType>;
+    using Model  = invlib::Linear<MatrixType>;
 
     MatrixType Se = random_positive_definite<MatrixType>(n);
     MatrixType Sa = random_positive_definite<MatrixType>(n);
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)
     srand(time(NULL));
     for (unsigned int i = 0; i < ntests; i++)
     {
-        unsigned int n = 1 + rand() % 100;
-        linear_test<T>(n);
+        unsigned int n = 1 + rand() % 20;
+        linear_test<T>(10);
     }
 }
