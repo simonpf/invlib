@@ -1,12 +1,14 @@
 #define BOOST_TEST_MODULE forward_models sphere
 #include <boost/test/included/unit_test.hpp>
-#include "algebra.h"
-#include "map.h"
-#include "optimization.h"
+#include <iostream>
+
+#include "invlib/algebra.h"
+#include "invlib/map.h"
+#include "invlib/optimization.h"
+
 #include "forward_models/sphere.h"
 #include "utility.h"
 #include "test_types.h"
-#include <iostream>
 
 constexpr double EPS = 1e-9;
 constexpr int ntests = 100;
