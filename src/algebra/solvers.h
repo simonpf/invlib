@@ -1,7 +1,7 @@
 #ifndef ALGEBRA_SOLVERS
 #define ALGEBRA_SOLVERS
 
-#include "algebra.h"
+#include "invlib/algebra.h"
 #include <iostream>
 
 namespace invlib

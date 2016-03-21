@@ -10,12 +10,12 @@
 
 #include <utility>
 
-#include "matrix_product.h"
-#include "matrix_sum.h"
-#include "matrix_difference.h"
-#include "matrix_identity.h"
-#include "matrix_zero.h"
-#include "traits.h"
+#include "invlib/algebra/matrix_product.h"
+#include "invlib/algebra/matrix_sum.h"
+#include "invlib/algebra/matrix_difference.h"
+#include "invlib/algebra/matrix_identity.h"
+#include "invlib/algebra/matrix_zero.h"
+#include "invlib/traits.h"
 
 namespace invlib
 {

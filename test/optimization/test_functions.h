@@ -1,7 +1,7 @@
 #ifndef TEST_OPTIMIZATION_TEST_FUNCTIONS_H
 #define TEST_OPTIMIZATION_TEST_FUNCTIONS_H
 
-#include "algebra.h"
+#include "invlib/algebra.h"
 #include <iostream>
 
 /**

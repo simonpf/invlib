@@ -8,8 +8,8 @@
 #ifndef OPTIMIZATION_LEVENBERG_MARQUARDT_H
 #define OPTIMIZATION_LEVENBERG_MARQUARDT_H
 
-#include "algebra/solvers.h"
-#include "levenberg_marquardt_logger.h"
+#include "invlib/algebra/solvers.h"
+#include "invlib/optimization/levenberg_marquardt_logger.h"
 #include <iostream>
 
 namespace invlib

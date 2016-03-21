@@ -11,8 +11,8 @@
 #define ALGEBRA_MATRIX_IDENTITY_H
 
 #include <iostream>
-#include <traits.h>
-#include "matrix.h"
+#include "invlib/traits.h"
+#include "invlib/algebra/matrix.h"
 
 namespace invlib
 {

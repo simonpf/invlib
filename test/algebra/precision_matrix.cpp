@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE algebra precision_matrix
 #include <boost/test/included/unit_test.hpp>
-#include "algebra.h"
-#include "algebra/precision_matrix.h"
+#include "invlib/algebra.h"
+#include "invlib/algebra/precision_matrix.h"
 #include "utility.h"
 #include "test_types.h"
 #include <iostream>

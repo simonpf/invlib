@@ -13,7 +13,7 @@
 #ifndef ALGEBRA_MATRIX_INVERSE
 #define ALGEBRA_MATRIX_INVERSE
 
-#include <traits.h>
+#include "invlib/traits.h"
 
 namespace invlib
 {

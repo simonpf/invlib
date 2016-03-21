@@ -8,8 +8,8 @@
 #ifndef ALGEBRA_VECTOR_H
 #define ALGEBRA_VECTOR_H
 
-#include "matrix.h"
-#include "matrix_sum.h"
+#include "invlib/algebra/matrix.h"
+#include "invlib/algebra/matrix_sum.h"
 #include <utility>
 #include <iostream>
 

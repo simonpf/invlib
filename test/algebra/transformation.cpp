@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE algebra transformation
 #include <boost/test/included/unit_test.hpp>
-#include "algebra.h"
+#include "invlib/algebra.h"
 #include "utility.h"
 #include "test_types.h"
 

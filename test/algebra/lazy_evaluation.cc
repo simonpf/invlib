@@ -1,7 +1,7 @@
-#include "interfaces/arts_wrapper.h"
-#include "algebra.h"
-#include "algebra/solvers.h"
-#include "precision_matrix.h"
+#include "invlib/interfaces/arts_wrapper.h"
+#include "invlib/algebra.h"
+#include "invlib/algebra/solvers.h"
+#include "invlib/algebra/precision_matrix.h"
 #include "utility.h"
 
 #include <stdio.h>

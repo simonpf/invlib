@@ -1,13 +1,16 @@
 #define BOOST_TEST_MODULE forward_models linear
+
 #include <boost/test/included/unit_test.hpp>
-#include "algebra.h"
-#include "algebra/solvers.h"
-#include "map.h"
-#include "optimization.h"
+#include <iostream>
+
+#include "invlib/algebra.h"
+#include "invlib/algebra/solvers.h"
+#include "invlib/map.h"
+#include "invlib/optimization.h"
+
 #include "forward_models/linear.h"
 #include "utility.h"
 #include "test_types.h"
-#include <iostream>
 
 using namespace invlib;
 

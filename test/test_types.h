@@ -2,8 +2,8 @@
 #define TEST_TEST_TYPES_H
 
 #include <boost/mpl/list.hpp>
-#include <archetypes/matrix_archetype.h>
-#include <interfaces/arts_wrapper.h>
+#include <invlib/archetypes/matrix_archetype.h>
+#include <invlib/interfaces/arts_wrapper.h>
 
 using Archetype = invlib::Matrix<MatrixArchetype<double>>;
 using Arts      = invlib::Matrix<ArtsMatrix>;

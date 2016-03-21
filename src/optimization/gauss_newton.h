@@ -9,7 +9,7 @@
 #define OPTIMIZATION_GAUSS_NEWTON_H
 
 #include <stdio.h>
-#include "algebra/solvers.h"
+#include "invlib/algebra/solvers.h"
 
 namespace invlib
 {

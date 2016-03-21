@@ -1,11 +1,16 @@
 #define BOOST_TEST_MODULE optimization test_functions
+
 #include <boost/test/included/unit_test.hpp>
-#include "algebra.h"
-#include "optimization.h"
+#include <iostream>
+
+#include "invlib/algebra.h"
+#include "invlib/optimization.h"
+
 #include "optimization/test_functions.h"
 #include "utility.h"
 #include "test_types.h"
-#include <iostream>
+
+using namespace invlib;
 
 constexpr double EPS = 1e-10;
 constexpr int ntests = 100;

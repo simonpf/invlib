@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE algebra solver
 #include <boost/test/included/unit_test.hpp>
-#include "algebra.h"
-#include "algebra/solvers.h"
+#include "invlib/algebra.h"
+#include "invlib/algebra/solvers.h"
 #include "utility.h"
 #include "test_types.h"
 

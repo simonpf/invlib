@@ -8,7 +8,7 @@
 #ifndef ARCHETYPES_MATRIX_ARCHETYPE
 #define ARCHETYPES_MATRIX_ARCHETYPE
 
-#include "vector_archetype.h"
+#include "invlib/archetypes/vector_archetype.h"
 #include <memory>
 #include <iterator>
 

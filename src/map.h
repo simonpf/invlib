@@ -1,8 +1,8 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "algebra.h"
-#include "algebra/solvers.h"
+#include "invlib/algebra.h"
+#include "invlib/algebra/solvers.h"
 #include <iostream>
 
 /** file map.h
