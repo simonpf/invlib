@@ -1,12 +1,11 @@
-#define BOOST_TEST_MODULE algebra transformation
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Algebra, Transformation"
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 #include "invlib/algebra.h"
 #include "utility.h"
 #include "test_types.h"
-
-constexpr double EPS = 1e-10;
-constexpr double zero = 0.0;
-constexpr unsigned int ntests = 100;
 
 namespace invlib
 {
@@ -44,7 +43,7 @@ void transformation_test(unsigned int n)
 
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)
+BOOST_AUTO_TEST_CASE_TEMPLATE(transformation, T, matrix_types)
 {
     srand(time(NULL));
     for (unsigned int i = 0; i < ntests; i++)

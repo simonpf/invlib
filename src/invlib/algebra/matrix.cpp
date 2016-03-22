@@ -2,9 +2,9 @@
 //  Matrix Class  //
 // -------------- //
 
-template<typename Base>
-Matrix<Base>::Matrix(Base &&b)
-    : Base(std::forward<Base>(b)) {}
+// template<typename Base>
+// Matrix<Base>::Matrix(Base &&b)
+//     : Base(std::forward<Base>(b)) {}
 
 template<typename Base>
 auto Matrix<Base>::begin()

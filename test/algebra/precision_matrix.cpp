@@ -1,4 +1,7 @@
-#define BOOST_TEST_MODULE algebra precision_matrix
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Algebra, Precision Matrix"
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 #include "invlib/algebra.h"
 #include "invlib/algebra/precision_matrix.h"
@@ -6,11 +9,7 @@
 #include "test_types.h"
 #include <iostream>
 
-namespace invlib
-{
-
-constexpr double EPS = 1e-10;
-constexpr unsigned int ntests = 1000;
+using namespace invlib;
 
 // Test behaviour of precision matrix. The PrecisionMatrix wrapper should
 // make a matrix act like its inverse. This is tested below by comparing
@@ -56,6 +55,4 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(precision,
         unsigned int n = 1 + rand() % 100;
         precision_test<T>(4);
     }
-}
-
 }

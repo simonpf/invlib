@@ -3,6 +3,8 @@
 
 #define HAVE_CONFIG_H (1)
 
+#include <iostream>
+
 #include "matpack.h"
 #include "matpackI.h"
 #include "matpackII.h"
@@ -33,6 +35,8 @@ public:
     ArtsVector(const ArtsVector &A) = default;
     ArtsVector & operator=(const ArtsVector &A) = default;
 
+    ArtsVector(const Vector &v) : Vector(v) {}
+
     ArtsVector(ArtsVector &&A)
     {
         this->mrange = A.mrange;
@@ -46,6 +50,7 @@ public:
         this->mrange  = A.mrange;
         this->mdata   = A.mdata;
         A.mdata       = nullptr;
+        return *this;
     }
 
     // ----------------- //
@@ -106,10 +111,13 @@ public:
 
     ArtsMatrix() : Matrix() {}
 
-    template <typename T, typename = disable_if<is_same<decay<T>, ArtsMatrix>>>
-    ArtsMatrix(const T& t) : Matrix(t) {}
-
     ArtsMatrix (const ArtsMatrix &A)
+        : Matrix(A)
+    {
+        // Nothing to do here.
+    }
+
+    ArtsMatrix (const Matrix &A)
         : Matrix(A)
     {
         // Nothing to do here.
@@ -126,6 +134,7 @@ public:
     ArtsMatrix & operator=(const ArtsMatrix &A)
     {
         this->Matrix::operator=(A);
+        return *this;
     }
 
     ArtsMatrix & operator=(ArtsMatrix &&A)
@@ -135,14 +144,15 @@ public:
         this->mrr  = A.mrr;
         this->mdata   = A.mdata;
         A.mdata = nullptr;
+        return *this;
     }
 
     // ----------------- //
     //   Manipulations   //
     // ----------------- //
 
-    Index rows() {return this->nrows();}
-    Index cols() {return this->ncols();}
+    Index rows() const {return this->nrows();}
+    Index cols() const {return this->ncols();}
 
     RealType & operator()(Index i, Index j)
     {
@@ -216,7 +226,8 @@ public:
 
     ArtsMatrix transpose() const
     {
-        ArtsMatrix B = ::transpose(*this);
+        ArtsMatrix B;
+        B.Matrix::operator=(::transpose(*this));
         return B;
     }
 
@@ -274,9 +285,11 @@ public:
         return w;
     }
 
-    operator MatrixType()
+    operator ArtsMatrix()
     {
-        return A;
+        ArtsMatrix B;
+        B.Matrix::operator=(A.operator Matrix());
+        return B;
     }
 
 private:

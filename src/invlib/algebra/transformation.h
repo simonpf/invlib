@@ -142,8 +142,7 @@ public:
  * elements. When applied to the matrix A itself, the resulting matrix will
  * have only +/- 1.0 on the diagonal.
  *
- * \tparam MatrixType The type of the matrix @A_. Must declare the associated vector
- * type as VectorType.
+ * \tparam MatrixType The type of the matrix @A_.
  */
 template
 <
@@ -154,13 +153,14 @@ class NormalizeDiagonal
 
 public:
 
-    using VectorType = typename MatrixType::VectorType;
-
     NormalizeDiagonal(const MatrixType &A_)
         : A(A_) {}
 
-    void apply_matrix(MatrixType &B) const;
-    void apply_vector(VectorType &v) const;
+    template <typename T1>
+    void apply_matrix(T1 &) const;
+
+    template <typename T1>
+    void apply_vector(T1 &) const;
 
     template <typename T1>
     using Transform = Transformation<T1, NormalizeDiagonal&>;

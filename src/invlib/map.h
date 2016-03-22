@@ -100,7 +100,7 @@ public:
 
     Matrix gain_matrix(const Vector &x) const
     {
-        Matrix K = F.Jacobian(x);
+        K = F.Jacobian(x);
         Matrix SeInvK = inv(Se) * K;
         Matrix G = inv(transp(K) * SeInvK + inv(Sa)) * SeInvK;
         return G;
@@ -112,8 +112,8 @@ public:
             const SeMatrix &Se_ )
         : F(F_), xa(xa_), Sa(Sa_), Se(Se_), K(), y_ptr(nullptr)
     {
-        n = F_.n;
-        m = F_.m;
+        n = (unsigned int) F_.n;
+        m = (unsigned int) F_.m;
     }
 
 
@@ -125,7 +125,7 @@ protected:
     ForwardModel &F;
     const Vector   &xa;
     const Vector   *y_ptr;
-    const Matrix     K;
+    Matrix     K;
     const SaMatrix &Sa;
     const SeMatrix &Se;
 };
@@ -162,19 +162,22 @@ public:
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
-    using Base::Sa; using Base:: Se;
+    using Base::Sa; using Base::Se;
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
          const Vector   &xa_,
          const SaMatrix &Sa_,
          const SeMatrix &Se_ )
-        : Base(F_, xa_, Sa_, Se_) {}
+        : Base(F_, xa_, Sa_, Se_)
+    {
+        y_ptr = nullptr;
+    }
 
     template<typename Minimizer>
-    int compute( Vector       &x,
-                 const Vector &y,
-                 Minimizer M )
+    int compute(Vector       &x,
+                const Vector &y,
+                Minimizer M)
     {
         y_ptr = &y;
         x = xa;
@@ -188,7 +191,7 @@ public:
         iter = 0;
         while (iter < M.maximum_iterations())
         {
-            auto K   = F.Jacobian(x);
+            K        = F.Jacobian(x);
             auto tmp = transp(K) * inv(Se);
             auto H = tmp * K + inv(Sa);
             Vector g = tmp * (yi - y) + inv(Sa) * (x - xa);
@@ -204,6 +207,7 @@ public:
             yi = F.evaluate(x);
             iter++;
         }
+        return 0;
     }
 };
 
@@ -252,7 +256,7 @@ public:
 
         while (iter < M.maximum_iterations())
         {
-            auto K   = F.Jacobian(x);
+            K        = F.Jacobian(x);
             auto tmp = transp(K) * inv(Se);
             Matrix H = tmp * K + inv(Sa);
 
@@ -302,7 +306,7 @@ public:
 
     Matrix gain_matrix(const Vector &x) const
     {
-        Matrix K = F.Jacobian(x);
+        K = F.Jacobian(x);
         Matrix SaKT = Sa * transp(K);
         Matrix G = SaKT * inv(K * SaKT + Se);
         return G;
@@ -340,7 +344,7 @@ public:
 
         while (iter < M.maximum_iterations())
         {
-            auto K   = F.Jacobian(x);
+            K   = F.Jacobian(x);
             auto tmp = Sa * transp(K);
             Matrix H   = Se + K * tmp;
             Vector g = y - yi + K * (x - xa);

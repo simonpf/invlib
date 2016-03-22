@@ -1,15 +1,14 @@
-#define BOOST_TEST_MODULE algebra solver
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Algebra, Solvers"
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
 #include "utility.h"
 #include "test_types.h"
 
-namespace invlib
-{
-
-constexpr double EPS = 1e-10;
-constexpr unsigned int ntests = 1000;
+using namespace invlib;
 
 // Test solvers by computing A * inv(A) * v for a random vector v and a
 // random positive definite matrix A. The resulting vector should be equal
@@ -49,6 +48,4 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(solver,
         unsigned int n = 1 + rand() % 100;
         solver_test<T>(n);
     }
-}
-
 }

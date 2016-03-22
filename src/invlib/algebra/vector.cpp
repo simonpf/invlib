@@ -2,12 +2,19 @@
 //  Vector Class  //
 // -------------- //
 
-template <typename Base>
-Vector<Base>::Vector(Base &&v)
-    : Base(std::forward<Base>(v))
-{
-    // Nothing to do here.
-}
+// template <typename Base>
+// Vector<Base>::Vector(Base &&v)
+//     : Base(std::forward<Base>(v))
+// {
+//     // Nothing to do here.
+// }
+
+// template <typename Base>
+// Vector<Base>::Vector(const Base &v)
+//     : Base(v)
+// {
+//     // Nothing to do here.
+// }
 
 template <typename Base>
 auto Vector<Base>::begin()

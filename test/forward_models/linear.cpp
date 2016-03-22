@@ -1,4 +1,6 @@
-#define BOOST_TEST_MODULE forward_models linear
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Forward Models, Linear"
+#endif
 
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
@@ -13,9 +15,6 @@
 #include "test_types.h"
 
 using namespace invlib;
-
-constexpr double EPS = 1e-9;
-constexpr int ntests = 100;
 
 // Use a random linear forward model to test the equivalence of the
 // standard, n-form and m-form when using the Gauss-Newton optimizer

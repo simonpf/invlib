@@ -10,6 +10,7 @@
 
 #include "invlib/algebra/matrix.h"
 #include "invlib/algebra/matrix_sum.h"
+#include "invlib/traits.h"
 #include <utility>
 #include <iostream>
 
@@ -125,15 +126,26 @@ public:
      */
     Vector& operator=(Vector&& v) = default;
 
+    /*! Copy base object.
+     *
+     * Copies the provided base object into the vector.
+     *
+     * \param v The vector to be copied.
+     */
+    //Vector(const Base& v);
+
     /*! Move base object into vector.
      *
      * Moves the provided base object into the vector. In this way results
      * from arithmetic operations on the base type can be moved directly
      * into a Vector object in order to avoid expensive copying.
      *
-     * \param v The the temporarye vector of base type to be moved from.
+     * \param v The temporary vector of base type to be moved from.
      */
-    Vector(Base&& v);
+    //Vector(Base&& v);
+    template <typename T,
+    typename = disable_if<is_same<decay<T>, Vector>>>
+    Vector(T &&t) : Base(std::forward<T>(t)) {}
 
     // --------------------- //
     // Arithmetic Operators  //

@@ -1,15 +1,13 @@
-#define BOOST_TEST_MODULE algebra identities
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Algebra, Identities"
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 #include "invlib/algebra.h"
 #include "utility.h"
 #include "test_types.h"
 
-namespace invlib
-{
-
-constexpr double EPS = 1e-10;
-constexpr double zero = 0.0;
-constexpr unsigned int ntests = 100;
+using namespace invlib;
 
 template
 <
@@ -45,6 +43,7 @@ void identities_test( unsigned int m,
 
     R1 = (B - A) + B;
     R2 = B - (A - B);
+
     error = maximum_error(R1, R2);
     BOOST_TEST((error < EPS), "k = " << k << ", m = " << m << ", n = " << n << ", error = " << error);
 
@@ -99,6 +98,4 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(identities,
         unsigned int n = 1 + rand() % 100;
         identities_test<T>(m, k, n);
     }
-}
-
 }

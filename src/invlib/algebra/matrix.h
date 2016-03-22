@@ -149,7 +149,11 @@ public:
      *
      * \param v The temporary matrix of base type to be moved from.
      */
-    Matrix(Base&& B);
+    //Matrix(Base&& B);
+
+    template <typename T,
+    typename = disable_if<is_same<decay<T>, Matrix>>>
+    Matrix(T &&t) : Base(std::forward<T>(t)) {}
 
     // -------------------------- //
     //   Special Matrix Symbols   //

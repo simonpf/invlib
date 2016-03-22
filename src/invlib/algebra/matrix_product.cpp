@@ -62,7 +62,7 @@ typename T2
 auto MatrixProduct<T1, T2>::transpose() const
     -> MatrixType
 {
-    MatrixType C = A.multiply(B);
+    MatrixType C = A.multiply((MatrixType) B);
     MatrixType D = C.transpose();
     return D;
 }

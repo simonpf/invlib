@@ -69,7 +69,8 @@ constexpr auto Identity::apply(T1 &&t)
 }
 
 template <typename MatrixType>
-void NormalizeDiagonal<MatrixType>::apply_matrix(MatrixType &B) const
+    template <typename T1>
+void NormalizeDiagonal<MatrixType>::apply_matrix(T1 &B) const
 {
     unsigned int m, n;
     m = B.rows();
@@ -85,7 +86,8 @@ void NormalizeDiagonal<MatrixType>::apply_matrix(MatrixType &B) const
 }
 
 template <typename MatrixType>
-void NormalizeDiagonal<MatrixType>::apply_vector(VectorType &v) const
+    template <typename T1>
+void NormalizeDiagonal<MatrixType>::apply_vector(T1 &v) const
 {
     unsigned int m;
     m = v.rows();

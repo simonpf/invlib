@@ -1,4 +1,6 @@
-#define BOOST_TEST_MODULE optimization test_functions
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Optimization, Test Functions"
+#endif
 
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
@@ -11,9 +13,6 @@
 #include "test_types.h"
 
 using namespace invlib;
-
-constexpr double EPS = 1e-10;
-constexpr int ntests = 100;
 
 // Test non-linear optimization using the RandomPowerFunction test function
 // which has a minimum at zero and uses the current function value as abortion

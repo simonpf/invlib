@@ -1,4 +1,7 @@
-#define BOOST_TEST_MODULE forward_models sphere
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Forward Models, Sphere"
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
 
@@ -9,9 +12,6 @@
 #include "forward_models/sphere.h"
 #include "utility.h"
 #include "test_types.h"
-
-constexpr double EPS = 1e-9;
-constexpr int ntests = 100;
 
 using namespace invlib;
 
@@ -58,7 +58,7 @@ void sphere_test(unsigned int n)
 
     // Test inversion using CG solver.
 
-    ConjugateGradient cg(1e-12);
+    ConjugateGradient cg(1e-15);
     GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
     GN_CG.tolerance() = 1e-15; GN_CG.maximum_iterations() = 1000;
 

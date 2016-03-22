@@ -1,4 +1,7 @@
-#define BOOST_TEST_MODULE optimization exact
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE "Optimization, Exact"
+#endif BOOST_TEST_MODULE
+
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
 
@@ -11,9 +14,6 @@
 #include "test_types.h"
 
 using namespace invlib;
-
-constexpr double EPS = 1e-10;
-constexpr int ntests = 100;
 
 // Tests Gauss-Newton and Levenberg-Marquardt (with lambda = 0) method to yield
 // an exact result after one step in the case of a quadratic cost function.
