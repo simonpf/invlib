@@ -21,6 +21,7 @@ void solver_test(unsigned int n)
 {
 
     using VectorType = typename MatrixType::VectorType;
+    using Preconditioner = NormalizeDiagonal<MatrixType>;
 
     auto A  = random_positive_definite<MatrixType>(n);
     auto v = random<VectorType>(n);
@@ -28,6 +29,9 @@ void solver_test(unsigned int n)
 
     Standard std{};
     ConjugateGradient cg(1e-20);
+    Preconditioner pre(A);
+    PreconditionedSolver<Standard, Preconditioner>          std_n(std, pre);
+    PreconditionedSolver<ConjugateGradient, Preconditioner> cg_n(cg, pre);
 
     w = A * std.solve(A, v);
     double error = maximum_error(v, w);
@@ -36,6 +40,14 @@ void solver_test(unsigned int n)
     w = A * cg.solve(A, v);
     error = maximum_error(v, w);
     BOOST_TEST((error < EPS), "CG solver error: " << error);
+
+    w = A * std_n.solve(A, v);
+    error = maximum_error(v, w);
+    BOOST_TEST((error < EPS), "Standard preconditioned solver error: " << error);
+
+    w = A * cg_n.solve(A, v);
+    error = maximum_error(v, w);
+    BOOST_TEST((error < EPS), "CG preconditioned solver error: " << error);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(solver,
