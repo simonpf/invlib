@@ -54,9 +54,9 @@ public:
     : tol(1e-5), max_iter(1000), solver(solver_) {}
 
     GaussNewton( Real tolerance,
-                 unsigned int max_iter,
+                 unsigned int max_iter_,
                  Solver solver_ = Standard() )
-    : tol(tolerance), max_iter(max_iter), solver(solver_) {}
+    : tol(tolerance), max_iter(max_iter_), solver(solver_) {}
 
     template
     <

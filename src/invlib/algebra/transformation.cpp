@@ -25,16 +25,16 @@ template<typename T1, typename Transform>
 auto Transformation<T1, Transform>::multiply(const VectorType & v) const
     -> VectorType
 {
-    MatrixType A = *this;
-    return A.multiply(v);
+    MatrixType B = *this;
+    return B.multiply(v);
 }
 
 template<typename T1, typename Transform>
 auto Transformation<T1, Transform>::multiply(const MatrixType & B) const
     -> MatrixType
 {
-    MatrixType A = *this;
-    return A.multiply(B);
+    MatrixType C = *this;
+    return C.multiply(B);
 }
 
 template<typename T1, typename Transform>
@@ -89,8 +89,8 @@ template <typename MatrixType>
 void NormalizeDiagonal<MatrixType>::apply_matrix(T1 &B) const
 {
     unsigned int m, n;
-    m = B.rows();
-    n = B.cols();
+    m = (unsigned int) B.rows();
+    n = (unsigned int) B.cols();
 
     for (unsigned int i = 0; i < m; i++)
     {
@@ -116,8 +116,8 @@ void NormalizeDiagonal<MatrixType>::apply_vector(T1 &v) const
 
 template <typename MatrixType>
     template <typename T1>
-auto NormalizeDiagonal<MatrixType>::apply(T1&& A)
+auto NormalizeDiagonal<MatrixType>::apply(T1&& B)
     -> Transform<T1>
 {
-    return Transform<T1>(std::forward<T1>(A), *this);
+    return Transform<T1>(std::forward<T1>(B), *this);
 }
