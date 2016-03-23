@@ -9,8 +9,9 @@
  * \brief Maximum A Posteriori Estimators
  *
  * This file provides class templates for the inversion of a given forward model
- * using maximum a posteriori estimators. That means that a solution of the
- * inverse problem is obtained by minimizing the cost function
+ * using maximum a posteriori estimators. Under the assumption of a Gaussian
+ * prior and measurement error, that means that a solution of the inverse problem
+ * is obtained by minimizing the cost function
  *
  * \f[
  *   J(\mathbf{x}) &= \frac{1}{2}
@@ -42,123 +43,167 @@ enum class Formulation {STANDARD, NFORM, MFORM};
 /**
  * \brief MAP base class
  *
- * Implements methods common to all MAP estimators independent of formulation.
- * Holds references to the forward model, the a priori state vector as well
- * as the a priori and measurement space covariance matrices. Provides a member
- * to hold a pointer to the measurement vector, when computing the estimator.
- * This is necessary for the class to be able to provide the
- * cost_function(const Vector &x) function taking only the current state space
- * vector as an argument, which is used by the optimizer to minimize the cost
- * function for a given measurement vector.
+ * Implements methods common to all MAP estimators independent of
+ * formulation.  Holds references to the forward model, the a priori
+ * state vector as well as the a priori and measurement space
+ * covariance matrices. Provides a member to hold a pointer to the
+ * measurement vector. This is necessary for the class to be able to
+ * provide the cost_function(const VectorType &x) function taking only
+ * the current state space vector as an argument, which is used by the
+ * optimizer to minimize the cost function for a given measurement
+ * vector.
  *
  * To allow for maximum flexibility the type of the ForwardModel used is a
  * class template parameter. To be used with the MAP class, the functions
  * ForwardModel type must provide the following member functions:
  *
- * - evaluate(const Vector& x): Evaluate the forward model at the given
+ * - VectorType evaluate(const VectorType& x): Evaluate the forward model at the given
  * state space vector.
- * - Jacobian(const Vector& x): Compute the Jacobian of the forward model
+ * - MatrixType Jacobian(const VectorType& x): Compute the Jacobian of the forward model
  * at the given state space vector.
  *
  * \tparam ForwardModel The forward model type to be used.
- * \tparam Real The matrix type to be used for the linear model.
- * \tparam Vector The matrix type to be used for the linear model.
- * \tparam Matrix The matrix type to be used.
- * \tparam SaMatrix The type of the a priori matrix used for the computations.
- * \tparam SeMatrix The type of the measurement space covariance matrix to be
+ * \tparam RealType   The floating point type used for scalars.
+ * \tparam VectorType The vector type used for vectors.
+ * \tparam MatrixType The matrix type used.
+ * \tparam SaType The type of the a priori matrix used for the computations.
+ * \tparam SeType The type of the measurement space covariance matrix to be
  * used.
  */
 template
 <
 typename ForwardModel,
-typename Real,
-typename Vector,
-typename Matrix,
-typename SaMatrix,
-typename SeMatrix
+typename MatrixType,
+typename SaType,
+typename SeType
 >
 class MAPBase
 {
 
 public:
 
-    Real cost_function(const Vector &x,
-                       const Vector &y,
-                       const Vector &yi)
-    {
-        Vector dy = y - yi;
-        Vector dx = xa - x;
-        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
-    }
+    /*! The basic scalar type. */
+    using RealType   = typename MatrixType::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename MatrixType::VectorType;
 
-    Real cost_function(const Vector &x) const
-    {
-        Vector dy = F.evaluate(x) - *y_ptr;
-        Vector dx = xa - x;
-        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
-    }
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    Matrix gain_matrix(const Vector &x) const
-    {
-        K = F.Jacobian(x);
-        Matrix SeInvK = inv(Se) * K;
-        Matrix G = inv(transp(K) * SeInvK + inv(Sa)) * SeInvK;
-        return G;
-    }
+    /*! Construct MAP estimator for the given forward model F, a priori vector
+     *  xa and a priori covariance matrix Sa and measurement space covariance
+     * matrix Se.
+     *
+     * \param F Reference to the forward model object that provides
+     * evaluate(...) and Jacobian(...) member function.
+     * \param xa The a priori state vector.
+     * \param Sa the a priori covariance matrix.
+     * \param The measurement covariance matrix.
+     */
+    MAPBase(ForwardModel &F_,
+            const VectorType   &xa_,
+            const SaType &Sa_,
+            const SeType &Se_ );
 
-    MAPBase( ForwardModel &F_,
-            const Vector   &xa_,
-            const SaMatrix &Sa_,
-            const SeMatrix &Se_ )
-        : F(F_), xa(xa_), Sa(Sa_), Se(Se_), K(), y_ptr(nullptr)
-    {
-        n = (unsigned int) F_.n;
-        m = (unsigned int) F_.m;
-    }
+    // ----------------------- //
+    //  MAP Utility Functions  //
+    // ----------------------- //
 
+    /*! Evaluate MAP cost function.
+     *
+     * \param x A given state vector of dimension m.
+     * \param y The measurement vector y.
+     * \param yi The forward model prediction of the measurement vector
+     * \$f\mathbf{F}(\vec{x}) = \vec{y}_i \$f.
+     */
+    RealType cost_function(const VectorType &x,
+                           const VectorType &y,
+                           const VectorType &yi);
+    /*! Evaluate MAP cost function.
+     *
+     * Evaluates forward model at given vector x to obtain the
+     * prediction \f$\vec{y}_i\f$. Evaluates the cost function using x
+     * and \f$\vec{y}_i\f$ and the measurement vector currently pointed to
+     * by the y_ptr private memeber, which is set in the compute(...)
+     * member function.
+     *
+     * \param x A given state vector of dimension m.
+     */
+    RealType cost_function(const VectorType &x);
 
+    /*! Compute the gain matrix at the given state vector x.
+     *
+     * Computes the gain matrix
+     * \f[
+     *    G = (K^T {S}_\epsilon K + S_a)^{-1}S_\epsilon K \vec{x}
+     * \f]
+     *
+     * \param x The state vector at which to evaluate the gain matrix.
+     */
+    MatrixType gain_matrix(const VectorType &x);
 
 protected:
 
     unsigned int n, m;
 
     ForwardModel &F;
-    const Vector   &xa;
-    const Vector   *y_ptr;
-    Matrix     K;
-    const SaMatrix &Sa;
-    const SeMatrix &Se;
+    const VectorType   &xa;
+    const VectorType   *y_ptr;
+    MatrixType     K;
+    const SaType &Sa;
+    const SeType &Se;
 };
+
+// -------------- //
+//   MAP Class    //
+// -------------- //
 
 template
 <
 typename ForwardModel,
-typename Real,
-typename Vector,
-typename Matrix,
-typename SaMatrix,
-typename SeMatrix,
+typename MatrixType,
+typename SaType,
+typename SeType,
 Formulation Form = Formulation::STANDARD
 >
 class MAP;
 
+// ------------- //
+//   Standard    //
+// ------------- //
+
+/*! MAP Estimator using the standard form as given by formula (5.8) in
+ * \cite Rodgers.
+ *
+ * The standard form is the most flexible form in terms that is can be used
+ * with any optimization method, whereas the two other methods only support
+ * the Gauss-Newton minimizer. The formulation uses the inverses of the
+ * covariance matrices so it is advisable to give the precision matrices
+ * directly in order to avoid repeated computation of their inverses. Each step
+ * requires the solution of an n-times-n system of linear equations.
+ */
 template
 <
 typename ForwardModel,
-typename Real,
-typename Vector,
-typename Matrix,
-typename SaMatrix,
-typename SeMatrix
+typename MatrixType,
+typename SaType,
+typename SeType
 >
-class MAP<ForwardModel, Real, Vector, Matrix,
-          SaMatrix, SeMatrix, Formulation::STANDARD>
-    : public MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
+class MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
+    : public MAPBase<ForwardModel, MatrixType, SaType, SeType>
 {
 
 public:
 
-    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>;
+    /*! The basic scalar type. */
+    using RealType   = typename MatrixType::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename MatrixType::VectorType;
+    /*! The base class. */
+    using Base = MAPBase<ForwardModel, MatrixType, SaType, SeType>;
+
+    /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
@@ -166,207 +211,203 @@ public:
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
-         const Vector   &xa_,
-         const SaMatrix &Sa_,
-         const SeMatrix &Se_ )
-        : Base(F_, xa_, Sa_, Se_)
-    {
-        y_ptr = nullptr;
-    }
+         const VectorType   &xa_,
+         const SaType &Sa_,
+         const SeType &Se_ );
 
-    template<typename Minimizer>
-    int compute(Vector       &x,
-                const Vector &y,
-                Minimizer M)
-    {
-        y_ptr = &y;
-        x = xa;
-        Vector yi = F.evaluate(x);
-        Vector dx;
-
-        bool converged     = false;
-        unsigned int iter = 0;
-        Real cost          = cost_function(x, y, yi);
-
-        iter = 0;
-        while (iter < M.maximum_iterations())
-        {
-            K        = F.Jacobian(x);
-            auto tmp = transp(K) * inv(Se);
-            auto H = tmp * K + inv(Sa);
-            Vector g = tmp * (yi - y) + inv(Sa) * (x - xa);
-
-            if ((g.norm() / n) < M.tolerance())
-            {
-                converged = true;
-                break;
-            }
-
-            M.step(dx, x, g, H, (*this));
-            x += dx;
-            yi = F.evaluate(x);
-            iter++;
-        }
-        return 0;
-    }
+    /*! Compute the maximum a posteriori estimator for the inverse problem
+     * represented by this MAP object and the given measurement vector
+     * \f$\vec{y}\f$ using the given minimizer.
+     *
+     * Since this specialization uses the standard form, in each
+     * iteration, the next state vector \f$\vec{x}_{i+1}\f$ is
+     * computed using the formula
+     *
+     * \f[
+     *      \vec{x}_{i+1} = x_i  - (K^T S_\epsilon^{-1} K + S_a^{-1})^{-1}
+     *                       K^TS_\epsilon^{-1} (F(\vec{x_i}) - \vec{y})
+     *                       +S_a^{-1}(\vec{x} - \vec{x}_i)
+     * \f]
+     *
+     * which requires the solution of a n-times-n linear system of equations.
+     *
+     * \param x The maximum a posteriori state vector.
+     * \param y The measured measurement vector.
+     * \param M A minimizer object of representing the minimization method
+     * \param trans Coordinate transform to apply to the Hessian and the
+     * gradient before solving the subproblem.
+     * that should be used to minimize the likelihood.
+     */
+    template<typename Minimizer, typename Transformation = Identity>
+    int compute(VectorType       &x,
+                const VectorType &y,
+                Minimizer M,
+                Transformation trans = Transformation());
 };
 
+// --------------- //
+//     N-form      //
+// --------------- //
+
+/*! MAP Estimator using the n-form form as given by formula (5.9) in
+ * \cite Rodgers.
+ *
+ * Note that the n-form can only be used with the Gauss-Newton optimizer.
+ * As with the standard form the formulation uses the inverses of the
+ * covariance matrices, so it is advisable to give the precision matrices
+ * when defining the inverse problem.
+ *
+ * Each step requires the solution of an n-times-n linear system of
+ * equations.
+ *
+ */
 template
 <
 typename ForwardModel,
-typename Real,
-typename Vector,
-typename Matrix,
-typename SaMatrix,
-typename SeMatrix
+typename MatrixType,
+typename SaType,
+typename SeType
 >
-class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix, Formulation::NFORM>
-    : public MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
+class MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
+    : public MAPBase<ForwardModel, MatrixType, SaType, SeType>
 {
 
 public:
 
-    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>;
+    /*! The basic scalar type. */
+    using RealType   = typename MatrixType::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename MatrixType::VectorType;
+    /*! The base class. */
+    using Base = MAPBase<ForwardModel, MatrixType, SaType, SeType>;
+
+    /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
-    using Base::Sa; using Base:: Se;
+    using Base::Sa; using Base::Se;
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
-         const Vector   &xa_,
-         const SaMatrix &Sa_,
-         const SeMatrix &Se_ )
-        : Base(F_, xa_, Sa_, Se_) {}
+         const VectorType   &xa_,
+         const SaType &Sa_,
+         const SeType &Se_ );
 
-    template<typename Minimizer>
-    int compute( Vector       &x,
-                 const Vector &y,
-                 Minimizer M )
-    {
-
-        y_ptr = &y;
-        x = xa;
-        Vector yi = F.evaluate(x);
-        Vector dx;
-
-        bool converged = false;
-        unsigned int iter = 0;
-        Real cost = cost_function(x, y, yi);
-
-        while (iter < M.maximum_iterations())
-        {
-            K        = F.Jacobian(x);
-            auto tmp = transp(K) * inv(Se);
-            Matrix H = tmp * K + inv(Sa);
-
-            Vector g = tmp * (yi - y) + inv(Sa) * (x - xa);
-            if ((g.norm() / n) < M.tolerance())
-            {
-                converged = true;
-                break;
-            }
-
-            g = tmp * (y - yi + (K * (x - xa)));
-            M.step(dx, xa, g, H, (*this));
-
-            x = xa - dx;
-            yi = F.evaluate(x);
-            iter++;
-        }
-    }
+    /*! Compute the maximum a posteriori estimator for the inverse problem
+     * represented by this MAP object and the given measurement vector
+     * \f$\vec{y}\f$ using the given minimizer.
+     *
+     * This specialization uses the n-form, there for in each
+     * iteration, the next state vector \f$\vec{x}_{i+1}\f$ is
+     * computed using the formula
+     *
+     * \f[
+     *      \vec{x}_{i+1} =  x_i - (K^T S_\epsilon^{-1} K + S_a^{-1})^{-1}
+     *                       K^TS_\epsilon^{-1} (F(\vec{x_i}) - \vec{y}
+     *                                         + K(\vec{x} - \vec{x}_i))
+     * \f]
+     *
+     * which requires the solution of an n-times-n system of linear equations.
+     *
+     * \param x The maximum a posteriori state vector.
+     * \param y The measured measurement vector.
+     * \param M A minimizer object of representing the minimization method
+     * \param trans Coordinate transform to apply to the Hessian and the
+     * gradient before solving the subproblem.
+     * that should be used to minimize the likelihood.
+     */
+    template<typename Minimizer, typename Transformation = Identity>
+    int compute(VectorType       &x,
+                const VectorType &y,
+                Minimizer M,
+                Transformation trans = Transformation());
 };
 
+// --------------- //
+//     M-form      //
+// --------------- //
+
+/*! MAP Estimator using the m-form form as given by formula (5.10) in
+ * \cite Rodgers.
+ *
+ * Note that the m-form can only be used with the Gauss-Newton optimizer.
+ * The formulation uses the covariance matrices directly, so there is no
+ * need to provide precision matrices when defining the inverse problem.
+ *
+ * Each step requires the solution of an m-times-m linear system of
+ * equations.
+ *
+ */
 template
 <
 typename ForwardModel,
-typename Real,
-typename Vector,
-typename Matrix,
-typename SaMatrix,
-typename SeMatrix
+typename MatrixType,
+typename SaType,
+typename SeType
 >
-class MAP<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix, Formulation::MFORM>
-    : public MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>
+class MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
+    : public MAPBase<ForwardModel, MatrixType, SaType, SeType>
 {
 
 public:
 
-    using Base = MAPBase<ForwardModel, Real, Vector, Matrix, SaMatrix, SeMatrix>;
+
+    using RealType   = typename MatrixType::RealType;
+    /*! The basic vector type  */
+    using VectorType = typename MatrixType::VectorType;
+    /*! The base class. */
+    using Base = MAPBase<ForwardModel, MatrixType, SaType, SeType>;
+
+    /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::K;
-    using Base::Sa; using Base:: Se;
+    using Base::Sa; using Base::Se;
 
     MAP( ForwardModel &F_,
-         const Vector   &xa_,
-         const SaMatrix &Sa_,
-         const SeMatrix &Se_ )
-        : Base(F_, xa_, Sa_, Se_) {}
+         const VectorType   &xa_,
+         const SaType &Sa_,
+         const SeType &Se_ );
 
-    Matrix gain_matrix(const Vector &x) const
-    {
-        K = F.Jacobian(x);
-        Matrix SaKT = Sa * transp(K);
-        Matrix G = SaKT * inv(K * SaKT + Se);
-        return G;
-    }
+    MatrixType gain_matrix(const VectorType &x);
 
-    Real cost_function(const Vector &x,
-                       const Vector &y,
-                       const Vector &yi)
-    {
-        Vector dy(y - yi);
-        Vector dx(xa - x);
-        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
-    }
+    RealType cost_function(const VectorType &x,
+                           const VectorType &y,
+                           const VectorType &yi);
+    RealType cost_function(const VectorType &x);
 
-    Real cost_function(const Vector &x) const
-    {
-        Vector dy(F.evaluate(x) - *y_ptr);
-        Vector dx = xa + (-1.0) * Sa * transp(K) * x;
-        return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
-    }
-
-    template<typename Minimizer>
-    int compute( Vector       &x,
-                 const Vector &y,
-                 Minimizer M )
-    {
-
-        y_ptr = &y;
-        x = xa;
-        Vector yi = F.evaluate(x), yold;
-        Vector dx;
-
-        bool converged = false;
-        unsigned int iter = 0;
-
-        while (iter < M.maximum_iterations())
-        {
-            K   = F.Jacobian(x);
-            auto tmp = Sa * transp(K);
-            Matrix H   = Se + K * tmp;
-            Vector g = y - yi + K * (x - xa);
-
-            M.step(dx, xa, g, H, (*this));
-            x = xa - tmp * dx;
-
-            yold = yi;
-            yi = F.evaluate(x);
-            Vector dy = yi - yold;
-            Vector r = Se * H * Se * dy;
-
-            if ((dot(dy, r) / m) < M.tolerance())
-            {
-                converged = true;
-                break;
-            }
-            iter++;
-        }
-    }
+    /*! Compute the maximum a posteriori estimator for the inverse problem
+     * represented by this MAP object and the given measurement vector
+     * \f$\vec{y}\f$ using the given minimizer.
+     *
+     * This specialization uses the m-form, there for in each
+     * iteration, the next state vector \f$\vec{x}_{i+1}\f$ is
+     * computed using the formula
+     *
+     * \f[
+     *      \vec{x}_{i+1} =  x_i - S_aK^T(K S_a K^T + S_e)^{-1}
+     *                       (F(\vec{x_i}) - \vec{y}
+     *                                         + K(\vec{x} - \vec{x}_i))
+     * \f]
+     *
+     * which requires the solution of an m-times-m system of linear equations.
+     *
+     * \param x The maximum a posteriori state vector.
+     * \param y The measured measurement vector.
+     * \param M A minimizer object of representing the minimization method
+     * \param trans Coordinate transform to apply to the Hessian and the
+     * gradient before solving the subproblem.
+     * that should be used to minimize the likelihood.
+     */
+    template<typename Minimizer, typename Transformation = Identity>
+    int compute(VectorType       &x,
+                const VectorType &y,
+                Minimizer M,
+                Transformation trans = Transformation());
 };
 
-}
+#include "map.cpp"
+
+}      // namespace invlib
 
 #endif // MAP_H

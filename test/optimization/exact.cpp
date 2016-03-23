@@ -1,6 +1,6 @@
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE "Optimization, Exact"
-#endif BOOST_TEST_MODULE
+#endif
 
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>

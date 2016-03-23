@@ -65,7 +65,7 @@ public:
 
 
     LevenbergMarquardt(const DampingMatrix &D_, Solver solver = Solver())
-        : tol(1e-5), max_iter(10000), lambda(10.0), maximum(10.0), decrease(2.0),
+        : tol(1e-5), max_iter(100), lambda(10.0), maximum(10.0), decrease(2.0),
         increase(3.0), threshold(1.0), D(D_), current_cost(0.0), step_count(0),
         s(solver)
     {}
@@ -80,7 +80,7 @@ public:
               const Vector       &x,
               const Vector       &g,
               const Matrix       &B,
-              const CostFunction &J )
+              CostFunction &J )
     {
         if (step_count == 0)
             current_cost = J.cost_function(x);

@@ -77,8 +77,9 @@ public:
     Transformation & operator=(const Transformation &) = delete;
     Transformation & operator=(Transformation &&)      = delete;
 
+    VectorType multiply(const VectorType &v) const;
+    MatrixType multiply(const MatrixType &v) const;
     MatrixType invert() const;
-
     VectorType solve(const VectorType & v) const;
 
     // -------------------- //

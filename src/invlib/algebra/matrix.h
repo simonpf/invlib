@@ -152,7 +152,7 @@ public:
     //Matrix(Base&& B);
 
     template <typename T,
-    typename = disable_if<is_same<decay<T>, Matrix>>>
+    typename = enable_if<is_base<decay<T>, Matrix>>>
     Matrix(T &&t) : Base(std::forward<T>(t)) {}
 
     // -------------------------- //

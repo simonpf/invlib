@@ -65,10 +65,10 @@ public:
         typename CostFunction
     >
     int step( Vector       &dx,
-              const Vector &x,
+              const Vector &,
               const Vector &g,
               const Matrix &B,
-              const CostFunction &J)
+              const CostFunction &)
     {
         dx = -1.0 * solver.solve(B, g);
         return 0;

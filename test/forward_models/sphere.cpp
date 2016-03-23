@@ -34,12 +34,12 @@ void sphere_test(unsigned int n)
     VectorType y  = random<VectorType>(1);
 
     Model F(n);
-    MAP<Model, RealType, VectorType, MatrixType,
-        MatrixType, MatrixType, Formulation::STANDARD> std(F, xa, Sa, Se);
-    MAP<Model, RealType, VectorType, MatrixType,
-        MatrixType, MatrixType, Formulation::NFORM>    nform(F, xa, Sa, Se);
-    MAP<Model, RealType, VectorType, MatrixType,
-        MatrixType, MatrixType, Formulation::MFORM>    mform(F, xa, Sa, Se);
+    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::STANDARD>
+        std(F, xa, Sa, Se);
+    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::NFORM>
+        nform(F, xa, Sa, Se);
+    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::MFORM>
+        mform(F, xa, Sa, Se);
 
     GaussNewton<RealType> GN{};
     GN.tolerance() = 1e-15; GN.maximum_iterations() = 1000;

@@ -22,6 +22,22 @@ Transformation<T1, Transform>::operator VectorType() const
 }
 
 template<typename T1, typename Transform>
+auto Transformation<T1, Transform>::multiply(const VectorType & v) const
+    -> VectorType
+{
+    MatrixType A = *this;
+    return A.multiply(v);
+}
+
+template<typename T1, typename Transform>
+auto Transformation<T1, Transform>::multiply(const MatrixType & B) const
+    -> MatrixType
+{
+    MatrixType A = *this;
+    return A.multiply(B);
+}
+
+template<typename T1, typename Transform>
 auto Transformation<T1, Transform>::invert() const
     -> MatrixType
 {
@@ -33,8 +49,8 @@ template<typename T1, typename Transform>
 auto Transformation<T1, Transform>::solve(const VectorType & v) const
     -> VectorType
 {
-    MatrixType w = *this;
-    return w.solve(v);
+    MatrixType B = *this;
+    return B.solve(v);
 }
 
 template<typename T1, typename Transform>
@@ -58,7 +74,7 @@ template<typename T1, typename Transform>
 auto Transformation<T1, Transform>::operator*(T2 &&B) const
     ->Product<T2>
 {
-    return Sum<T2>(*this, B);
+    return Product<T2>(*this, B);
 }
 
 template <typename T1>
