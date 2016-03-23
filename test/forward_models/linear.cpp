@@ -119,10 +119,10 @@ void linear_test_transformed(unsigned int n)
     LM.tolerance() = 1e-9; LM.maximum_iterations() = 1000;
 
     VectorType x_std_lm, x_std_gn, x_n_gn, x_m_gn;
-    std.compute(x_std_lm, y, LM, trans);
-    std.compute(x_std_gn, y, GN, trans);
-    nform.compute(x_n_gn, y, GN, trans);
-    mform.compute(x_m_gn, y, GN, trans);
+    std.compute(x_std_lm, y, LM);
+    std.compute(x_std_gn, y, GN);
+    nform.compute(x_n_gn, y, GN);
+    mform.compute(x_m_gn, y, GN);
 
     RealType e1, e2, e3;
     e1 = maximum_error(x_std_lm, x_std_gn);
@@ -140,10 +140,10 @@ void linear_test_transformed(unsigned int n)
     LevenbergMarquardt<RealType, Id, ConjugateGradient> LM_CG(I, cg);
     LM_CG.tolerance() = 1e-9; LM.maximum_iterations() = 1000;
 
-    std.compute(x_std_lm, y, LM_CG, trans);
-    std.compute(x_std_gn, y, GN_CG, trans);
-    nform.compute(x_n_gn, y, GN_CG, trans);
-    mform.compute(x_m_gn, y, GN_CG, trans);
+    std.compute(x_std_lm, y, LM_CG);
+    std.compute(x_std_gn, y, GN_CG);
+    nform.compute(x_n_gn, y, GN_CG);
+    mform.compute(x_m_gn, y, GN_CG);
 
     BOOST_TEST((e1 < EPS), "Error STD - NFORM CG = " << e1);
     BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);

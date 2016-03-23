@@ -234,15 +234,13 @@ public:
      * \param x The maximum a posteriori state vector.
      * \param y The measured measurement vector.
      * \param M A minimizer object of representing the minimization method
-     * \param trans Coordinate transform to apply to the Hessian and the
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, typename Transformation = Identity>
+    template<typename Minimizer>
     int compute(VectorType       &x,
                 const VectorType &y,
-                Minimizer M,
-                Transformation trans = Transformation());
+                Minimizer M);
 };
 
 // --------------- //
@@ -312,15 +310,13 @@ public:
      * \param x The maximum a posteriori state vector.
      * \param y The measured measurement vector.
      * \param M A minimizer object of representing the minimization method
-     * \param trans Coordinate transform to apply to the Hessian and the
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, typename Transformation = Identity>
+    template<typename Minimizer>
     int compute(VectorType       &x,
                 const VectorType &y,
-                Minimizer M,
-                Transformation trans = Transformation());
+                Minimizer M);
 };
 
 // --------------- //
@@ -395,15 +391,13 @@ public:
      * \param x The maximum a posteriori state vector.
      * \param y The measured measurement vector.
      * \param M A minimizer object of representing the minimization method
-     * \param trans Coordinate transform to apply to the Hessian and the
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, typename Transformation = Identity>
+    template<typename Minimizer>
     int compute(VectorType       &x,
                 const VectorType &y,
-                Minimizer M,
-                Transformation trans = Transformation());
+                Minimizer M);
 };
 
 #include "map.cpp"
