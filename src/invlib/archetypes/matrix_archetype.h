@@ -38,6 +38,10 @@ public:
     using VectorType = VectorArchetype<Real>;
     /*! The fundamental matrix type used for the matrix algebra.*/
     using MatrixType = MatrixArchetype<Real>;
+    /*! The result type of multiplying an algebraic expression with this
+     * matrix from the right.
+     */
+    using ResultType = MatrixArchetype<Real>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
