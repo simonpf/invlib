@@ -11,6 +11,9 @@
 
 using namespace invlib;
 
+template <typename T>
+void foo(T t);
+
 // Test behaviour of precision matrix. The PrecisionMatrix wrapper should
 // make a matrix act like its inverse. This is tested below by comparing
 // the precision matrix constructed from A to its inverse and vice versa.
@@ -26,8 +29,10 @@ void precision_test(unsigned int n)
     PrecisionMatrix<MatrixType> P(A);
     VectorType v = random<VectorType>(n);
 
-    MatrixType B = A * P;
-    MatrixType C = inv(A) * inv(P);
+    //foo(inv(P));
+    //foo(P);
+    MatrixType B = P * A;
+    MatrixType C = inv(P) * inv(A);
     MatrixType I; I.resize(n, n); set_identity(I);
     double error = maximum_error(B, I);
     BOOST_TEST((error < EPS), "Deviation from identity:" << error);

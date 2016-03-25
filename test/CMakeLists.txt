@@ -4,17 +4,11 @@ add_subdirectory(Eigen)
 add_subdirectory(optimization)
 add_subdirectory(algebra)
 add_subdirectory(forward_models)
-add_subdirectory(interfaces)
 
 include_directories(SYSTEM "${Boost_INCLUDE_DIRS}")
 include_directories("${PROJECT_SOURCE_DIR}/src/"
-                    "${PROJECT_SOURCE_DIR}/test/"
-                    "/home/simon/src/arts/src"
-                    "/home/simon/src/arts/build/src"
-                    "/home/simon/src/arts/3rdparty")
+                    "${PROJECT_SOURCE_DIR}/test/")
 
-link_directories(${Boost_LIBRARIES}
-                "/home/simon/src/arts/build/src")
+link_directories(${Boost_LIBRARIES})
 
 add_executable(run_all run_all.cpp)
-target_link_libraries(run_all matpack ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
