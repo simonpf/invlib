@@ -273,6 +273,9 @@ public:
                 const VectorType &y,
                 Minimizer M,
                 int verbosity = 0);
+
+    RealType cost, cost_x, cost_y;
+
 };
 
 // --------------- //
@@ -350,6 +353,9 @@ public:
                 const VectorType &y,
                 Minimizer M,
                 int verbosity = 0);
+
+    RealType cost, cost_x, cost_y;
+
 };
 
 // --------------- //
@@ -432,6 +438,9 @@ public:
                 const VectorType &y,
                 Minimizer M,
                 int verbosity = 0);
+
+    RealType cost, cost_x, cost_y;
+
 };
 
 #include "map.cpp"

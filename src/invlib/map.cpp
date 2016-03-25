@@ -114,7 +114,7 @@ MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
        const VectorType   &xa_,
        const SaType &Sa_,
        const SeType &Se_ )
-    : Base(F_, xa_, Sa_, Se_)
+    : Base(F_, xa_, Sa_, Se_), cost(-1.0), cost_x(-1.0), cost_y(-1.0)
 {
     // Nothing to do here.
 }
@@ -145,9 +145,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
     bool converged     = false;
     unsigned int iter = 0;
 
-    RealType cost, cost_x, cost_y;
-    cost_x = this->cost_x(x);
-    cost_y = this->cost_y(y, yi);
+    cost_x = this->Base::cost_x(x);
+    cost_y = this->Base::cost_y(y, yi);
     cost   = cost_x + cost_y;
 
     iter = 0;
@@ -173,8 +172,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         yi = F.evaluate(x);
         iter++;
 
-        cost_x = this->cost_x(x);
-        cost_y = this->cost_y(y, yi);
+        cost_x = this->Base::cost_x(x);
+        cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
         log.step(iter, cost, cost_x, cost_y);
@@ -201,7 +200,7 @@ MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
        const VectorType   &xa_,
        const SaType &Sa_,
        const SeType &Se_ )
-    : Base(F_, xa_, Sa_, Se_)
+    : Base(F_, xa_, Sa_, Se_), cost(-1.0), cost_x(-1.0), cost_y(-1.0)
 {
     // Nothing to do here.
 }
@@ -232,9 +231,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
     bool converged = false;
     unsigned int iter = 0;
 
-    RealType cost, cost_x, cost_y;
-    cost_x = this->cost_x(x);
-    cost_y = this->cost_y(y, yi);
+    cost_x = this->Base::cost_x(x);
+    cost_y = this->Base::cost_y(y, yi);
     cost   = cost_x + cost_y;
 
     while (iter < M.maximum_iterations())
@@ -263,8 +261,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         yi = F.evaluate(x);
         iter++;
 
-        cost_x = this->cost_x(x);
-        cost_y = this->cost_y(y, yi);
+        cost_x = this->Base::cost_x(x);
+        cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
         log.step(iter, cost, cost_x, cost_y);
@@ -291,7 +289,7 @@ MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
        const VectorType   &xa_,
        const SaType &Sa_,
        const SeType &Se_ )
-    : Base(F_, xa_, Sa_, Se_)
+    : Base(F_, xa_, Sa_, Se_), cost(-1.0), cost_x(-1.0), cost_y(-1.0)
 {
     // Nothing to do here.
 }
