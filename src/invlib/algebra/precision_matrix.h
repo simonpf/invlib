@@ -32,7 +32,7 @@ template
 <
 typename Matrix
 >
-const Matrix& inv(PrecisionMatrix<Matrix> A);
+const Matrix & inv(const PrecisionMatrix<Matrix> &A);
 
 // --------------------- //
 // Class PrecisionMatrix //
@@ -102,7 +102,7 @@ public:
         return Sum<T>(*this, B);
     }
 
-    MatrixType multiply(const MatrixType& B) const
+    ResultType multiply(const ResultType& B) const
     {
         MatrixType tmp = A.invert();
         return tmp * B;
@@ -113,13 +113,13 @@ public:
         return A.solve(v);
     }
 
-    operator MatrixType() const
+    operator ResultType() const
     {
-        MatrixType tmp = A.invert();
+        ResultType tmp = A.invert();
         return tmp;
     }
 
-    friend const MatrixType& inv<MatrixType>(PrecisionMatrix A);
+    friend const Matrix& inv<Matrix>(const PrecisionMatrix &A);
 
 private:
 
@@ -140,7 +140,7 @@ template
 <
 typename Matrix
 >
-const Matrix& inv(PrecisionMatrix<Matrix> A)
+const Matrix& inv(const PrecisionMatrix<Matrix> &A)
 {
     return A.A;
 }

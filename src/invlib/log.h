@@ -1,29 +1,84 @@
-#ifndef LOG
-#define LOG
+#ifndef LOG_H
+#define LOG_H
 
-class Silent
+#include <tuple>
+
+namespace invlib
 {
-    template <typename... Params>
-    static void init(Params... params) {}
 
-    template <typename... Params>
-    static void step(Params... params) {}
+// ------------------ //
+//    Standard Log    //
+// ------------------ //
 
-    template <typename... Params>
-    static void finalize(Params... params) {}
-}
+enum class LogType {MAP, OPT, SUB};
 
+template
+<
+LogType type
+>
 class StandardLog
 {
-    template <typename... Params>
-    static void init(Params... params) {}
+
+public:
+
+    StandardLog(unsigned int v) : verbosity(v) {}
 
     template <typename... Params>
-    static void step(Params... params) {}
+    void init(Params... params) {}
 
     template <typename... Params>
-    static void finalize(Params... params) {}
+    void step(Params... params) {}
+
+    template <typename... Params>
+    void finalize(Params... params) {}
+
+private:
+
+    int verbosity;
+};
+
+template<>
+template<typename... Params>
+void StandardLog<LogType::MAP>::step(Params... params)
+{
+    if (verbosity >= 2)
+    {
+        auto tuple = make_tuple(params...);
+        std::cout<< std::setw(15) << get<0>(tuple);
+        std::cout<< std::setw(15) << get<1>(tuple);
+        std::cout<< std::setw(15) << get<2>(tuple);
+        std::cout<< std::setw(15) << get<3>(tuple);
+        std::cout << std::endl;
+    }
 }
 
+template<>
+template<typename... Params>
+void StandardLog<LogType::MAP>::finalize(Params... params)
+{
+    if (verbosity >= 1)
+    {
+        auto tuple = make_tuple(params...);
+        std::cout << std::endl;
 
-#endif // LOG
+        bool converged = get<0>(tuple);
+        if (converged)
+        {
+            std::cout << "MAP Computation converged." << std::endl;
+            std::cout << "\tTotal number of steps: " << get<1>(tuple) << std::endl;
+            std::cout << "\tFinal cost function value: " << get<2>(tuple);
+            std::cout << std::endl;
+        }
+        else
+        {
+            std::cout << "MAP Computation NOT converged!" << std::endl;
+            std::cout << "\tTotal number of steps: " << get<1>(tuple) << std::endl;
+            std::cout << "\tFinal cost function value: " << get<2>(tuple);
+            std::cout << std::endl;
+        }
+    }
+}
+
+}      // namespace invlib
+
+#endif // LOG_H

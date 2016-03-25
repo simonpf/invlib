@@ -106,7 +106,7 @@ template <typename MatrixType>
 void NormalizeDiagonal<MatrixType>::apply_vector(T1 &v) const
 {
     unsigned int m;
-    m = v.rows();
+    m = (unsigned int) v.rows();
 
     for (unsigned int i = 0; i < m; i++)
     {

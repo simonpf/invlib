@@ -214,6 +214,8 @@ private:
 
 };
 
+template<typename Matrix>
+class PrecisionMatrix;
 /** \brief Inverse of an algebraic expression.
  *
  * Creates a proxy object of type MatrixInverse<T2> will evaluate to
@@ -233,8 +235,8 @@ private:
  * expression.
  *
  */
-template <typename T2>
-MatrixInverse<T2> inv(T2 &&A);
+template <typename T1>
+MatrixInverse<T1> inv(T1 &&A);
 
 #include "matrix_inverse.cpp"
 

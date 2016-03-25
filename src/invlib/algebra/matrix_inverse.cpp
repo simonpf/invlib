@@ -68,8 +68,8 @@ MatrixInverse<T1>::operator ResultType() const
     return B;
 }
 
-template <typename T2>
-MatrixInverse<T2> inv(T2 &&A)
+template <typename T1>
+MatrixInverse<T1> inv(T1 &&A)
 {
-    return MatrixInverse<T2>(A);
+    return MatrixInverse<T1>(A);
 }

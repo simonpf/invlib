@@ -91,16 +91,11 @@ public:
      * Result type of an algebraic expression with Matrix as right hand
      * operator
      */
-    using ResultType = Matrix;
+    using ResultType = Matrix<typename Base::ResultType>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
     // ------------------------------- //
-
-    /* template < typename T, */
-    /* 	       typename = enable_if<!is_same<Matrix, decay<T>>> > */
-    /* Matrix( T && t) */
-    /*     : Base(std::forward<T>(t)) {} */
 
     Matrix() = default;
 
@@ -149,7 +144,6 @@ public:
      *
      * \param v The temporary matrix of base type to be moved from.
      */
-    //Matrix(Base&& B);
 
     template <typename T,
     typename = enable_if<is_base<decay<T>, Matrix>>>
@@ -158,6 +152,9 @@ public:
     // -------------------------- //
     //   Special Matrix Symbols   //
     // -------------------------- //
+
+    template <typename T>
+    void accumulate(const T& B);
 
     /*! Accumulate identity matrix into this matrix.
      *
@@ -174,8 +171,6 @@ public:
      * \param The MatrixZero object to accumulate in to this matrix.
      */
     void accumulate(const MatrixZero &Z);
-
-    void accumulate(const Matrix& B);
 
     // --------------------- //
     // Arithmetic Operators  //

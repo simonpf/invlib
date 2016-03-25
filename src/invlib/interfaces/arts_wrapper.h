@@ -17,6 +17,12 @@ using invlib::is_same;
 using invlib::decay;
 
 class ArtsMatrix;
+class ArtsVector;
+class ArtsSparse;
+
+// --------------//
+//  Arts Vector  //
+// ------------- //
 
 class ArtsVector : public Vector
 {
@@ -34,62 +40,34 @@ public:
     ArtsVector() : Vector() {}
     ArtsVector(const ArtsVector &A) = default;
     ArtsVector & operator=(const ArtsVector &A) = default;
-
     ArtsVector(const Vector &v) : Vector(v) {}
 
-    ArtsVector(ArtsVector &&A)
-    {
-        this->mrange = A.mrange;
-        this->mdata  = A.mdata;
-        A.mdata      = nullptr;
-    }
-
-    ArtsVector & operator=(ArtsVector &&A)
-    {
-        delete[] this->mdata;
-        this->mrange  = A.mrange;
-        this->mdata   = A.mdata;
-        A.mdata       = nullptr;
-        return *this;
-    }
+    ArtsVector(ArtsVector &&A);
+    ArtsVector & operator=(ArtsVector &&A);
 
     // ----------------- //
     //   Manipulations   //
     // ----------------- //
 
-    Index rows() const {return this->nelem();}
+    Index rows() const;
 
-    Numeric operator()(Index i) const
-    {
-        return this->get(i);
-    }
+    Numeric operator()(Index i) const;
+    Numeric& operator()(Index i);
 
-    Numeric& operator()(Index i)
-    {
-        return this->get(i);
-    }
+    void accumulate(const ArtsVector& w);
+    void subtract(const ArtsVector& w);
 
-    void accumulate(const ArtsVector& w)
-    {
-        this->operator+=(w);
-    }
+    void scale(Numeric c);
 
-    void subtract(const ArtsVector& w)
-    {
-        this->operator-=(w);
-    }
-
-    void scale(Numeric c)
-    {
-        this->operator*=(c);
-    }
-
-    Numeric norm()
-    {
-        return sqrt(operator*(*this, *this));
-    }
+    Numeric norm();
 
 };
+
+Numeric dot(const ArtsVector& v, const ArtsVector& w);
+
+// --------------//
+//  Arts Matrix  //
+// ------------- //
 
 /** \brief Arts dense matrix interace wrapper.
  *
@@ -110,126 +88,45 @@ public:
     // ------------------------------- //
 
     ArtsMatrix() : Matrix() {}
+    ArtsMatrix (const ArtsMatrix &A)            = default;
+    ArtsMatrix & operator=(const ArtsMatrix &A) = default;
 
-    ArtsMatrix (const ArtsMatrix &A)
-        : Matrix(A)
-    {
-        // Nothing to do here.
-    }
+    ArtsMatrix (const Matrix &A);
 
-    ArtsMatrix (const Matrix &A)
-        : Matrix(A)
-    {
-        // Nothing to do here.
-    }
-
-    ArtsMatrix(ArtsMatrix &&A)
-    {
-        this->mrr = A.mrr;
-        this->mcr = A.mcr;
-        this->mdata  = A.mdata;
-        A.mdata = nullptr;
-    }
-
-    ArtsMatrix & operator=(const ArtsMatrix &A)
-    {
-        this->Matrix::operator=(A);
-        return *this;
-    }
-
-    ArtsMatrix & operator=(ArtsMatrix &&A)
-    {
-        delete[] this->mdata;
-        this->mcr  = A.mcr;
-        this->mrr  = A.mrr;
-        this->mdata   = A.mdata;
-        A.mdata = nullptr;
-        return *this;
-    }
+    ArtsMatrix(ArtsMatrix &&A);
+    ArtsMatrix & operator=(ArtsMatrix &&A);
 
     // ----------------- //
     //   Manipulations   //
     // ----------------- //
 
-    Index rows() const {return this->nrows();}
-    Index cols() const {return this->ncols();}
+    Index rows() const;
+    Index cols() const;
 
-    RealType & operator()(Index i, Index j)
-    {
-        return this->get(i,j);
-    }
-
-    RealType operator()(Index i, Index j) const
-    {
-        return this->get(i,j);
-    }
+    RealType & operator()(Index i, Index j);
+    RealType operator()(Index i, Index j) const;
 
     // ------------ //
     //  Arithmetic  //
     // ------------ //
 
-    void accumulate(const ArtsMatrix& B)
-    {
-        this->operator+=(B);
-    }
+    void accumulate(const ArtsMatrix& B);
+    void accumulate(const ArtsSparse& B);
 
-    void subtract(const ArtsMatrix& B)
-    {
-        this->operator-=(B);
-    }
+    void subtract(const ArtsMatrix& B);
 
-    ArtsMatrix multiply(const ArtsMatrix &B) const
-    {
-        ArtsMatrix C; C.resize(this->nrows(), B.ncols());
-        ::mult(C, *this, B);
-        return C;
-    }
+    ArtsMatrix multiply(const ArtsMatrix &B) const;
+    ArtsVector multiply(const ArtsVector &v) const;
 
-    ArtsVector multiply(const ArtsVector &v) const
-    {
-        ArtsVector w; w.resize(this->nrows());
-        ::mult(w, *this, v);
-        return w;
-    }
+    ArtsMatrix transpose_multiply(const ArtsMatrix &B) const;
+    ArtsVector transpose_multiply(const ArtsVector &v) const;
 
-    ArtsMatrix transpose_multiply(const ArtsMatrix &B) const
-    {
-        ArtsMatrix C; C.resize(this->ncols(), B.ncols());
-        ::mult(C, ::transpose(*this), B);
-        return C;
-    }
+    VectorType solve(const VectorType& v) const;
+    ArtsMatrix invert() const;
 
-    ArtsVector transpose_multiply(const ArtsVector &v) const
-    {
-        ArtsVector w; w.resize(this->ncols());
-        ::mult(w, ::transpose(*this), v);
-        return w;
-    }
+    void scale(Numeric c);
 
-    VectorType solve(const VectorType& v) const
-    {
-        VectorType w; w.resize(this->nrows());
-        ::solve(w, *this, v);
-        return w;
-    }
-
-    ArtsMatrix invert() const
-    {
-        ArtsMatrix B; B.resize(this->nrows(), this->ncols());
-        ::inv(B, *this);
-        return B;
-    }
-    void scale(Numeric c)
-    {
-        this->operator*=(c);
-    }
-
-    ArtsMatrix transpose() const
-    {
-        ArtsMatrix B;
-        B.Matrix::operator=(::transpose(*this));
-        return B;
-    }
+    ArtsMatrix transpose() const;
 
 };
 
@@ -238,7 +135,7 @@ public:
  * Simple wrapper class providing an interface to the ARTS matrix class.
  *
  */
-class ArtsSparse : public Sparse
+class ArtsSparse
 {
 public:
 
@@ -254,7 +151,7 @@ public:
     ArtsSparse() = delete;
     ArtsSparse(const Sparse& A_) : A(A_) {}
 
-    ArtsSparse(const ArtsSparse&) = delete;
+    ArtsSparse(const ArtsSparse&) = default;
     ArtsSparse(ArtsSparse&&)      = delete;
 
     ArtsSparse & operator=(const ArtsSparse&) = delete;
@@ -264,33 +161,17 @@ public:
     //   Manipulations   //
     // ----------------- //
 
-    Index rows() {return this->nrows();}
-    Index cols() {return this->ncols();}
+    Index rows() const;
+    Index cols() const;
 
     // ------------ //
     //  Arithmetic  //
     // ------------ //
 
-    ArtsMatrix multiply(const ArtsMatrix &B) const
-    {
-        ArtsMatrix C; C.resize(this->nrows(), B.ncols());
-        ::mult(C, A, B);
-        return C;
-    }
+    ArtsMatrix multiply(const ArtsMatrix &B) const;
+    ArtsVector multiply(const ArtsVector &v) const;
 
-    ArtsVector multiply(const ArtsVector &v) const
-    {
-        ArtsVector w; w.resize(this->nrows());
-        ::mult(w, A, v);
-        return w;
-    }
-
-    operator ArtsMatrix()
-    {
-        ArtsMatrix B;
-        B.Matrix::operator=(A.operator Matrix());
-        return B;
-    }
+    operator ArtsMatrix() const;
 
 private:
 
@@ -298,9 +179,6 @@ private:
 
 };
 
-Numeric dot(const ArtsVector& v, const ArtsVector& w)
-{
-    return v * w;
-}
+#include "arts_wrapper.cpp"
 
 #endif // INTERFACES_ARTS_WRAPPER_H

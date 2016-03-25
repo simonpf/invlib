@@ -65,8 +65,8 @@ public:
 
 
     LevenbergMarquardt(const DampingMatrix &D_, Solver solver = Solver())
-    : current_cost(0.0), tol(1e-5), lambda(10.0), maximum(10.0),
-      increase(3.0), decrease(2.0), threshold(1.0), max_iter(100),
+    : current_cost(0.0), tol(1e-5), lambda(4.0), maximum(100.0),
+      increase(2.0), decrease(3.0), threshold(1.0), max_iter(100),
       step_count(0), D(D_), s(solver)
     {}
 

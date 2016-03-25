@@ -2,10 +2,6 @@
 //  Matrix Class  //
 // -------------- //
 
-// template<typename Base>
-// Matrix<Base>::Matrix(Base &&b)
-//     : Base(std::forward<Base>(b)) {}
-
 template<typename Base>
 auto Matrix<Base>::begin()
     -> ElementIterator
@@ -20,9 +16,9 @@ auto Matrix<Base>::end()
     return ElementIterator(this, this->rows(), this->cols());
 }
 
-
 template <typename Base>
-void Matrix<Base>::accumulate(const Matrix &B)
+    template <typename T>
+void Matrix<Base>::accumulate(const T &B)
 {
     this->Base::accumulate(B);
 }

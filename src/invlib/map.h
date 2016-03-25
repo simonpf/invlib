@@ -3,6 +3,7 @@
 
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
+#include "invlib/log.h"
 #include <iostream>
 
 /** file map.h
@@ -132,6 +133,36 @@ public:
      */
     RealType cost_function(const VectorType &x);
 
+    /*! Compute the the contribution of the estimated state vector
+     * to the total cost function, which is given by
+     *
+     * \f[
+     *     J_\vec{x}(\vec{x}) &= (\vec{x} - \vec{x}_a)^T
+     *                           S_a^{-1}(\vec{x} - \vec{x}_a)
+     * \f]
+     *
+     * \param x The vector \f$x\f$ at which to evaluate the cost function.
+     * \return The state space related part of the cost function as given
+     * by the equation above.
+     */
+    RealType cost_x(const VectorType &x);
+
+    /*! Compute the the contribution of the deviation in measurement space
+     * to the total cost function, which is given by
+     *
+     * \f[
+     *     J_\vec{y}(\vec{y},\vec{x}) &= (\mathbf{F}(\vec{x}) - \vec{y})^T
+     *                           S_\epsilon^{-1}(\mathbf{F}(\vec{x}) - \vec{y})
+     * \f]
+     *
+     * \param y The measurement vector \f$\vec{y}\f$
+     * \param yi The predicted measurement vector \f$\vec{y}_i =
+     * \mathbf{F}(\vec{x})\f$ as given by the forward model.
+     * \return The measurement space related part of the cost function as given by the
+     * formula above.
+     */
+    RealType cost_y(const VectorType &y,
+                    const VectorType &yi);
     /*! Compute the gain matrix at the given state vector x.
      *
      * Computes the gain matrix
@@ -237,10 +268,11 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer>
+    template<typename Minimizer, template <LogType> typename Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
-                Minimizer M);
+                Minimizer M,
+                int verbosity = 0);
 };
 
 // --------------- //
@@ -313,10 +345,11 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer>
+    template<typename Minimizer, template <LogType> typename Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
-                Minimizer M);
+                Minimizer M,
+                int verbosity = 0);
 };
 
 // --------------- //
@@ -394,10 +427,11 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer>
+    template<typename Minimizer, template <LogType> typename Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
-                Minimizer M);
+                Minimizer M,
+                int verbosity = 0);
 };
 
 #include "map.cpp"
