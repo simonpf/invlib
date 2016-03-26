@@ -4,6 +4,9 @@
 #include <iostream>
 #include <iomanip>
 
+namespace invlib
+{
+
 enum class Verbosity {SILENT, VERBOSE};
 
 template <Verbosity V, std::ostream &stream> class LevenbergMarquardtLogger;
@@ -53,5 +56,7 @@ public:
     template <typename... Params>
     static void finalize(Params... params) {}
 };
+
+}      // namespace invlib
 
 #endif // LEVENBERG_MARQUARDT_LOGGER_H
