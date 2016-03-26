@@ -144,10 +144,20 @@ public:
      *
      * \param v The temporary matrix of base type to be moved from.
      */
-
-    template <typename T,
-    typename = enable_if<is_base<decay<T>, Matrix>>>
+    template
+    <
+    typename T,
+    typename = enable_if_either<is_base<decay<T>, Matrix>,
+                                is_constructible<Base, T>>
+    >
     Matrix(T &&t) : Base(std::forward<T>(t)) {}
+
+    /* template */
+    /* < */
+    /* typename T, */
+    /* typename = enable_if<is_base<decay<T>, Matrix>> */
+    /* > */
+    /* Matrix(T &&t) : Base(std::forward<T>(t)) {} */
 
     // -------------------------- //
     //   Special Matrix Symbols   //

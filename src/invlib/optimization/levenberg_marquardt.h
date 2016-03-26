@@ -63,7 +63,6 @@ class LevenbergMarquardt
 
 public:
 
-
     LevenbergMarquardt(const DampingMatrix &D_, Solver solver = Solver())
     : current_cost(0.0), tol(1e-5), lambda(4.0), maximum(100.0),
       increase(2.0), decrease(3.0), threshold(1.0), max_iter(100),
