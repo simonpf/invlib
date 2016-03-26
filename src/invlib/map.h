@@ -181,7 +181,6 @@ protected:
     ForwardModel &F;
     const VectorType   &xa;
     const VectorType   *y_ptr;
-    MatrixType     K;
     const SaType &Sa;
     const SeType &Se;
 };
@@ -237,8 +236,7 @@ public:
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
-    using Base::F; using Base::K;
-    using Base::Sa; using Base::Se;
+    using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
@@ -275,6 +273,7 @@ public:
                 int verbosity = 0);
 
     RealType cost, cost_x, cost_y;
+    unsigned int iterations;
 
 };
 
@@ -317,8 +316,7 @@ public:
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
-    using Base::F; using Base::K;
-    using Base::Sa; using Base::Se;
+    using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
 
     MAP( ForwardModel &F_,
@@ -355,6 +353,7 @@ public:
                 int verbosity = 0);
 
     RealType cost, cost_x, cost_y;
+    unsigned int iterations;
 
 };
 
@@ -396,8 +395,8 @@ public:
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
-    using Base::F; using Base::K;
-    using Base::Sa; using Base::Se;
+    using Base::F; using Base::Sa; using Base::Se;
+    using Base::cost_function;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,
@@ -440,6 +439,7 @@ public:
                 int verbosity = 0);
 
     RealType cost, cost_x, cost_y;
+    unsigned int iterations;
 
 };
 

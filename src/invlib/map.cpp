@@ -10,7 +10,7 @@ MAPBase<ForwardModel, MatrixType, SaType, SeType>
           const VectorType &xa_,
           const SaType     &Sa_,
           const SeType     &Se_)
-    : F(F_), xa(xa_), Sa(Sa_), Se(Se_), K(), y_ptr(nullptr), n(F_.n), m(F_.m)
+    : F(F_), xa(xa_), Sa(Sa_), Se(Se_), y_ptr(nullptr), n(F_.n), m(F_.m)
 {
     // Nothing to do here.
 }
@@ -44,7 +44,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
 ::cost_function(const VectorType &x)
     -> RealType
 {
-    VectorType  y = F.evaluate(x);
+    auto &&y = F.evaluate(x);
     VectorType dy = y - *y_ptr;
     VectorType dx = xa - x;
     return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
@@ -92,7 +92,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
-    K = F.Jacobian(x);
+    auto &&K = F.Jacobian(x);
     MatrixType tmp = transp(K) * inv(Se);
     MatrixType G = inv(tmp * K + inv(Sa)) * tmp;
     return G;
@@ -142,17 +142,16 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
     VectorType yi = F.evaluate(x);
     VectorType dx;
 
-    bool converged     = false;
-    unsigned int iter = 0;
-
     cost_x = this->Base::cost_x(x);
     cost_y = this->Base::cost_y(y, yi);
     cost   = cost_x + cost_y;
 
-    iter = 0;
-    while (iter < M.maximum_iterations())
+    bool converged = false;
+    iterations     = 0;
+
+    while (iterations < M.maximum_iterations())
     {
-        K        = F.Jacobian(x);
+        auto &&K = F.Jacobian(x);
         auto tmp = transp(K) * inv(Se);
 
         // Compute Hessian and transform.
@@ -170,16 +169,16 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         M.step(dx, x, g, H, (*this));
         x += dx;
         yi = F.evaluate(x);
-        iter++;
+        iterations++;
 
         cost_x = this->Base::cost_x(x);
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
-        log.step(iter, cost, cost_x, cost_y);
+        log.step(iterations, cost, cost_x, cost_y);
     }
 
-    log.finalize(converged, iter, cost, cost_x, cost_y);
+    log.finalize(converged, iterations, cost, cost_x, cost_y);
 
     return 0;
 }
@@ -225,19 +224,19 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 
     y_ptr = &y;
     x = xa;
-    VectorType yi = F.evaluate(x);
+    auto &&yi = F.evaluate(x);
     VectorType dx;
-
-    bool converged = false;
-    unsigned int iter = 0;
 
     cost_x = this->Base::cost_x(x);
     cost_y = this->Base::cost_y(y, yi);
     cost   = cost_x + cost_y;
 
-    while (iter < M.maximum_iterations())
+    bool converged = false;
+    iterations = 0;
+
+    while (iterations < M.maximum_iterations())
     {
-        K        = F.Jacobian(x);
+        auto &&K  = F.Jacobian(x);
         auto tmp = transp(K) * inv(Se);
 
         // Compute true gradient for convergence test.
@@ -259,16 +258,16 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 
         x = xa - dx;
         yi = F.evaluate(x);
-        iter++;
+        iterations++;
 
         cost_x = this->Base::cost_x(x);
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
-        log.step(iter, cost, cost_x, cost_y);
+        log.step(iterations, cost, cost_x, cost_y);
     }
 
-    log.finalize(converged, iter, cost, cost_x, cost_y);
+    log.finalize(converged, iterations, cost, cost_x, cost_y);
 
     return 0;
 }
@@ -305,44 +304,10 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
-    K = F.Jacobian(x);
+    auto &&K = F.Jacobian(x);
     MatrixType SaKT = Sa * transp(K);
     MatrixType G = SaKT * inv(K * SaKT + Se);
     return G;
-}
-
-template
-<
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType
->
-auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
-::cost_function(const VectorType &x,
-                const VectorType &y,
-                const VectorType &yi)
-    -> RealType
-{
-    VectorType dy(y - yi);
-    VectorType dx(xa - x);
-    return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
-}
-
-template
-<
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType
->
-auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
-::cost_function(const VectorType &x)
-    -> RealType
-{
-    VectorType dy(F.evaluate(x) - *y_ptr);
-    VectorType dx = xa + (-1.0) * Sa * transp(K) * x;
-    return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
 }
 
 template
@@ -360,20 +325,19 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
           int verbosity)
     -> int
 {
-
     Log<LogType::MAP> log(verbosity);
 
     y_ptr = &y;
     x = xa;
-    VectorType yi = F.evaluate(x), yold;
-    VectorType dx;
+    auto &&yi = F.evaluate(x);
+    VectorType dx, yold;
 
     bool converged = false;
-    unsigned int iter = 0;
+    iterations = 0;
 
-    while (iter < M.maximum_iterations())
+    while (iterations < M.maximum_iterations())
     {
-        K   = F.Jacobian(x);
+        auto &&K = F.Jacobian(x);
         auto tmp = Sa * transp(K);
 
         // Compute Hessian.
@@ -395,7 +359,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
             converged = true;
             break;
         }
-        iter++;
+        iterations++;
     }
     return 0;
 }
