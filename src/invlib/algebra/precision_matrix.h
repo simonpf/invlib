@@ -125,11 +125,12 @@ public:
         return tmp;
     }
 
-    friend const Matrix& inv<Matrix>(PrecisionMatrix &A);
+    friend const Matrix & inv<Matrix>(PrecisionMatrix &A);
+    friend const Matrix & inv<Matrix>(const PrecisionMatrix &A);
 
 private:
 
-    const Matrix& A;
+    const Matrix &A;
 
 };
 
@@ -146,7 +147,7 @@ template
 <
 typename Matrix
 >
-const Matrix& inv(PrecisionMatrix<Matrix> &A)
+const Matrix & inv(PrecisionMatrix<Matrix> &A)
 {
     return A.A;
 }
@@ -155,7 +156,7 @@ template
 <
 typename Matrix
 >
-const Matrix& inv(const PrecisionMatrix<Matrix> &A)
+const Matrix & inv(const PrecisionMatrix<Matrix> &A)
 {
     return A.A;
 }
