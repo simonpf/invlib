@@ -136,6 +136,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
 {
 
     Log<LogType::MAP> log(verbosity);
+    log.init(Formulation::STANDARD, M);
 
     y_ptr = &y;
     x = xa;

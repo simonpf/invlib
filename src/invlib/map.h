@@ -39,7 +39,7 @@ namespace invlib
  *
  * For details on the form see template specializations.
  */
-enum class Formulation {STANDARD, NFORM, MFORM};
+enum class Formulation {STANDARD = 0, NFORM = 1, MFORM = 2};
 
 /**
  * \brief MAP base class
