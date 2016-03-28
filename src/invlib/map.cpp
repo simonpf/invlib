@@ -149,7 +149,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
     bool converged = false;
     iterations     = 0;
 
-    while (iterations < M.maximum_iterations())
+    while (iterations < M.get_maximum_iterations())
     {
         auto &&K = F.Jacobian(x);
         auto tmp = transp(K) * inv(Se);
@@ -160,13 +160,13 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         // Compute gradient and transform.
         VectorType g  = tmp * (yi - y) + inv(Sa) * (x - xa);
 
-        if ((g.norm() / n) < M.tolerance())
+        if ((g.norm() / n) < M.get_tolerance())
         {
             converged = true;
             break;
         }
 
-        M.step(dx, x, g, H, (*this));
+        dx = M.step(x, g, H, (*this));
         x += dx;
         yi = F.evaluate(x);
         iterations++;
@@ -234,7 +234,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
     bool converged = false;
     iterations = 0;
 
-    while (iterations < M.maximum_iterations())
+    while (iterations < M.get_maximum_iterations())
     {
         auto &&K  = F.Jacobian(x);
         auto tmp = transp(K) * inv(Se);
@@ -242,7 +242,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         // Compute true gradient for convergence test.
         VectorType g  = tmp * (yi - y) + inv(Sa) * (x - xa);
 
-        if ((g.norm() / n) < M.tolerance())
+        if ((g.norm() / n) < M.get_tolerance())
         {
             converged = true;
             break;
@@ -254,7 +254,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         // Compute gradient and transform.
         g = tmp * (y - yi + (K * (x - xa)));
 
-        M.step(dx, xa, g, H, (*this));
+        dx = M.step(xa, g, H, (*this));
 
         x = xa - dx;
         yi = F.evaluate(x);
@@ -335,7 +335,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
     bool converged = false;
     iterations = 0;
 
-    while (iterations < M.maximum_iterations())
+    while (iterations < M.get_maximum_iterations())
     {
         auto &&K = F.Jacobian(x);
         auto tmp = Sa * transp(K);
@@ -346,7 +346,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         // Compute gradient.
         VectorType g  = y - yi + K * (x - xa);
 
-        M.step(dx, xa, g, H, (*this));
+        dx = M.step(xa, g, H, (*this));
         x = xa - tmp * dx;
 
         yold = yi;
@@ -354,7 +354,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         VectorType dy = yi - yold;
         VectorType r = Se * H * Se * dy;
 
-        if ((dot(dy, r) / m) < M.tolerance())
+        if ((dot(dy, r) / m) < M.get_tolerance())
         {
             converged = true;
             break;

@@ -42,7 +42,7 @@ void sphere_test(unsigned int n)
         mform(F, xa, Sa, Se);
 
     GaussNewton<RealType> GN{};
-    GN.tolerance() = 1e-15; GN.maximum_iterations() = 1000;
+    GN.set_tolerance(1e-15); GN.set_maximum_iterations(1000);
 
     VectorType x_std, x_n, x_m;
     std.compute(x_std, y, GN);
@@ -60,7 +60,7 @@ void sphere_test(unsigned int n)
 
     ConjugateGradient cg(1e-15);
     GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
-    GN_CG.tolerance() = 1e-15; GN_CG.maximum_iterations() = 1000;
+    GN_CG.set_tolerance(1e-15); GN_CG.set_maximum_iterations(1000);
 
     std.compute(x_std, y, GN_CG);
     nform.compute(x_n, y, GN_CG);

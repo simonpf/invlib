@@ -38,17 +38,17 @@ void exact_minimization(unsigned int n)
 
     Identity I{};
     LevenbergMarquardt<RealType, Identity> LM(I);
-    LM.lambda_start() = 0.0;
+    LM.set_lambda(0.0);
     GaussNewton<RealType> GN{};
 
     auto g = J.gradient(x0);
     auto H = J.Hessian(x0);
 
-    LM.step(dx, x0, g, H, J);
+    dx = LM.step(x0, g, H, J);
     VectorType x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 
-    GN.step(dx, x0, g, H, J);
+    dx = GN.step(x0, g, H, J);
     x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 
@@ -56,14 +56,14 @@ void exact_minimization(unsigned int n)
 
     ConjugateGradient cg(EPS);
     LevenbergMarquardt<RealType, Identity, ConjugateGradient> LM_CG(I, cg);
-    LM_CG.lambda_start() = 0.0;
+    LM_CG.set_lambda(0.0);
     GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
 
-    LM_CG.step(dx, x0, g, H, J);
+    dx = LM_CG.step(x0, g, H, J);
     x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 
-    GN_CG.step(dx, x0, g, H, J);
+    dx = GN_CG.step(x0, g, H, J);
     x = x0 + dx;
     BOOST_TEST((x.norm() / n < EPS), "|x| = " << x.norm());
 }

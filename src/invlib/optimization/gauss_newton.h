@@ -84,11 +84,11 @@ public:
     //    Getters and Setters     //
     // -------------------------- //
 
-    unsigned int get_maximum_iterations();
+    unsigned int get_maximum_iterations() const;
     void set_maximum_iterations(unsigned int n);
 
-    void set_tolerance(unsigned int tolerance_);
-    RealType get_tolerance();
+    RealType get_tolerance() const;
+    void set_tolerance(RealType tolerance_);
 
     // --------------------------- //
     //  Perform Minimization Step  //
@@ -102,7 +102,7 @@ public:
      *  Hessian \f$B\f$, the other arguments are only provided for compatibilty
      *  with other optimization methods.
      *
-     * \tparam VectorType A fundamental vector. Must not be a algebraic
+     * \tparam VectorType A fundamental vector. Must not be an algebraic
      * expression.
      * \tparam MatrixType The type of the (approximate) Hessian matrix. May
      * be any algebraic expression that represents a matrix.
@@ -128,7 +128,7 @@ private:
 
 };
 
-#include gauss_newton.cpp
+#include "gauss_newton.cpp"
 
 }      // namespace invlib
 

@@ -5,10 +5,10 @@
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
-GaussNewton<RealType, Solve>::GaussNewton(Solver solver_ = Solver())
-    : tolerance(tolerance_), max_iter(1000), solver(solver_)
+GaussNewton<RealType, Solver>::GaussNewton(Solver solver_)
+    : tolerance(1e-5), maximum_iterations(1000), solver(solver_)
 {
     // Nothing to do here.
 }
@@ -16,12 +16,12 @@ GaussNewton<RealType, Solve>::GaussNewton(Solver solver_ = Solver())
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
-GaussNewton<RealType, Solve>::GaussNewton(RealType tolerance,
-                                          unsigned int maximum_iterations_,
-                                          Solver solver_ = Solver())
-    : tolerance(tolerance_), max_iter(maximum_iterations_), solver(solver_)
+GaussNewton<RealType, Solver>::GaussNewton(RealType tolerance_,
+                                           unsigned int maximum_iterations_,
+                                           Solver solver_)
+    : tolerance(tolerance_), maximum_iterations(maximum_iterations_), solver(solver_)
 {
     // Nothing to do here.
 }
@@ -33,9 +33,9 @@ GaussNewton<RealType, Solve>::GaussNewton(RealType tolerance,
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
-auto GaussNewton<RealType, Solve>::get_maximum_iterations()
+auto GaussNewton<RealType, Solver>::get_maximum_iterations() const
     -> unsigned int
 {
     return maximum_iterations;
@@ -44,9 +44,9 @@ auto GaussNewton<RealType, Solve>::get_maximum_iterations()
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
-void GaussNewton<RealType, Solve>::set_maximum_iterations(unsigned int n)
+void GaussNewton<RealType, Solver>::set_maximum_iterations(unsigned int n)
 {
     maximum_iterations = n;
 }
@@ -54,10 +54,10 @@ void GaussNewton<RealType, Solve>::set_maximum_iterations(unsigned int n)
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
-auto GaussNewton<RealType, Solve>::get_tolerance()
-    -> unsigned int
+auto GaussNewton<RealType, Solver>::get_tolerance() const
+    -> RealType
 {
     return tolerance;
 }
@@ -65,24 +65,11 @@ auto GaussNewton<RealType, Solve>::get_tolerance()
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
-void GaussNewton<RealType, Solve>::set_tolerance(RealType tolerance_)
+void GaussNewton<RealType, Solver>::set_tolerance(RealType tolerance_)
 {
     tolerance = tolerance_;
-}
-
-template
-<
-typename RealType,
-typename Solver = Standard
->
-GaussNewton<RealType, Solve>::GaussNewton(RealType tolerance_,
-                                          RealType maximum_iterations_,
-                                          Solver   solve_ = Solver())
-    : tolerance(1e-5), maximum_iterations(maximum_iterations_), solver(solver_)
-{
-    // Nothing to do here.
 }
 
 // --------------------------- //
@@ -92,7 +79,7 @@ GaussNewton<RealType, Solve>::GaussNewton(RealType tolerance_,
 template
 <
 typename RealType,
-typename Solver = Standard
+typename Solver
 >
 template
 <
@@ -100,13 +87,12 @@ typename VectorType,
 typename MatrixType,
 typename CostFunction
 >
-auto GaussNewton<RealType, Solve>
-::step<VectorType, MatrixType, CostFunction>(const Vector &
-                                             const Vector &g,
-                                             const Matrix &B,
-                                             const CostFunction &)
+auto GaussNewton<RealType, Solver> ::step(const VectorType &,
+                                          const VectorType &g,
+                                          const MatrixType &B,
+                                          const CostFunction &)
     -> VectorType
 {
-    dx = -1.0 * solver.solve(B, g);
-    return 0;
+    VectorType dx = -1.0 * solver.solve(B, g);
+    return dx;
 }
