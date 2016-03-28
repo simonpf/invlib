@@ -11,11 +11,12 @@ invlib is currently under development and will be integrated into the open-sourc
 atmospheric radiative transfer code [ARTS](http://www.radiativetransfer.org/).
 
 ## Current Features:
-    - **Standard**, **n-form** and **m-form** formulation of the MAP estimators.
-    - **Optimization Methods**: Gauss-Newton, Levenberg-Marquardt
-    - **Indirect solver**: Provides a conjugate gradient solver for the subproblem
-      of the Gauss-Newton or Levenberg-Marquardt subproblem.
-    - **Optimized symbolic matrix algebra**: The symbolic algebra delays computation
-      of matrix arithmetic operations until it gets converted to the result type.
-      This avoids the computation of expensive matrix-matrix products if the result
-      of the expression is actually a vector.
+
+- **Standard**, **n-form** and **m-form** formulation of the MAP estimators.
+- **Optimization Methods**: Gauss-Newton, Levenberg-Marquardt
+- **Indirect solver**: Provides a conjugate gradient solver for the subproblem
+    of the Gauss-Newton or Levenberg-Marquardt subproblem.
+- **Optimized symbolic matrix algebra**: The symbolic algebra delays computation
+    of matrix arithmetic operations until it gets converted to the result type.
+    This avoids the computation of expensive matrix-matrix products if the result
+    of the expression is actually a vector.
