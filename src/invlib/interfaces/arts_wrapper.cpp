@@ -228,6 +228,14 @@ auto ArtsSparse::multiply(const ArtsVector &v) const
     return w;
 }
 
+auto ArtsSparse::transpose_multiply(const ArtsVector &v) const
+    -> ArtsVector
+{
+    ArtsVector w; w.resize(A.ncols());
+    ::transpose_mult(w, A, v);
+    return w;
+}
+
 ArtsSparse::operator ArtsMatrix() const
 {
     ArtsMatrix B;
