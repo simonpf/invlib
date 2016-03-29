@@ -81,7 +81,7 @@ std::string separator(int width = 80)
 // ------------------- //
 
 template<typename T>
-std::string name();
+struct OptimizerLog;
 
 template
 <
@@ -89,20 +89,48 @@ typename RealType,
 typename DampingMatrix,
 typename Solver
 >
-std::string name()
+struct OptimizerLog<LevenbergMarquardt<RealType, DampingMatrix, Solver>>
 {
-    return std::string("Levenberg-Marquardt");
-}
+    static constexpr auto name = "Levenberg-Marquardt";
+
+    static std::string header()
+    {
+        std::string lambda = "\u03BB";
+        std::string out(15 - lambda.size(), ' ');
+        out += lambda;
+        return out;
+    }
+
+    static std::string log(const LevenbergMarquardt<RealType, DampingMatrix, Solver> &g)
+    {
+        std::string lambda = std::to_string(g.get_lambda());
+        std::string out(15 - lambda.size(), ' ');
+        out += lambda;
+        return out;
+    }
+
+};
 
 template
 <
 typename RealType,
 typename Solver
 >
-std::string name()
+struct OptimizerLog<GaussNewton<RealType, Solver>>
 {
-    return std::string("Gauss-Newton");
-}
+    static constexpr auto name = "Gauss-Newton";
+
+    static std::string header()
+    {
+        return "";
+    }
+
+    static std::string log(const GaussNewton<RealType, Solver> &g)
+    {
+        return "";
+    }
+
+};
 
 // ---------------------- //
 //     Log Functions      //
@@ -115,6 +143,7 @@ void StandardLog<LogType::MAP>::init(Params... params)
     auto tuple = std::make_tuple(params...);
     if (verbosity >= 1)
     {
+        std::cout << std::endl;
         std::cout << center("MAP Computation") << std::endl;
 
         // Print formulation.
@@ -136,9 +165,17 @@ void StandardLog<LogType::MAP>::init(Params... params)
         // Print optimization method.
         using OptimizationType =
             typename std::tuple_element<1, decltype(tuple)>::type;
-        std::cout << "Optimization Method:" << name<OptimizationType>() << std::endl;
+        std::cout << "Method:      " << OptimizerLog<OptimizationType>::name;
+        std::cout << std::endl;
 
-        std::cout << separator() << std::endl;
+        if (verbosity >= 2)
+        {
+            std::cout << std::endl;
+            std::cout << std::setw(5) << "Step" << std::setw(15) << "Total Cost";
+            std::cout << std::setw(15) << "x-cost" << std::setw(15) << "y-cost";
+            std::cout << OptimizerLog<OptimizationType>::header();
+            std::cout << std::endl << separator() << std::endl;
+        }
     }
 }
 
@@ -146,13 +183,18 @@ template<>
 template<typename... Params>
 void StandardLog<LogType::MAP>::step(Params... params)
 {
+
     if (verbosity >= 2)
     {
         auto tuple = std::make_tuple(params...);
-        std::cout<< std::setw(15) << std::get<0>(tuple);
+        using OptimizationType =
+            typename std::tuple_element<4, decltype(tuple)>::type;
+
+        std::cout<< std::setw(5) << std::get<0>(tuple);
         std::cout<< std::setw(15) << std::get<1>(tuple);
         std::cout<< std::setw(15) << std::get<2>(tuple);
         std::cout<< std::setw(15) << std::get<3>(tuple);
+        std::cout<< OptimizerLog<OptimizationType>::log(std::get<4>(tuple));
         std::cout << std::endl;
     }
 }
@@ -163,8 +205,16 @@ void StandardLog<LogType::MAP>::finalize(Params... params)
 {
     if (verbosity >= 1)
     {
+        if (verbosity >= 2)
+            std::cout << separator() << std::endl;
+
         auto tuple = std::make_tuple(params...);
         std::cout << std::endl;
+
+        std::cout << "Total number of steps: ";
+        std::cout << std::get<1>(tuple) << std::endl;
+        std::cout << "Final cost function value: ";
+        std::cout << std::get<2>(tuple) << std::endl;
 
         bool converged = std::get<0>(tuple);
         if (converged)
@@ -176,10 +226,6 @@ void StandardLog<LogType::MAP>::finalize(Params... params)
             std::cout << "MAP Computation NOT converged!" << std::endl;
         }
 
-        std::cout << "\tTotal number of steps: ";
-        std::cout << std::get<1>(tuple) << std::endl;
-        std::cout << "\tFinal cost function value: ";
-        std::cout << std::get<2>(tuple) << std::endl;
 
     }
 }

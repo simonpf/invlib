@@ -266,7 +266,7 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, template <LogType> typename Log = StandardLog>
+    template<typename Minimizer, template <LogType> class Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
                 Minimizer M,
@@ -346,7 +346,7 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, template <LogType> typename Log = StandardLog>
+    template<typename Minimizer, template <LogType> class Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
                 Minimizer M,
@@ -432,7 +432,7 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, template <LogType> typename Log = StandardLog>
+    template<typename Minimizer, template <LogType> class Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
                 Minimizer M,

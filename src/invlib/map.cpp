@@ -126,7 +126,7 @@ typename MatrixType,
 typename SaType,
 typename SeType
 >
-template<typename Minimizer, template <LogType> typename Log>
+template<typename Minimizer, template <LogType> class Log>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
 ::compute(VectorType       &x,
           const VectorType &y,
@@ -176,7 +176,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
-        log.step(iterations, cost, cost_x, cost_y);
+        log.step(iterations, cost, cost_x, cost_y, M);
     }
 
     log.finalize(converged, iterations, cost, cost_x, cost_y);
@@ -212,7 +212,7 @@ typename MatrixType,
 typename SaType,
 typename SeType
 >
-template<typename Minimizer, template <LogType> typename Log>
+template<typename Minimizer, template <LogType> class Log>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 ::compute(VectorType       &x,
           const VectorType &y,
@@ -265,7 +265,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
-        log.step(iterations, cost, cost_x, cost_y);
+        log.step(iterations, cost, cost_x, cost_y, M);
     }
 
     log.finalize(converged, iterations, cost, cost_x, cost_y);
@@ -318,7 +318,7 @@ typename MatrixType,
 typename SaType,
 typename SeType
 >
-template<typename Minimizer, template <LogType> typename Log>
+template<typename Minimizer, template <LogType> class Log>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
 ::compute(VectorType       &x,
           const VectorType &y,

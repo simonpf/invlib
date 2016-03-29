@@ -53,7 +53,7 @@ void linear_test(unsigned int n)
     lm.set_tolerance(1e-9); lm.set_maximum_iterations(1000);
 
     VectorType x_std_lm, x_std_gn, x_n_gn, x_m_gn;
-    std.compute(x_std_lm, y, lm);
+    std.compute(x_std_lm, y, lm, 1);
     std.compute(x_std_gn, y, gn);
     nform.compute(x_n_gn, y, gn);
     mform.compute(x_m_gn, y, gn);
@@ -128,7 +128,7 @@ void linear_test_transformed(unsigned int n)
     lm_pre.set_tolerance(1e-9); lm_pre.set_maximum_iterations(1000);
 
     VectorType x_ref, x_std_lm, x_std_gn, x_n_gn, x_m_gn;
-    std.compute(x_ref, y, gn, 1);
+    std.compute(x_ref, y, gn);
     std.compute(x_std_lm, y, lm_pre);
     std.compute(x_std_gn, y, gn_pre);
     nform.compute(x_n_gn, y, gn_pre);
