@@ -126,7 +126,7 @@ public:
      */
     Real   operator()(unsigned int i) const;
 
-    /*! Number of rows of the vector 
+    /*! Number of rows of the vector
      *
      * \return The number of rows (dimension) of the vector.
      */

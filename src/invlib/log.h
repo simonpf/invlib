@@ -3,6 +3,8 @@
 
 #include <tuple>
 #include <string>
+#include <iostream>
+#include <iomanip>
 
 namespace invlib
 {
