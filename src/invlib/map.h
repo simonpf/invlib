@@ -98,14 +98,28 @@ public:
     /*! The basic vector type  */
     using VectorType = typename MatrixType::VectorType;
 
+private:
 
-    /* /\*! The type of the gradient vector as returned by the forward model. *\/ */
-    /* using GradientType = */
-    /*     return_type<decltype(&decay<ForwardModel>::evaluate), const VectorType&>; */
+    // Helper functions to determine type of gradient and Jacobian
+    // as returned by the forward model.
+    auto evaluate_helper(ForwardModel &f, const VectorType& x)
+        -> decltype(f.evaluate(x));
+    auto Jacobian_helper(ForwardModel &f, const VectorType& x)
+        -> decltype(f.Jacobian(x));
 
-    /* /\*! The type of the Jacobian matrix as returned by the forward model. *\/ */
-    /* using JacobianType = */
-    /*     return_type<decltype(&decay<ForwardModel>::Jacobian), const VectorType&>; */
+public:
+
+    /*! The type of the gradient vector as returned by the forward model. */
+    using GradientType =
+        return_type<decltype(&MAPBase::evaluate_helper)(MAPBase,
+                                                        ForwardModel&,
+                                                        const VectorType&)>;
+
+    /*! The type of the Jacobian matrix as returned by the forward model. */
+    using JacobianType =
+        return_type<decltype(&MAPBase::Jacobian_helper)(MAPBase,
+                                                        ForwardModel&,
+                                                        const VectorType&)>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -182,17 +196,6 @@ public:
      */
     RealType cost_y(const VectorType &y,
                     const VectorType &yi);
-
-    auto evaluate_helper(ForwardModel &f, const VectorType& x)
-        -> decltype(f.evaluate(x));
-
-    auto Jacobian_helper(ForwardModel &f, const VectorType& x)
-        -> decltype(f.Jacobian(x));
-
-    using GradientType =
-        return_type<decltype(&MAPBase::evaluate_helper)(MAPBase, ForwardModel&, const VectorType&)>;
-    using JacobianType =
-        return_type<decltype(&MAPBase::Jacobian_helper)(MAPBase, ForwardModel&, const VectorType&)>;
 
     /*! Exception safe wrapper for the evaluate function of the forward
      * model.
