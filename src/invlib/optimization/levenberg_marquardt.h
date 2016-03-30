@@ -130,7 +130,7 @@ private:
 
     RealType current_cost, tolerance, lambda, lambda_maximum, lambda_increase,
     lambda_decrease, lambda_threshold;
-    unsigned int step_count, maximum_iterations;
+    unsigned int maximum_iterations, step_count;
 
     // Positive definite matrix defining the trust region sphere r < ||Mx||.
     DampingMatrix D;

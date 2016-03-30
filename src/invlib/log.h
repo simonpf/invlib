@@ -127,7 +127,7 @@ struct OptimizerLog<GaussNewton<RealType, Solver>>
         return "";
     }
 
-    static std::string log(const GaussNewton<RealType, Solver> &g)
+    static std::string log(const GaussNewton<RealType, Solver> &)
     {
         return "";
     }
