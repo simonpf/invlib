@@ -1,10 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <iostream>
+
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/log.h"
-#include <iostream>
+#include "invlib/traits.h"
 
 /** file map.h
  * \brief Maximum A Posteriori Estimators
@@ -40,6 +42,14 @@ namespace invlib
  * For details on the form see template specializations.
  */
 enum class Formulation {STANDARD = 0, NFORM = 1, MFORM = 2};
+
+class ForwardModelEvaluationException
+{
+    std::string message()
+    {
+        return "Could not evaluate forward model";
+    }
+};
 
 /**
  * \brief MAP base class
@@ -87,6 +97,15 @@ public:
     using RealType   = typename MatrixType::RealType;
     /*! The basic vector type  */
     using VectorType = typename MatrixType::VectorType;
+
+
+    /* /\*! The type of the gradient vector as returned by the forward model. *\/ */
+    /* using GradientType = */
+    /*     return_type<decltype(&decay<ForwardModel>::evaluate), const VectorType&>; */
+
+    /* /\*! The type of the Jacobian matrix as returned by the forward model. *\/ */
+    /* using JacobianType = */
+    /*     return_type<decltype(&decay<ForwardModel>::Jacobian), const VectorType&>; */
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -163,6 +182,28 @@ public:
      */
     RealType cost_y(const VectorType &y,
                     const VectorType &yi);
+
+    auto evaluate_helper(ForwardModel &f, const VectorType& x)
+        -> decltype(f.evaluate(x));
+
+    auto Jacobian_helper(ForwardModel &f, const VectorType& x)
+        -> decltype(f.Jacobian(x));
+
+    using GradientType =
+        return_type<decltype(&MAPBase::evaluate_helper)(MAPBase, ForwardModel&, const VectorType&)>;
+    using JacobianType =
+        return_type<decltype(&MAPBase::Jacobian_helper)(MAPBase, ForwardModel&, const VectorType&)>;
+
+    /*! Exception safe wrapper for the evaluate function of the forward
+     * model.
+     */
+    GradientType evaluate(const VectorType &x);
+
+    /*! Exception safe wrapper for the Jaobian computation function of the
+     * forward model.
+     */
+    JacobianType Jacobian(const VectorType &x);
+
     /*! Compute the gain matrix at the given state vector x.
      *
      * Computes the gain matrix
@@ -238,6 +279,7 @@ public:
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
+    using Base::evaluate; using Base::Jacobian;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,
@@ -318,6 +360,7 @@ public:
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
+    using Base::evaluate; using Base::Jacobian;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,
@@ -397,6 +440,7 @@ public:
     using Base::y_ptr; using Base::xa;
     using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
+    using Base::evaluate; using Base::Jacobian;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,

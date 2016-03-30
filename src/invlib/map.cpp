@@ -1,3 +1,7 @@
+// ----------------- //
+//   MAP Base Class  //
+// ----------------- //
+
 template
 <
 typename ForwardModel,
@@ -44,7 +48,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
 ::cost_function(const VectorType &x)
     -> RealType
 {
-    auto &&y = F.evaluate(x);
+    auto &&y = evaluate(x);
     VectorType dy = y - *y_ptr;
     VectorType dx = xa - x;
     return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
@@ -89,18 +93,60 @@ typename SaType,
 typename SeType
 >
 auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+::evaluate(const VectorType& x)
+    -> GradientType
+{
+    try
+    {
+        return F.evaluate(x);
+    }
+    catch(...)
+    {
+        throw ForwardModelEvaluationException{};
+    }
+}
+
+template
+<
+typename ForwardModel,
+typename MatrixType,
+typename SaType,
+typename SeType
+>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+::Jacobian(const VectorType& x)
+    -> JacobianType
+{
+    try
+    {
+        return F.Jacobian(x);
+    }
+    catch(...)
+    {
+        throw ForwardModelEvaluationException{};
+    }
+}
+
+template
+<
+typename ForwardModel,
+typename MatrixType,
+typename SaType,
+typename SeType
+>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
-    auto &&K = F.Jacobian(x);
+    auto &&K = Jacobian(x);
     MatrixType tmp = transp(K) * inv(Se);
     MatrixType G = inv(tmp * K + inv(Sa)) * tmp;
     return G;
 }
 
-// ------------- //
-//   Standard    //
-// ------------- //
+// ----------------- //
+//   Standard Form   //
+// ----------------- //
 
 template
 <
@@ -140,7 +186,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
 
     y_ptr = &y;
     x = xa;
-    VectorType yi = F.evaluate(x);
+    VectorType yi = evaluate(x);
     VectorType dx;
 
     cost_x = this->Base::cost_x(x);
@@ -152,7 +198,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
 
     while (iterations < M.get_maximum_iterations())
     {
-        auto &&K = F.Jacobian(x);
+        auto &&K = Jacobian(x);
         auto tmp = transp(K) * inv(Se);
 
         // Compute Hessian and transform.
@@ -169,7 +215,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
 
         dx = M.step(x, g, H, (*this));
         x += dx;
-        yi = F.evaluate(x);
+        yi = evaluate(x);
         iterations++;
 
         cost_x = this->Base::cost_x(x);
@@ -225,7 +271,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 
     y_ptr = &y;
     x = xa;
-    auto &&yi = F.evaluate(x);
+    auto &&yi = evaluate(x);
     VectorType dx;
 
     cost_x = this->Base::cost_x(x);
@@ -237,7 +283,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 
     while (iterations < M.get_maximum_iterations())
     {
-        auto &&K  = F.Jacobian(x);
+        auto &&K  = Jacobian(x);
         auto tmp = transp(K) * inv(Se);
 
         // Compute true gradient for convergence test.
@@ -258,7 +304,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         dx = M.step(xa, g, H, (*this));
 
         x = xa - dx;
-        yi = F.evaluate(x);
+        yi = evaluate(x);
         iterations++;
 
         cost_x = this->Base::cost_x(x);
@@ -305,7 +351,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
-    auto &&K = F.Jacobian(x);
+    auto &&K = Jacobian(x);
     MatrixType SaKT = Sa * transp(K);
     MatrixType G = SaKT * inv(K * SaKT + Se);
     return G;
@@ -330,7 +376,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
 
     y_ptr = &y;
     x = xa;
-    auto &&yi = F.evaluate(x);
+    auto &&yi = evaluate(x);
     VectorType dx, yold;
 
     bool converged = false;
@@ -338,7 +384,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
 
     while (iterations < M.get_maximum_iterations())
     {
-        auto &&K = F.Jacobian(x);
+        auto &&K = Jacobian(x);
         auto tmp = Sa * transp(K);
 
         // Compute Hessian.
@@ -351,7 +397,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         x = xa - tmp * dx;
 
         yold = yi;
-        yi = F.evaluate(x);
+        yi = evaluate(x);
         VectorType dy = yi - yold;
         VectorType r = Se * H * Se * dy;
 
