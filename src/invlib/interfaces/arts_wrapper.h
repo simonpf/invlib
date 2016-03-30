@@ -1,7 +1,9 @@
 #ifndef INTERFACES_ARTS_WRAPPER_H
 #define INTERFACES_ARTS_WRAPPER_H
 
-#define HAVE_CONFIG_H (1)
+#ifndef HAVE_CONFIG_H
+    #define HAVE_CONFIG_H (1)
+#endif
 
 #include <iostream>
 

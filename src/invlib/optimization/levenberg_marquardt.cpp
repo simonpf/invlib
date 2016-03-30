@@ -12,9 +12,9 @@ typename Solver
 LevenbergMarquardt<RealType, DampingMatrix, Solver>
 ::LevenbergMarquardt(const DampingMatrix &D_,
                      Solver solver)
-    : D(D_), current_cost(0.0), tolerance(1e-5), lambda(4.0),
-      lambda_maximum(100.0), lambda_increase(2.0), lambda_decrease(3.0),
-      lambda_threshold(1.0), maximum_iterations(100), step_count(0), s(solver)
+    : current_cost(0.0), tolerance(1e-5), lambda(4.0), lambda_maximum(100.0),
+      lambda_increase(2.0), lambda_decrease(3.0), lambda_threshold(1.0),
+      maximum_iterations(100), step_count(0),D(D_), s(solver)
 {
     // Nothing to do here.
 }

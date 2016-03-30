@@ -223,7 +223,7 @@ public:
 
 protected:
 
-    unsigned int n, m;
+    unsigned int m, n;
 
     ForwardModel &F;
     const VectorType   &xa;

@@ -65,7 +65,7 @@ private:
 
 std::string center(const std::string &s, int width = 80)
 {
-    int padding_length = (width - s.size()) / 2;
+    auto padding_length = (width - s.size()) / 2;
     std::string padding(padding_length, ' ');
     std::string centered(padding);
     centered += s;

@@ -14,7 +14,7 @@ MAPBase<ForwardModel, MatrixType, SaType, SeType>
           const VectorType &xa_,
           const SaType     &Sa_,
           const SeType     &Se_)
-    : F(F_), xa(xa_), Sa(Sa_), Se(Se_), y_ptr(nullptr), n(F_.n), m(F_.m)
+    : n(F_.n), m(F_.m), F(F_), xa(xa_), y_ptr(nullptr), Sa(Sa_), Se(Se_)
 {
     // Nothing to do here.
 }
