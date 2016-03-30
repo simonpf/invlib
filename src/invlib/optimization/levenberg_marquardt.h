@@ -133,7 +133,7 @@ private:
     unsigned int maximum_iterations, step_count;
 
     // Positive definite matrix defining the trust region sphere r < ||Mx||.
-    DampingMatrix D;
+    const DampingMatrix &D;
 
     Solver s;
 
