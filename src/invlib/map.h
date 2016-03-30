@@ -43,7 +43,10 @@ namespace invlib
  */
 enum class Formulation {STANDARD = 0, NFORM = 1, MFORM = 2};
 
-class ForwardModelEvaluationException
+/*!
+ * Exception class representing falure of the forward model evaluation.
+ */
+struct ForwardModelEvaluationException
 {
     std::string message()
     {
