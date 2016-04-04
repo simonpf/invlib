@@ -27,6 +27,15 @@ MatrixArchetype<Real>& MatrixArchetype<Real>::operator=(const MatrixArchetype &A
 }
 
 template <typename Real>
+MatrixArchetype<Real>& MatrixArchetype<Real>::operator=(MatrixArchetype &&A)
+{
+    m = A.rows();
+    n = A.cols();
+    data = std::move(A.data);
+    A.resize(0, 0);
+}
+
+template <typename Real>
 void MatrixArchetype<Real>::resize(unsigned int i, unsigned int j)
 {
     m = i;

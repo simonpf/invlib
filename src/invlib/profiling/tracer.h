@@ -46,8 +46,22 @@ class Tracer : public Base
 {
 public:
 
+    /*! The basic scalar type. */
+    using RealType   = typename Base::RealType;
+    /*! The basic vector type  */
+    using VectorType = Tracer<typename Base::VectorType, file_suffix>;
+    /*! The basic matrix type. */
+    using MatrixType = Tracer<typename Base::MatrixType, file_suffix>;
+    /*!
+     * Result type of an algebraic expression with Matrix as right hand
+     * operator
+     */
+    using ResultType = Tracer<typename Base::ResultType, file_suffix>;
+
     Tracer();
 
+    template<typename T>
+    Tracer(T &);
     template<typename T>
     Tracer(T &&);
 

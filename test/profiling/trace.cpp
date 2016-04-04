@@ -29,14 +29,14 @@ int main()
     MatrixTracer::start_tracing();
     VectorTracer::start_tracing();
 
-    MatrixType A, B, C, D; A.resize(10,10);
+    MatrixType A, B, C, D; A.resize(100,100);
 
-    B = A * A;         B.resize(0,0);
+    B = A * A; B.resize(0,0);
     C = A * A * A;     C.resize(0,0);
     D = A * A * A * A; D.resize(0,0);
-    MatrixType E = A * A;         E.resize(0,0);
-    MatrixType F = A * A * A;     F.resize(0,0);
-    MatrixType G = A * A * A * A; G.resize(0,0);
+    // MatrixType E = A * A;         E.resize(0,0);
+    // MatrixType F = A * A * A;     F.resize(0,0);
+    // MatrixType G = A * A * A * A; G.resize(0,0);
 
     MatrixTracer::stop_tracing("test");
     VectorTracer::stop_tracing("test");

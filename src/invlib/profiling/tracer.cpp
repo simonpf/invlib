@@ -60,11 +60,22 @@ Tracer<Base, file_suffix>::Tracer()
 
 template <typename Base, const char* file_suffix>
     template <typename T>
-Tracer<Base, file_suffix>::Tracer(T &&t)
+Tracer<Base, file_suffix>::Tracer(T &t)
     : Base(std::forward<T>(t))
 {
     object_count++;
     total_size += this->cols() * this->rows() * size;
+
+    object_counts.push_back(object_count);
+    total_sizes.push_back(total_size);
+}
+
+template <typename Base, const char* file_suffix>
+    template <typename T>
+Tracer<Base, file_suffix>::Tracer(T &&t)
+    : Base(std::forward<T>(t))
+{
+    object_count++;
 
     object_counts.push_back(object_count);
     total_sizes.push_back(total_size);

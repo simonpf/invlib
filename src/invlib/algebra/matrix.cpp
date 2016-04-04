@@ -21,6 +21,7 @@ auto Matrix<Base>::operator=(const Matrix &t)
     -> Matrix &
 {
     Base::operator=(t);
+    return (*this);
 }
 
 template<typename Base>
@@ -28,6 +29,7 @@ auto Matrix<Base>::operator=(Matrix &&t)
     -> Matrix &
 {
     Base::operator=(t);
+    return (*this);
 }
 
 template<typename Base>
