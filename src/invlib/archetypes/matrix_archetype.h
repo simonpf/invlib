@@ -59,7 +59,7 @@ public:
     MatrixArchetype(const MatrixArchetype &);
 
     // Moves are not supported.
-    MatrixArchetype(MatrixArchetype &&) = default;
+    MatrixArchetype(MatrixArchetype &&);
 
     /*! Assignment operator.
      *
@@ -215,7 +215,8 @@ public:
 
 private:
 
-    unsigned int n,m;
+    unsigned int m = 0;
+    unsigned int n = 0;
     std::unique_ptr<Real[]> data;
 
 };

@@ -9,6 +9,14 @@ MatrixArchetype<Real>::MatrixArchetype(const MatrixArchetype<Real> &A)
 }
 
 template <typename Real>
+MatrixArchetype<Real>::MatrixArchetype(MatrixArchetype<Real> &&A)
+    : m(A.rows()), n(A.cols())
+{
+    data = std::forward<std::unique_ptr<Real[]>>(A.data);
+    A.resize(0,0);
+}
+
+template <typename Real>
 MatrixArchetype<Real>& MatrixArchetype<Real>::operator=(const MatrixArchetype &A)
 {
     m = A.rows();

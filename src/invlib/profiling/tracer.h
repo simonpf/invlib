@@ -33,41 +33,20 @@ typename Solver
 >
 class LevenbergMarquardt;
 
-// ----------------------- //
-//  TypeName Helper Class  //
-// ----------------------  //
-
-template <typename T>
-struct TypeName
-{
-    static constexpr auto name = "void";
-};
-
-template <typename T>
-struct TypeName<Vector<T>>
-{
-    static constexpr auto name = "Vector";
-};
-
-template <typename T>
-struct TypeName<Matrix<T>>
-{
-    static constexpr auto name = "Matrix";
-};
-
 // --------------- //
 //   Tracer Class  //
 // --------------  //
 
 template
 <
-typename Base
+typename Base,
+const char *file_suffix
 >
 class Tracer : public Base
 {
 public:
 
-    Tracer() = default;
+    Tracer();
 
     template<typename T>
     Tracer(T &&);
