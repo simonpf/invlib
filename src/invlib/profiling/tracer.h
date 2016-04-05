@@ -60,13 +60,17 @@ public:
 
     Tracer();
 
-    template<typename T>
-    Tracer(T &);
-    template<typename T>
-    Tracer(T &&);
+    Tracer(const Tracer &);
+    Tracer(const Base &);
 
-    template<typename T>
-    Tracer & operator=(T &&);
+    Tracer(Tracer &&);
+    Tracer(Base &&);
+
+    Tracer & operator=(const Tracer &);
+    Tracer & operator=(const Base &);
+
+    Tracer & operator=(Tracer &&);
+    Tracer & operator=(Base &&);
 
     ~Tracer();
 

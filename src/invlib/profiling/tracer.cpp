@@ -59,9 +59,8 @@ Tracer<Base, file_suffix>::Tracer()
 }
 
 template <typename Base, const char* file_suffix>
-    template <typename T>
-Tracer<Base, file_suffix>::Tracer(T &t)
-    : Base(std::forward<T>(t))
+Tracer<Base, file_suffix>::Tracer(const Tracer &t)
+    : Base(t)
 {
     object_count++;
     total_size += this->cols() * this->rows() * size;
@@ -71,9 +70,19 @@ Tracer<Base, file_suffix>::Tracer(T &t)
 }
 
 template <typename Base, const char* file_suffix>
-    template <typename T>
-Tracer<Base, file_suffix>::Tracer(T &&t)
-    : Base(std::forward<T>(t))
+Tracer<Base, file_suffix>::Tracer(const Base &t)
+    : Base(t)
+{
+    object_count++;
+    total_size += this->cols() * this->rows() * size;
+
+    object_counts.push_back(object_count);
+    total_sizes.push_back(total_size);
+}
+
+template <typename Base, const char* file_suffix>
+Tracer<Base, file_suffix>::Tracer(Tracer &&t)
+    : Base(std::move(t))
 {
     object_count++;
 
@@ -82,15 +91,65 @@ Tracer<Base, file_suffix>::Tracer(T &&t)
 }
 
 template <typename Base, const char* file_suffix>
-    template <typename T>
-Tracer<Base, file_suffix> & Tracer<Base, file_suffix>::operator=(T &&t)
+Tracer<Base, file_suffix>::Tracer(Base &&t)
+    : Base(std::move(t))
+{
+    object_count++;
+    total_size += this->cols() * this->rows() * size;
+
+    object_counts.push_back(object_count);
+    total_sizes.push_back(total_size);
+}
+
+template <typename Base, const char* file_suffix>
+Tracer<Base, file_suffix> & Tracer<Base, file_suffix>::operator=(const Tracer &t)
 {
     total_size -= this->cols() * this->rows() * size;
-    (*this).Base::operator=(std::forward<T>(t));
+    (*this).Base::operator=(t);
     total_size += this->cols() * this->rows() * size;
 
     object_counts.push_back(object_count);
     total_sizes.push_back(total_size);
+
+    return *this;
+}
+
+template <typename Base, const char* file_suffix>
+Tracer<Base, file_suffix> & Tracer<Base, file_suffix>::operator=(const Base &t)
+{
+    total_size -= this->cols() * this->rows() * size;
+    (*this).Base::operator=(t);
+    total_size += this->cols() * this->rows() * size;
+
+    object_counts.push_back(object_count);
+    total_sizes.push_back(total_size);
+
+    return *this;
+}
+
+template <typename Base, const char* file_suffix>
+Tracer<Base, file_suffix> & Tracer<Base, file_suffix>::operator=(Tracer &&t)
+{
+    total_size -= this->cols() * this->rows() * size;
+    (*this).Base::operator=(std::move(t));
+
+    object_counts.push_back(object_count);
+    total_sizes.push_back(total_size);
+
+    return *this;
+}
+
+template <typename Base, const char* file_suffix>
+Tracer<Base, file_suffix> & Tracer<Base, file_suffix>::operator=(Base &&t)
+{
+    total_size -= this->cols() * this->rows() * size;
+    (*this).Base::operator=(std::move(t));
+    total_size += this->cols() * this->rows() * size;
+
+    object_counts.push_back(object_count);
+    total_sizes.push_back(total_size);
+
+    return *this;
 }
 
 template <typename Base, const char* file_suffix>
