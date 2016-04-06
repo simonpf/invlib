@@ -120,8 +120,10 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     -> GradientType
 {
     if (cache_valid)
+    {
         std::cout << "Using cached yi." << std::endl;
         return yi_cached;
+    }
     else
     {
         try
