@@ -74,6 +74,6 @@ typename T2
 >
 MatrixProduct<T1, T2>::operator ResultType() const
 {
-    ResultType C = A.multiply(B);
+    ResultType C = A.multiply(static_cast<const ResultType &>(B));
     return C;
 }
