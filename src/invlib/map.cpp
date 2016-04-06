@@ -51,8 +51,6 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     yi_cached = evaluate(x);
     cache_valid = true;
 
-    std::cout << "Using cached yi." << std::endl;
-
     VectorType dy = yi_cached - *y_ptr;
     VectorType dx = xa - x;
     return dot(dy, inv(Se) * dy) + dot(dx, inv(Sa) * dx);
@@ -122,6 +120,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     -> GradientType
 {
     if (cache_valid)
+        std::cout << "Using cached yi." << std::endl;
         return yi_cached;
     else
     {
