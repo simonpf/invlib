@@ -3,6 +3,7 @@
 
 #include "invlib/algebra.h"
 #include <iostream>
+#include "invlib/log.h"
 
 namespace invlib
 {
@@ -82,8 +83,13 @@ public:
      * \param A The algebraic expression representing the linear system.
      * \param v The RHS vector \f$v\f$ of the linear system.
      */
-    template <typename VectorType, typename MatrixType>
-    VectorType solve(const MatrixType&A, const VectorType& v);
+    template
+    <
+    typename VectorType,
+    typename MatrixType,
+    template <LogType> class Log = StandardLog
+    >
+    VectorType solve(const MatrixType&A, const VectorType& v, int verbosity = 0);
 
 private:
 
