@@ -13,7 +13,7 @@ auto Standard::solve(const MatrixType &A,const VectorType &v)
 //  Conjugate Gradient Solver //
 // -------------------------  //
 
-ConjugateGradient::ConjugateGradient(double tol, int verbosity_ = 0)
+ConjugateGradient::ConjugateGradient(double tol, int verbosity_)
     : tolerance(tol), verbosity(verbosity_)
 {
     // Nothing to do here.
