@@ -14,7 +14,7 @@ auto Standard::solve(const MatrixType &A,const VectorType &v)
 // -------------------------  //
 
 ConjugateGradient::ConjugateGradient(double tol, int verbosity_)
-    : tolerance(tol), verbosity(verbosity_)
+    : verbosity(verbosity_), tolerance(tol)
 {
     // Nothing to do here.
 }
@@ -33,34 +33,33 @@ auto ConjugateGradient::solve(const MatrixType &A,
 
     Log<LogType::SOL_CG> log(verbosity);
 
-    unsigned int n = v.rows();
-    RealType tol, alpha, beta, rnorm, xnorm;
+    RealType tol, alpha, beta, rnorm, vnorm;
     VectorType x, r, p, xnew, rnew, pnew;
 
     x = v;
     r = A * x - v;
     p = -1.0 * r;
-    xnorm = x.norm();
+    vnorm = v.norm();
     rnorm = r.norm();
 
-    log.init(tolerance, rnorm, xnorm);
+    log.init(tolerance, rnorm, vnorm);
 
     int i = 0;
-    while (rnorm / xnorm > tolerance)
+    while (rnorm / vnorm > tolerance)
     {
         alpha = dot(r, r) / dot(p, A * p);
         xnew  = x + alpha *     p;
-        rnew  = r + alpha * A * p;
+        rnew  = A * x - v;
         beta  = dot(rnew, rnew) / dot(r, r);
         pnew  = beta * p - rnew;
 
-        x = xnew; xnorm = x.norm();
+        x = xnew;
         r = rnew; rnorm = r.norm();
         p = pnew;
 
         i++;
         if (i % 10 == 0)
-            log.step(i, rnorm / xnorm);
+            log.step(i, rnorm);
     }
     log.finalize(i);
 
