@@ -14,7 +14,7 @@ auto Standard::solve(const MatrixType &A,const VectorType &v)
 // -------------------------  //
 
 ConjugateGradient::ConjugateGradient(double tol, int verbosity_ = 0)
-    : tolerance(tol), vebosity(verbosity_)
+    : tolerance(tol), verbosity(verbosity_)
 {
     // Nothing to do here.
 }
