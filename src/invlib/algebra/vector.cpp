@@ -56,7 +56,7 @@ template
 <
 typename T1,
 typename T2,
-typename VectorType = typename T1::VectorType
+typename VectorType
 >
 auto dot(const T1 &v, const T2 &w)
     -> typename VectorType::RealType

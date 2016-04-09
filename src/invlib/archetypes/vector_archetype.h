@@ -56,11 +56,15 @@ class VectorArchetype
 public:
 
     /*! The floating point type used to represent scalars. */
-    using RealType   = double;
+    using RealType   = Real;
     /*! The fundamental vector type used for the matrix algebra.*/
-    using VectorType = VectorArchetype<double>;
+    using VectorType = VectorArchetype<Real>;
     /*! The fundamental matrix type used for the matrix algebra.*/
-    using MatrixType = MatrixArchetype<double>;
+    using MatrixType = MatrixArchetype<Real>;
+    /*! The result type of multiplying an algebraic expression with this
+     * matrix from the right.
+     */
+    using ResultType = VectorArchetype<Real>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -126,7 +130,7 @@ public:
      */
     Real   operator()(unsigned int i) const;
 
-    /*! Number of rows of the vector 
+    /*! Number of rows of the vector
      *
      * \return The number of rows (dimension) of the vector.
      */
@@ -171,7 +175,7 @@ public:
     *
     * \return The Euclidean norm of this vector.
     */
-    Real norm();
+    Real norm() const;
 
 private:
 

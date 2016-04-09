@@ -1,5 +1,7 @@
 #define BOOST_TEST_MODULE "INVLIB Unit Tests"
+
 #include <boost/test/included/unit_test.hpp>
+
 #include "test_types.h"
 
 #include "algebra/identities.cpp"

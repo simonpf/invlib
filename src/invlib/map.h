@@ -1,10 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <iostream>
+
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/log.h"
-#include <iostream>
+#include "invlib/traits.h"
 
 /** file map.h
  * \brief Maximum A Posteriori Estimators
@@ -39,7 +41,18 @@ namespace invlib
  *
  * For details on the form see template specializations.
  */
-enum class Formulation {STANDARD, NFORM, MFORM};
+enum class Formulation {STANDARD = 0, NFORM = 1, MFORM = 2};
+
+/*!
+ * Exception class representing falure of the forward model evaluation.
+ */
+struct ForwardModelEvaluationException
+{
+    std::string message()
+    {
+        return "Could not evaluate forward model";
+    }
+};
 
 /**
  * \brief MAP base class
@@ -87,6 +100,29 @@ public:
     using RealType   = typename MatrixType::RealType;
     /*! The basic vector type  */
     using VectorType = typename MatrixType::VectorType;
+
+private:
+
+    // Helper functions to determine type of gradient and Jacobian
+    // as returned by the forward model.
+    auto evaluate_helper(ForwardModel &f, const VectorType& x)
+        -> decltype(f.evaluate(x));
+    auto Jacobian_helper(ForwardModel &f, const VectorType& x)
+        -> decltype(f.Jacobian(x));
+
+public:
+
+    /*! The type of the gradient vector as returned by the forward model. */
+    using GradientType =
+        return_type<decltype(&MAPBase::evaluate_helper)(MAPBase,
+                                                        ForwardModel&,
+                                                        const VectorType&)>;
+
+    /*! The type of the Jacobian matrix as returned by the forward model. */
+    using JacobianType =
+        return_type<decltype(&MAPBase::Jacobian_helper)(MAPBase,
+                                                        ForwardModel&,
+                                                        const VectorType&)>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -163,6 +199,25 @@ public:
      */
     RealType cost_y(const VectorType &y,
                     const VectorType &yi);
+
+    /*! Exception safe wrapper for the evaluate function of the forward
+     * model.
+     */
+    GradientType evaluate(const VectorType &x);
+
+    /*! Cached evaluation of the forward model. Exploits the fact that some
+     * optimization methods require evaluation of the cost function and thus
+     * computation of the vector \f$\vec{y}_{i+1}\f$. Returns the cached value
+     * if the cache_valid flag set by the cost_function method is true. This
+     * flag should be disabled before the next iteration step.
+     */
+    GradientType evaluate_cached(const VectorType &x);
+
+    /*! Exception safe wrapper for the Jaobian computation function of the
+     * forward model.
+     */
+    JacobianType Jacobian(const VectorType &x);
+
     /*! Compute the gain matrix at the given state vector x.
      *
      * Computes the gain matrix
@@ -176,14 +231,16 @@ public:
 
 protected:
 
-    unsigned int n, m;
+    unsigned int m, n;
 
     ForwardModel &F;
     const VectorType   &xa;
+    decay<GradientType> yi_cached;
     const VectorType   *y_ptr;
-    MatrixType     K;
     const SaType &Sa;
     const SeType &Se;
+
+    bool cache_valid = false;
 };
 
 // -------------- //
@@ -237,9 +294,10 @@ public:
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
-    using Base::F; using Base::K;
-    using Base::Sa; using Base::Se;
+    using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
+    using Base::evaluate; using Base::evaluate_cached; using Base::Jacobian;
+    using Base::cache_valid;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,
@@ -268,11 +326,15 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, template <LogType> typename Log = StandardLog>
+    template<typename Minimizer, template <LogType> class Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
                 Minimizer M,
                 int verbosity = 0);
+
+    RealType cost, cost_x, cost_y;
+    unsigned int iterations;
+
 };
 
 // --------------- //
@@ -314,9 +376,10 @@ public:
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
-    using Base::F; using Base::K;
-    using Base::Sa; using Base::Se;
+    using Base::F; using Base::Sa; using Base::Se;
     using Base::cost_function;
+    using Base::evaluate; using Base::evaluate_cached; using Base::Jacobian;
+    using Base::cache_valid;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,
@@ -345,11 +408,15 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, template <LogType> typename Log = StandardLog>
+    template<typename Minimizer, template <LogType> class Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
                 Minimizer M,
                 int verbosity = 0);
+
+    RealType cost, cost_x, cost_y;
+    unsigned int iterations;
+
 };
 
 // --------------- //
@@ -390,8 +457,10 @@ public:
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
     using Base::y_ptr; using Base::xa;
-    using Base::F; using Base::K;
-    using Base::Sa; using Base::Se;
+    using Base::F; using Base::Sa; using Base::Se;
+    using Base::cost_function;
+    using Base::evaluate; using Base::evaluate_cached; using Base::Jacobian;
+    using Base::cache_valid;
 
     MAP( ForwardModel &F_,
          const VectorType   &xa_,
@@ -427,11 +496,15 @@ public:
      * gradient before solving the subproblem.
      * that should be used to minimize the likelihood.
      */
-    template<typename Minimizer, template <LogType> typename Log = StandardLog>
+    template<typename Minimizer, template <LogType> class Log = StandardLog>
     int compute(VectorType       &x,
                 const VectorType &y,
                 Minimizer M,
                 int verbosity = 0);
+
+    RealType cost, cost_x, cost_y;
+    unsigned int iterations;
+
 };
 
 #include "map.cpp"

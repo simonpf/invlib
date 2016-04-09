@@ -1,7 +1,9 @@
 #ifndef INTERFACES_ARTS_WRAPPER_H
 #define INTERFACES_ARTS_WRAPPER_H
 
-#define HAVE_CONFIG_H (1)
+#ifndef HAVE_CONFIG_H
+    #define HAVE_CONFIG_H (1)
+#endif
 
 #include <iostream>
 
@@ -59,7 +61,7 @@ public:
 
     void scale(Numeric c);
 
-    Numeric norm();
+    Numeric norm() const;
 
 };
 
@@ -168,8 +170,9 @@ public:
     //  Arithmetic  //
     // ------------ //
 
-    ArtsMatrix multiply(const ArtsMatrix &B) const;
     ArtsVector multiply(const ArtsVector &v) const;
+    ArtsVector transpose_multiply(const ArtsVector &v) const;
+    ArtsMatrix multiply(const ArtsMatrix &B) const;
 
     operator ArtsMatrix() const;
 

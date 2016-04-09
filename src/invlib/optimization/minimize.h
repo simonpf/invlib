@@ -70,7 +70,7 @@ int minimize( CostFunction &J,
     {
         auto g =  J.gradient(xi);
         auto H =  J.Hessian(xi);
-        M.step( dx, xi, g, H, J );
+        dx = M.step(xi, g, H, J );
 
         // Check for convergence.
         if (J.criterion(xi, dx) < tol)

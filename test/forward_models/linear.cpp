@@ -48,12 +48,12 @@ void linear_test(unsigned int n)
     // Test inversion using standard solver.
     Id I{};
     GaussNewton<RealType> gn{};
-    gn.tolerance() = 1e-9; gn.maximum_iterations() = 1000;
+    gn.set_tolerance(1e-9); gn.set_maximum_iterations(1000);
     LevenbergMarquardt<RealType, Id> lm(I);
-    lm.tolerance() = 1e-9; lm.maximum_iterations() = 1000;
+    lm.set_tolerance(1e-9); lm.set_maximum_iterations(1000);
 
     VectorType x_std_lm, x_std_gn, x_n_gn, x_m_gn;
-    std.compute(x_std_lm, y, lm);
+    std.compute(x_std_lm, y, lm, 1);
     std.compute(x_std_gn, y, gn);
     nform.compute(x_n_gn, y, gn);
     mform.compute(x_m_gn, y, gn);
@@ -70,9 +70,9 @@ void linear_test(unsigned int n)
     // Test inversion using CG solver.
     ConjugateGradient cg(1e-9);
     GaussNewton<RealType, ConjugateGradient> gn_cg(cg);
-    gn_cg.tolerance() = 1e-9; gn_cg.maximum_iterations() = 1000;
+    gn_cg.set_tolerance(1e-9); gn_cg.set_maximum_iterations(1000);
     LevenbergMarquardt<RealType, Id, ConjugateGradient> lm_cg(I, cg);
-    lm_cg.tolerance() = 1e-9; lm_cg.maximum_iterations() = 1000;
+    lm_cg.set_tolerance(1e-9); lm_cg.set_maximum_iterations(1000);
 
     std.compute(x_std_lm, y, lm_cg);
     std.compute(x_std_gn, y, gn_cg);
@@ -123,9 +123,9 @@ void linear_test_transformed(unsigned int n)
     Id I{};
     GaussNewton<RealType> gn{};
     GaussNewton<RealType, StdPre> gn_pre(std_pre);
-    gn_pre.tolerance() = 1e-9; gn_pre.maximum_iterations() = 1000;
+    gn_pre.set_tolerance(1e-9); gn_pre.set_maximum_iterations(1000);
     LevenbergMarquardt<RealType, Id, StdPre> lm_pre(I, std_pre);
-    lm_pre.tolerance() = 1e-9; lm_pre.maximum_iterations() = 1000;
+    lm_pre.set_tolerance(1e-9); lm_pre.set_maximum_iterations(1000);
 
     VectorType x_ref, x_std_lm, x_std_gn, x_n_gn, x_m_gn;
     std.compute(x_ref, y, gn);
@@ -149,9 +149,9 @@ void linear_test_transformed(unsigned int n)
     ConjugateGradient cg(1e-9);
     CGPre cg_pre(cg, pre);
     GaussNewton<RealType, CGPre> gn_cg_pre(cg_pre);
-    gn_cg_pre.tolerance() = 1e-9; gn_cg_pre.maximum_iterations() = 1000;
+    gn_cg_pre.set_tolerance(1e-9); gn_cg_pre.set_maximum_iterations(1000);
     LevenbergMarquardt<RealType, Id, CGPre> lm_cg_pre(I, cg_pre);
-    lm_cg_pre.tolerance() = 1e-9; lm_cg_pre.maximum_iterations() = 1000;
+    lm_cg_pre.set_tolerance(1e-9); lm_cg_pre.set_maximum_iterations(1000);
 
     std.compute(x_std_lm, y, lm_cg_pre);
     std.compute(x_std_gn, y, gn_cg_pre);

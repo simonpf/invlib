@@ -45,156 +45,103 @@ namespace invlib
  * can be defined using the @Solver type. The default is to use the
  * the solve() member function of the given Hessian.
  *
- * \tparam Real The floating point type used to represent scalars.
+ * \tparam RealType The floating point type used to represent scalars.
  * \tparam Solver The Solver type to be used for the subproblem.
  */
 template
 <
-typename Real,
+typename RealType,
 typename DampingMatrix,
-typename Solver = Standard,
-Verbosity V = Verbosity::SILENT,
-std::ostream &stream = std::cout
+typename Solver = Standard
 >
 class LevenbergMarquardt
 {
 
-    using Logger = LevenbergMarquardtLogger<V, stream>;
-
 public:
 
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
 
-    LevenbergMarquardt(const DampingMatrix &D_, Solver solver = Solver())
-    : current_cost(0.0), tol(1e-5), lambda(4.0), maximum(100.0),
-      increase(2.0), decrease(3.0), threshold(1.0), max_iter(100),
-      step_count(0), D(D_), s(solver)
-    {}
+    /*! Construct Levenberg-Marquardt optimizer with given damping
+     * matrix and solver. If no solver is provided to default constructed
+     * Solver object created from Solver() is used.
+     */
+    LevenbergMarquardt(const DampingMatrix &D_, Solver solver = Solver());
 
+    // ------------------------- //
+    //    Getters and Setters    //
+    // ------------------------- //
+
+    unsigned int get_maximum_iterations() const;
+    void set_maximum_iterations(unsigned int);
+
+    RealType get_tolerance() const;
+    void set_tolerance(RealType);
+
+    RealType get_lambda() const;
+    void set_lambda(RealType);
+
+    RealType get_lambda_maximum() const;
+    void set_lambda_maximum(RealType);
+
+    RealType get_lambda_decrease() const;
+    void set_lambda_decrease(RealType);
+
+    RealType get_lambda_increase() const;
+    void set_lambda_increase(RealType);
+
+    RealType get_lambda_threshold() const;
+    void set_lambda_threshold(RealType);
+
+    // --------------------------- //
+    //  Perform Minimization Step  //
+    // --------------------------- //
+
+    /*! Perform Levenberg-Marquardt step. Computes a tentaive step \f$d\vec{x}\f$
+     * by solving the system
+     *
+     * \f[
+     *    d\vec{x} &= -(\mathbf{H} + \lambda \mathbf{D})^{-1} \vec{g}
+     * \f]
+     *
+     * If the step reduces the cost function at
+     * \f$\vec{x}_{i+1} = \vec{x}_i + d\vec{x}\f$, the step is accepted and the
+     * current lambda values reduced by a factor of lambda_decrease. If the value
+     * of the cost function is not decreased the values for lambda is increased
+     * by a factor of lambda_increase and \f$d\vec{x}\f$ is recomputed. This is
+     * repeated until a suitable \f$d\vec{x}\f$ is found or lambda reaches the
+     * the value of lambda_maximum. If lambda falls below lambda_threshold, lambda
+     * is set to zero and the Levenberg-Marquardt step effectively becomes a
+     * Gauss-Newton step.
+     */
     template
     <
-        typename Vector,
-        typename Matrix,
-        typename CostFunction
+    typename VectorType,
+    typename MatrixType,
+    typename CostFunction
     >
-    int step( Vector             &dx,
-              const Vector       &x,
-              const Vector       &g,
-              const Matrix       &B,
-              CostFunction &J )
-    {
-        if (step_count == 0)
-            current_cost = J.cost_function(x);
+    VectorType step(const VectorType &x,
+                    const VectorType &g,
+                    const MatrixType &B,
+                    CostFunction     &J);
 
-        bool found_step = false;
-        while (!found_step)
-        {
-            auto C = B + lambda * D;
-            dx = -1.0 * s.solve(C, g);
-            Vector xnew = x + dx;
-            Real new_cost = J.cost_function(xnew);
-
-            if (new_cost < current_cost)
-            {
-                if (lambda >= (threshold * decrease))
-                    lambda /= decrease;
-                else
-                    lambda = 0;
-
-                current_cost = new_cost;
-                found_step = true;
-            }
-
-            else
-            {
-                if (lambda < threshold)
-                    lambda = threshold;
-                else
-                {
-                    if (lambda < maximum)
-                    {
-                        lambda *= increase;
-                        if (lambda > maximum)
-                            lambda = maximum;
-                    }
-                    else
-                    {
-                        lambda = maximum + 1.0;
-                        current_cost = new_cost;
-                        break;
-
-                    }
-                }
-            }
-        }
-        step_count++;
-        Logger::step(*this);
-        return 0;
-    }
-
-    unsigned int & maximum_iterations()
-    { return max_iter; }
-
-    void maximum_iterations(unsigned int n)
-    { max_iter = n; }
-
-    Real &tolerance()
-    { return tol; }
-
-    Real &lambda_start()
-    { return lambda; }
-
-    Real &lambda_maximum()
-    { return maximum; }
-
-    Real &lambda_decrease()
-    { return decrease; }
-
-    Real &lambda_increase()
-    { return increase; }
-
-    Real &lambda_threshold()
-    { return threshold; }
-
-    friend class LevenbergMarquardtLogger<V, stream>;
 private:
 
-    Real current_cost, tol, lambda, maximum, increase, decrease, threshold;
-    unsigned int max_iter, step_count;
+    RealType current_cost, tolerance, lambda, lambda_maximum, lambda_increase,
+    lambda_decrease, lambda_threshold;
+    unsigned int maximum_iterations, step_count;
 
     // Positive definite matrix defining the trust region sphere r < ||Mx||.
-    DampingMatrix D;
+    const DampingMatrix &D;
 
     Solver s;
 
 };
 
-/* template */
-/* < */
-/* typename... Args */
-/* > */
-/* class Logger<Verbosity::VERBOSE, LevenbergMarquardt, Args... A> */
-/* { */
+#include "levenberg_marquardt.cpp"
 
-/*     using Derived = LevenbergMarquardt<A>; */
-
-/*     void separator( ostream& stream, */
-/*                     Index length ) */
-/*     { */
-/*         for (Index i = 0; i < length; i++) */
-/*             stream << "-"; */
-/*         stream << endl; */
-/*     } */
-
-/*     step(ostream& stream) */
-/*     { */
-/*         LevenbergMarquardt& derived = static_cast<LevenbergMarquardt&>(*this); */
-/*         stream << std::setw(10) << derived.step; */
-/*         stream << std::setw(10) << derived.cost; */
-/*         stream << std::setw(10) << derived.lambda; */
-/*     } */
-/* }; */
-
-}
+}      // namespace invlib
 
 #endif // OPTIMIZATION_LEVENBERG_MARQUARDT_H
 
