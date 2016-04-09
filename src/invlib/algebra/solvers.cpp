@@ -34,19 +34,19 @@ auto ConjugateGradient::solve(const MatrixType &A,
     Log<LogType::SOL_CG> log(verbosity);
 
     unsigned int n = v.rows();
-    RealType tol, alpha, beta, rnorm, vnorm;
+    RealType tol, alpha, beta, rnorm, xnorm;
     VectorType x, r, p, xnew, rnew, pnew;
 
     x = v;
     r = A * x - v;
     p = -1.0 * r;
-    vnorm = v.norm();
+    xnorm = x.norm();
     rnorm = r.norm();
 
-    log.init(tolerance, rnorm, vnorm);
+    log.init(tolerance, rnorm, xnorm);
 
     int i = 0;
-    while (rnorm / vnorm > tolerance)
+    while (rnorm / xnorm > tolerance)
     {
         alpha = dot(r, r) / dot(p, A * p);
         xnew  = x + alpha *     p;
@@ -54,13 +54,13 @@ auto ConjugateGradient::solve(const MatrixType &A,
         beta  = dot(rnew, rnew) / dot(r, r);
         pnew  = beta * p - rnew;
 
-        x = xnew;
+        x = xnew; xnorm = x.norm();
         r = rnew; rnorm = r.norm();
         p = pnew;
 
         i++;
         if (i % 10 == 0)
-            log.step(i, rnorm);
+            log.step(i, rnorm / xnorm);
     }
     log.finalize(i);
 
