@@ -13,8 +13,8 @@ auto Standard::solve(const MatrixType &A,const VectorType &v)
 //  Conjugate Gradient Solver //
 // -------------------------  //
 
-ConjugateGradient::ConjugateGradient(double tol)
-    : tolerance(tol)
+ConjugateGradient::ConjugateGradient(double tol, int verbosity_ = 0)
+    : tolerance(tol), vebosity(verbosity_)
 {
     // Nothing to do here.
 }
@@ -26,8 +26,7 @@ typename MatrixType,
 template <LogType> class Log
 >
 auto ConjugateGradient::solve(const MatrixType &A,
-                              const VectorType &v,
-                              int verbosity)
+                              const VectorType &v)
     -> VectorType
 {
     using RealType = typename VectorType::RealType;

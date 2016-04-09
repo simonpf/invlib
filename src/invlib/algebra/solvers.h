@@ -39,7 +39,8 @@ public:
     *  type.
     */
     template < typename VectorType, typename MatrixType>
-    VectorType solve(const MatrixType&A, const VectorType& v);
+    VectorType solve(const MatrixType&A,
+                     const VectorType& v);
 
 };
 
@@ -67,7 +68,7 @@ public:
      * \param trans The coordinate transformation. Defaults to the identity
      * transformation.
      */
-    ConjugateGradient(double tol);
+    ConjugateGradient(double tol, int verbosity = 0);
 
     /*! Solve linear system using the conjugate gradient method.
      *
@@ -89,10 +90,11 @@ public:
     typename MatrixType,
     template <LogType> class Log = StandardLog
     >
-    VectorType solve(const MatrixType&A, const VectorType& v, int verbosity = 0);
+    VectorType solve(const MatrixType&A, const VectorType& v);
 
 private:
 
+    int    verbosity;
     double tolerance;
 
 };
