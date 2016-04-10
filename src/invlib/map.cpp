@@ -237,7 +237,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         // Compute gradient and transform.
         VectorType g  = tmp * (yi - y) + inv(Sa) * (x - xa);
 
-        if ((g.norm() / n) < M.get_tolerance())
+        RealType conv = g.norm() / n;
+        if (conv < M.get_tolerance())
         {
             converged = true;
             break;
@@ -254,7 +255,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
-        log.step(iterations, cost, cost_x, cost_y, M);
+        log.step(iterations, cost, cost_x, cost_y, conv, M);
     }
 
     log.finalize(converged, iterations, cost, cost_x, cost_y);
@@ -321,7 +322,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         // Compute true gradient for convergence test.
         VectorType g  = tmp * (yi - y) + inv(Sa) * (x - xa);
 
-        if ((g.norm() / n) < M.get_tolerance())
+        RealType conv = g.norm() / n;
+        if (conv < M.get_tolerance())
         {
             converged = true;
             break;
@@ -344,7 +346,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
 
-        log.step(iterations, cost, cost_x, cost_y, M);
+        log.step(iterations, cost, cost_x, cost_y, conv, M);
     }
 
     log.finalize(converged, iterations, cost, cost_x, cost_y);
@@ -435,8 +437,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         yi = evaluate_cached(x);
         VectorType dy = yi - yold;
         VectorType r = Se * H * Se * dy;
-
-        if ((dot(dy, r) / m) < M.get_tolerance())
+        RealType conv = dot(dy, r) / m;
+        if (conv < M.get_tolerance())
         {
             converged = true;
             break;
