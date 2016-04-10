@@ -190,13 +190,14 @@ void StandardLog<LogType::MAP>::step(Params... params)
     {
         auto tuple = std::make_tuple(params...);
         using OptimizationType =
-            typename std::tuple_element<4, decltype(tuple)>::type;
+            typename std::tuple_element<5, decltype(tuple)>::type;
 
         std::cout<< std::setw(5) << std::get<0>(tuple);
         std::cout<< std::setw(15) << std::get<1>(tuple);
         std::cout<< std::setw(15) << std::get<2>(tuple);
         std::cout<< std::setw(15) << std::get<3>(tuple);
-        std::cout<< OptimizerLog<OptimizationType>::log(std::get<4>(tuple));
+        std::cout<< std::setw(15) << std::get<4>(tuple);
+        std::cout<< OptimizerLog<OptimizationType>::log(std::get<5>(tuple));
         std::cout << std::endl;
     }
 }

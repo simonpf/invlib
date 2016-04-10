@@ -62,6 +62,8 @@ auto ConjugateGradient::solve(const MatrixType &A,
             log.step(i, rnorm);
     }
     log.finalize(i);
+    std::cout << "Residual norm: " << static_cast<VectorType>((A * x) - v).norm();
+    std::cout << std::endl;
 
     return x;
 }
