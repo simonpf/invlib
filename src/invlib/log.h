@@ -98,7 +98,7 @@ struct OptimizerLog<LevenbergMarquardt<RealType, DampingMatrix, Solver>>
     static std::string header()
     {
         std::string lambda = "\u03BB";
-        std::string out(15 - lambda.size(), ' ');
+        std::string out((15 - lambda.size()) / 2, ' ');
         out += lambda;
         return out;
     }
