@@ -175,6 +175,7 @@ void StandardLog<LogType::MAP>::init(Params... params)
             std::cout << std::endl;
             std::cout << std::setw(5) << "Step" << std::setw(15) << "Total Cost";
             std::cout << std::setw(15) << "x-cost" << std::setw(15) << "y-cost";
+            std::cout << std::setw(15) << "conv. crit.";
             std::cout << OptimizerLog<OptimizationType>::header();
             std::cout << std::endl << separator() << std::endl;
         }
