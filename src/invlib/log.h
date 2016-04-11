@@ -54,6 +54,9 @@ public:
     template <typename... Params>
     void finalize(Params... params) {}
 
+    template <typename... Params>
+    void time(Params... params) {}
+
 private:
 
     int verbosity;
@@ -234,6 +237,22 @@ void StandardLog<LogType::MAP>::finalize(Params... params)
     }
 }
 
+template<>
+template<typename... Params>
+void StandardLog<LogType::MAP>::time(Params... params)
+{
+    if (verbosity >= 1)
+    {
+        auto tuple = std::make_tuple(params...);
+        std::cout << std::endl;
+        std::cout << "Total time           : ";
+        std::cout << std::get<0>(tuple) << std::endl;
+        std::cout << "Time in evaluate(...): ";
+        std::cout << std::get<1>(tuple) << std::endl;
+        std::cout << "Time in Jacobian(...): ";
+        std::cout << std::get<2>(tuple) << std::endl;
+    }
+}
 // -------------------- //
 //     MAP Class        //
 // -------------------- //

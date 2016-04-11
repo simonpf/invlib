@@ -98,7 +98,10 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
 {
     try
     {
+        auto t1 = std::chrono::steady_clock::now();
         return F.evaluate(x);
+        auto t2 = std::chrono::steady_clock::now();
+        evaluate_time += duration_cast<duration<double>>(t2 - t1);
     }
     catch(...)
     {
@@ -119,7 +122,10 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
 {
     try
     {
+        auto t1 = std::chrono::steady_clock::now();
         return F.Jacobian(x, y);
+        auto t2 = std::chrono::steady_clock::now();
+        Jacobian_time += duration_cast<duration<double>>(t2 - t1);
     }
     catch(...)
     {
@@ -185,6 +191,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
     Log<LogType::MAP> log(verbosity);
     log.init(Formulation::STANDARD, M);
 
+    auto t1 = std::chrono::steady_clock::now();
+
     y_ptr = &y;
     x = xa;
     FMVectorType yi; yi.resize(m);
@@ -230,6 +238,11 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
 
     log.finalize(converged, iterations, cost, cost_x, cost_y);
 
+    // Timing output.
+    auto t2 = std::chrono::steady_clock::now();
+    auto compute_time = duration_cast<duration<double>>(t2 - t1);
+    log.time(compute_time.count(), evaluate_time.count(), Jacobian_time.count());
+
     return 0;
 }
 
@@ -271,6 +284,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 {
 
     Log<LogType::MAP> log(verbosity);
+    auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
     x = xa;
@@ -318,6 +332,11 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
     }
 
     log.finalize(converged, iterations, cost, cost_x, cost_y);
+
+    // Timing output.
+    auto t2 = std::chrono::steady_clock::now();
+    auto compute_time = duration_cast<duration<double>>(t2 - t1);
+    log.time(compute_time.count(), evaluate_time.count(), Jacobian_time.count());
 
     return 0;
 }
@@ -377,6 +396,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
     -> int
 {
     Log<LogType::MAP> log(verbosity);
+    auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
     x = xa;
@@ -414,6 +434,10 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         if (!converged)
             K = Jacobian(x , yi);
     }
-    std::cout << iterations << std::endl;
     return 0;
+
+    // Timing output.
+    auto t2 = std::chrono::steady_clock::now();
+    auto compute_time = duration_cast<duration<double>>(t2 - t1);
+    log.time(compute_time.count(), evaluate_time.count(), Jacobian_time.count());
 }
