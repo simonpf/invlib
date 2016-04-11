@@ -14,7 +14,7 @@ MAPBase<ForwardModel, MatrixType, SaType, SeType>
           const VectorType &xa_,
           const SaType     &Sa_,
           const SeType     &Se_)
-    : m(F_.n), n(F_.m), F(F_), xa(xa_), y_ptr(nullptr), Sa(Sa_), Se(Se_)
+    : m(F_.m), n(F_.n), F(F_), xa(xa_), y_ptr(nullptr), Sa(Sa_), Se(Se_)
 {
     // Nothing to do here.
 }
@@ -302,7 +302,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
         if (conv < M.get_tolerance())
         {
             converged = true;
-            y = evaluate(x);
+            yi = evaluate(x);
         }
         else
         {
@@ -400,7 +400,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         yold = yi;
         yi = evaluate(x);
         VectorType dy = yi - yold;
-        VectorType r = Se * H * Se * dy;
+        VectorType r = inv(Se) * H * inv(Se) * dy;
         RealType conv = dot(dy, r) / m;
         if (conv < M.get_tolerance())
         {
@@ -414,5 +414,6 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
         if (!converged)
             K = Jacobian(x , yi);
     }
+    std::cout << iterations << std::endl;
     return 0;
 }
