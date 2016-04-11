@@ -10,7 +10,6 @@
 
 #include "invlib/algebra/solvers.h"
 #include "invlib/optimization/levenberg_marquardt_logger.h"
-#include "invlib/optimization/line_search.h"
 #include <iostream>
 
 namespace invlib

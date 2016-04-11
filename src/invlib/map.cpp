@@ -198,31 +198,33 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
     bool converged = false;
     iterations     = 0;
 
-    while (iterations < M.get_maximum_iterations())
+    while ((iterations < M.get_maximum_iterations()) && !converged)
     {
-        // (Approximate) Hessian.
+
+        // Compute next step.
         auto tmp = transp(K) * inv(Se);
         auto H  = tmp * K + inv(Sa);
-        // Gradient.
         VectorType g  = tmp * (yi - y) + inv(Sa) * (x - xa);
+        dx = M.step(x, g, H, (*this));
+        x += dx;
 
-        RealType conv = g.norm() / n;
+        // Check for convergence.
+        RealType conv = - dot(dx, g) / n;
         if (conv < M.get_tolerance())
         {
             converged = true;
-            break;
+            yi = evaluate(x);
+        }
+        else
+        {
+            K = Jacobian(x, yi);
         }
 
-        dx = M.step(x, g, H, (*this));
-
-        x += dx;
-        K = Jacobian(x, yi);
+        // Log output.
         iterations++;
-
         cost_x = this->Base::cost_x(x);
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
-
         log.step(iterations, cost, cost_x, cost_y, conv, M);
     }
 
@@ -284,35 +286,34 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
     bool converged = false;
     iterations = 0;
 
-    while (iterations < M.get_maximum_iterations())
+    while (iterations < M.get_maximum_iterations() && !converged)
     {
         auto tmp = transp(K) * inv(Se);
 
-        // Compute true gradient for convergence test.
-        VectorType g  = tmp * (yi - y) + inv(Sa) * (x - xa);
+        // Compute step.
+        VectorType g = tmp * (y - yi + (K * (x - xa)));
+        auto H  = tmp * K + inv(Sa);
+        dx = M.step(xa, g, H, (*this));
+        x = xa - dx;
 
-        RealType conv = g.norm() / n;
+        // Test for convergence.
+        g  = tmp * (yi - y) + inv(Sa) * (x - xa);
+        RealType conv = - dot(dx, g) / n;
         if (conv < M.get_tolerance())
         {
             converged = true;
-            break;
+            y = evaluate(x);
+        }
+        else
+        {
+            K = Jacobian(x, yi);
         }
 
-        // Hessian.
-        auto H  = tmp * K + inv(Sa);
-        // N-form pseudo gradient.
-        g = tmp * (y - yi + (K * (x - xa)));
-
-        dx = M.step(xa, g, H, (*this));
-
-        x = xa - dx;
-        K = Jacobian(x, yi);
+        // Log output.
         iterations++;
-
         cost_x = this->Base::cost_x(x);
         cost_y = this->Base::cost_y(y, yi);
         cost   = cost_x + cost_y;
-
         log.step(iterations, cost, cost_x, cost_y, conv, M);
     }
 
@@ -386,23 +387,18 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
     bool converged = false;
     iterations = 0;
 
-    while (iterations < M.get_maximum_iterations())
+    while (iterations < M.get_maximum_iterations() && !converged)
     {
+        // Compute step.
         auto tmp = Sa * transp(K);
-
-        // Compute Hessian.
         auto H   = Se + K * tmp;
-
-        // Compute gradient.
         VectorType g  = y - yi + K * (x - xa);
-
         dx = M.step(xa, g, H, (*this));
-
         x = xa - tmp * dx;
 
+        // Check convergence.
         yold = yi;
-        K = Jacobian(x , yi);
-
+        yi = evaluate(x);
         VectorType dy = yi - yold;
         VectorType r = Se * H * Se * dy;
         RealType conv = dot(dy, r) / m;
@@ -411,7 +407,12 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
             converged = true;
             break;
         }
+
+        // Book keeping.
         iterations++;
+
+        if (!converged)
+            K = Jacobian(x , yi);
     }
     return 0;
 }

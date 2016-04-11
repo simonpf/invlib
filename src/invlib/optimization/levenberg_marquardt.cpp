@@ -263,10 +263,7 @@ auto LevenbergMarquardt<RealType, DampingMatrix, Solver>
                 else
                 {
                     lambda = lambda_maximum + 1.0;
-                    RealType d = line_search(J, x, g/g.norm(), current_cost, 0.1);
-                    dx = d * dx;
                     break;
-
                 }
             }
         }
