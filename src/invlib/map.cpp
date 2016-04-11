@@ -125,7 +125,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     try
     {
         auto t1 = std::chrono::steady_clock::now();
-        auto J  = F.Jacobian(x, y);
+        JacobianType J  = F.Jacobian(x, y);
         auto t2 = std::chrono::steady_clock::now();
         Jacobian_time += duration_cast<duration<double>>(t2 - t1);
 
