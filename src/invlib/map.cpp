@@ -99,9 +99,11 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     try
     {
         auto t1 = std::chrono::steady_clock::now();
-        return F.evaluate(x);
+        auto y = F.evaluate(x);
         auto t2 = std::chrono::steady_clock::now();
         evaluate_time += duration_cast<duration<double>>(t2 - t1);
+
+        return y;
     }
     catch(...)
     {
@@ -123,9 +125,11 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     try
     {
         auto t1 = std::chrono::steady_clock::now();
-        return F.Jacobian(x, y);
+        auto J  = F.Jacobian(x, y);
         auto t2 = std::chrono::steady_clock::now();
         Jacobian_time += duration_cast<duration<double>>(t2 - t1);
+
+        return J;
     }
     catch(...)
     {
