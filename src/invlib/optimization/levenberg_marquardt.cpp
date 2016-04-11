@@ -1,3 +1,4 @@
+#include "invlib/optimization/line_search.h"
 
     // ------------------------------- //
     //  Constructors and Destructors   //
@@ -263,6 +264,8 @@ auto LevenbergMarquardt<RealType, DampingMatrix, Solver>
                 else
                 {
                     lambda = lambda_maximum + 1.0;
+                    RealType d = line_search(J, x, dx, current_cost, 0.01);
+                    dx = d * dx;
                     break;
 
                 }
