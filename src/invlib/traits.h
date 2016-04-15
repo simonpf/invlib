@@ -7,12 +7,44 @@
  */
 
 #include <type_traits>
+#include <functional>
+
+#ifndef TRAITS_H
+#define TRAITS_H
 
 namespace invlib
 {
 
 template<typename T1>
-using decay = typename std::decay<T1>::type;
+class DecayType
+{
+public:
+    using type = typename std::decay<T1>::type;
+};
+
+template<typename T1>
+class DecayType<std::reference_wrapper<T1>>
+{
+public:
+    using type = typename std::decay<T1>::type;
+};
+
+template<typename T1>
+struct DecayType<std::reference_wrapper<T1> &>
+{
+public:
+    using type = typename std::decay<T1>::type;
+};
+
+template<typename T1>
+struct DecayType<const std::reference_wrapper<T1> &>
+{
+public:
+    using type = typename std::decay<T1>::type;
+};
+
+template<typename T1>
+using decay = typename DecayType<T1>::type;
 
 template<typename B1>
 using enable_if = typename std::enable_if<B1::value>::type;
@@ -38,4 +70,12 @@ using is_assignable = typename std::is_assignable<T1, T2>;
 template<typename T1>
 using return_type = typename std::result_of<T1>::type;
 
-}
+template<typename T1>
+using CopyWrapper = typename std::conditional<std::is_lvalue_reference<T1>::value,
+                                              std::reference_wrapper<decay<T1>>,
+                                              decay<T1>>::type;
+
+
+}      // namespace::invlib
+
+#endif // TRAITS_H
