@@ -83,7 +83,7 @@ public:
     // ------------------------ //
 
     VectorType multiply(const VectorType &) const;
-    MatrixType transpose_multiply(const VectorType &) const;
+    VectorType transpose_multiply(const VectorType &) const;
 
     MatrixType multiply(const MatrixType &) const;
     MatrixType transpose_multiply(const MatrixType &) const;
