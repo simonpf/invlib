@@ -29,7 +29,7 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-template<typename T, typename>
+template<typename T, typename, typename>
 MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(T &&local_matrix)
     : local(std::forward<T>(local_matrix)), local_rows(local.rows())
 {

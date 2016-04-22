@@ -186,6 +186,17 @@ auto ArtsMatrix::transpose_multiply(const ArtsVector &v) const
     return w;
 }
 
+auto ArtsMatrix::transpose_multiply_block(const ArtsVector &v,
+                                          unsigned int start,
+                                          unsigned int extent) const
+    -> ArtsVector
+{
+    ArtsVector w; w.resize(this->ncols());
+    VectorView v_view = v[Range(start, extent)];
+    ::mult(w, ::transpose(*this), v_view);
+    return w;
+}
+
 auto ArtsMatrix::solve(const VectorType& v) const
     -> ArtsVector
 {

@@ -50,7 +50,9 @@ public:
     MPIMatrix & operator=(const MPIMatrix &) = default;
     MPIMatrix & operator=(MPIMatrix &&) = default;
 
-    template <typename T, typename = enable_if<is_constructible<StorageType, T>>>
+    template <typename T,
+              typename = enable_if<is_constructible<StorageType, T>>
+              typename = disable_if<is_same<decay<T>, MPIMatrix>>
     MPIMatrix(T &&local_matrix);
 
     template <typename = enable_if<is_same<StorageType, LocalType>>>
