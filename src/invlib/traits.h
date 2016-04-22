@@ -58,6 +58,12 @@ using disable_if = typename std::enable_if<!B1::value>::type;
 template<typename T1, typename T2>
 using is_same = typename std::is_same<T1, T2>;
 
+template<typename T1>
+struct Not
+{
+    static constexpr bool value = !T1::value;
+};
+
 template<typename T1, typename T2>
 using is_base = typename std::is_base_of<T1, T2>;
 

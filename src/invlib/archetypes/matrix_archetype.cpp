@@ -104,6 +104,13 @@ auto MatrixArchetype<Real>::raw_pointer()
 }
 
 template <typename Real>
+auto MatrixArchetype<Real>::raw_pointer() const
+    -> const Real *
+{
+    return data.get();
+}
+
+template <typename Real>
 void MatrixArchetype<Real>::accumulate(const MatrixArchetype &B)
 {
     for (unsigned int i = 0; i < m; i++)

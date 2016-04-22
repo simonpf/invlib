@@ -48,6 +48,12 @@ Real* VectorArchetype<Real>::raw_pointer(int i)
 }
 
 template <typename Real>
+const Real* VectorArchetype<Real>::raw_pointer(int i) const
+{
+    return data.get() + i;
+}
+
+template <typename Real>
 void VectorArchetype<Real>::accumulate(const VectorArchetype<Real> &v)
 {
     assert(n == v.rows());

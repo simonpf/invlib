@@ -8,3 +8,5 @@ include_directories("${PROJECT_SOURCE_DIR}/src/"
 # Executables
 add_executable(mpi mpi.cpp)
 target_link_libraries(mpi ${MPI_LIBRARIES})
+add_executable(mpi_linear linear.cpp)
+target_link_libraries(mpi_linear ${MPI_LIBRARIES})

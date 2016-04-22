@@ -12,27 +12,10 @@
 #include <vector>
 #include "mpi.h"
 #include "invlib/traits.h"
+#include "invlib/mpi/traits.h"
 
 namespace invlib
 {
-
-template
-<
-typename T
->
-struct ConstRef
-{
-    using type = const T &;
-};
-
-template
-<
-typename T
->
-struct LValue
-{
-    using type = T;
-};
 
 template
 <
@@ -58,12 +41,20 @@ public:
     /*! The type used to store the local matrix. */
     using StorageType = typename StorageTrait<LocalType>::type;
 
-    template
-    <
-    typename T,
-    typename = enable_if<is_constructible<StorageType, T>>
-    >
+    template <typename = enable_if<is_same<StorageType, LocalType>>>
+    MPIMatrix();
+
+    MPIMatrix(const MPIMatrix &) = default;
+    MPIMatrix(MPIMatrix &&)      = default;
+
+    MPIMatrix & operator=(const MPIMatrix &) = default;
+    MPIMatrix & operator=(MPIMatrix &&) = default;
+
+    template <typename T, typename = enable_if<is_constructible<StorageType, T>>>
     MPIMatrix(T &&local_matrix);
+
+    template <typename = enable_if<is_same<StorageType, LocalType>>>
+    void resize(unsigned int i, unsigned int j);
 
     static MPIMatrix<LocalType, LValue> split_matrix(const MatrixType &matrix);
     static void broadcast(LocalType &local);
@@ -71,13 +62,22 @@ public:
     unsigned int rows() const;
     unsigned int cols() const;
 
+    template <typename = enable_if<is_same<StorageType, LocalType>>>
+    LocalType& get_local();
+
+    RealType operator()(unsigned int i, unsigned int j) const;
+    RealType& operator()(unsigned int i, unsigned int j);
+
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
+
+    /* operator MPIMatrix<LocalType, ConstRef>() const; */
+    /* operator LocalType(); */
 
 private:
 
     void broadcast_local_rows(int proc_rows[]) const;
-    void broadcast_local_blocks(double *vector,
+    void broadcast_local_block(double *vector,
                                 const double *block) const;
     void reduce_vector_sum(double *result_vector,
                            double *local_vector) const;
@@ -90,6 +90,7 @@ private:
     int nprocs;
 
     StorageType local;
+    RealType    local_element;
     unsigned int local_rows;
     unsigned int m, n;
 
