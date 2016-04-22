@@ -56,6 +56,8 @@ public:
     Numeric operator()(Index i) const;
     Numeric& operator()(Index i);
 
+    Numeric * raw_pointer();
+
     void accumulate(const ArtsVector& w);
     void subtract(const ArtsVector& w);
 
@@ -107,6 +109,8 @@ public:
 
     RealType & operator()(Index i, Index j);
     RealType operator()(Index i, Index j) const;
+
+    RealType * raw_pointer();
 
     // ------------ //
     //  Arithmetic  //

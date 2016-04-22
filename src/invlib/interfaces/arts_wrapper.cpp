@@ -37,6 +37,12 @@ auto ArtsVector::operator()(Index i)
     return this->get(i);
 }
 
+auto ArtsVector::raw_pointer()
+    -> Numeric *
+{
+    return this->mdata;
+}
+
 auto ArtsVector::accumulate(const ArtsVector& w)
     -> void
 {
@@ -118,6 +124,12 @@ auto ArtsMatrix::operator()(Index i, Index j) const
     -> RealType
 {
     return this->get(i,j);
+}
+
+auto ArtsMatrix::raw_pointer()
+    -> Numeric *
+{
+    return this->mdata;
 }
 
 void ArtsMatrix::accumulate(const ArtsMatrix& B)
