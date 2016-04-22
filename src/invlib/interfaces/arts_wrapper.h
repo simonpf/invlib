@@ -57,6 +57,7 @@ public:
     Numeric& operator()(Index i);
 
     Numeric * raw_pointer();
+    const Numeric * raw_pointer() const;
 
     void accumulate(const ArtsVector& w);
     void subtract(const ArtsVector& w);
@@ -126,6 +127,9 @@ public:
 
     ArtsMatrix transpose_multiply(const ArtsMatrix &B) const;
     ArtsVector transpose_multiply(const ArtsVector &v) const;
+    ArtsVector transpose_multiply_block(const ArtsVector &v,
+                                        unsigned int start,
+                                        unsigned int extent) const;
 
     VectorType solve(const VectorType& v) const;
     ArtsMatrix invert() const;

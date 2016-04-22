@@ -43,6 +43,12 @@ auto ArtsVector::raw_pointer()
     return this->mdata;
 }
 
+auto ArtsVector::raw_pointer() const
+    -> const Numeric *
+{
+    return this->mdata;
+}
+
 auto ArtsVector::accumulate(const ArtsVector& w)
     -> void
 {

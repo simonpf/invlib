@@ -15,6 +15,14 @@
 namespace invlib
 {
 
+// ------------------- //
+//  Custom Decay Type  //
+// ------------------- //
+
+/*
+ *  Extension of std::decay that also removes std::reference_wrapper
+ *  around a type.
+ */
 template<typename T1>
 class DecayType
 {
@@ -45,6 +53,45 @@ public:
 
 template<typename T1>
 using decay = typename DecayType<T1>::type;
+
+// ------------------------------ //
+//  Remove std::reference_wrapper //
+// ------------------------------ //
+
+template<typename T1>
+struct RemoveReferenceWrapperType
+{
+public:
+    using type = T1;
+};
+
+template<typename T1>
+struct RemoveReferenceWrapperType<std::reference_wrapper<T1>>
+{
+public:
+    using type = T1;
+};
+
+template<typename T1>
+struct RemoveReferenceWrapperType<const std::reference_wrapper<T1>&>
+{
+public:
+    using type = T1;
+};
+
+template<typename T1>
+struct RemoveReferenceWrapperType<std::reference_wrapper<T1>&>
+{
+public:
+    using type = T1;
+};
+
+template<typename T1>
+using RemoveReferenceWrapper = typename RemoveReferenceWrapperType<T1>::type;
+
+// --------------- //
+//  Custom Traits  //
+// --------------- //
 
 template<typename B1>
 using enable_if = typename std::enable_if<B1::value>::type;

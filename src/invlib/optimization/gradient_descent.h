@@ -100,7 +100,7 @@ public:
     VectorType step(const VectorType &,
                     const VectorType &g,
                     const MatrixType &B,
-                    const CostFunction &);
+                    CostFunction & J);
 
 private:
 
