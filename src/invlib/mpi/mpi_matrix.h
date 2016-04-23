@@ -51,9 +51,11 @@ public:
     MPIMatrix & operator=(MPIMatrix &&) = default;
 
     template <typename T,
-              typename = enable_if<is_constructible<StorageType, T>>
-              typename = disable_if<is_same<decay<T>, MPIMatrix>>
+              typename = enable_if<is_constructible<CopyWrapper<StorageType>, T>>,
+              typename = disable_if<is_same<decay<T>, MPIMatrix>>>
     MPIMatrix(T &&local_matrix);
+
+    MPIMatrix(const LocalType &local_matrix);
 
     template <typename = enable_if<is_same<StorageType, LocalType>>>
     void resize(unsigned int i, unsigned int j);
@@ -91,7 +93,7 @@ private:
     int rank;
     int nprocs;
 
-    StorageType local;
+    CopyWrapper<StorageType> local;
     RealType    local_element;
     unsigned int local_rows;
     unsigned int m, n;

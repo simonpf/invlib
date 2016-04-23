@@ -126,6 +126,18 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
+auto MPIVector<LocalType, StorageTemplate>::get_local() const
+    -> const LocalType &
+{
+    return local;
+}
+
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
 auto MPIVector<LocalType, StorageTemplate>::operator()(unsigned int i) const
     -> RealType
 {

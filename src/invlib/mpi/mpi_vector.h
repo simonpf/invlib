@@ -56,6 +56,8 @@ public:
     template <typename = enable_if<is_same<StorageType, LocalType>>>
     LocalType & get_local();
 
+    const LocalType & get_local() const;
+
     RealType operator()(unsigned int i) const;
     RealType& operator()(unsigned int i);
 

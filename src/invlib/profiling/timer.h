@@ -78,6 +78,13 @@ public:
     >
     Timer & operator=(T &&);
 
+    template
+    <
+    typename T,
+    typename = is_copy_assignable<T>
+    >
+    Timer & operator=(const T &);
+
     // ------------------------ //
     //   Arithmetic Operations  //
     // ------------------------ //

@@ -18,6 +18,15 @@ auto Timer<Base>::operator=(T &&t)
     return *this;
 }
 
+template <typename Base>
+    template <typename T, typename>
+auto Timer<Base>::operator=(const T &t)
+    -> Timer &
+{
+    Base::operator=(t);
+    return *this;
+}
+
 // ------------------------ //
 //   Arithmetic Operations  //
 // ------------------------ //

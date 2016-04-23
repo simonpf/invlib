@@ -15,6 +15,22 @@
 namespace invlib
 {
 
+// ----------------------------- //
+// Remove std::reference_wrapper //
+// ----------------------------- //
+
+template<typename T1>
+    T1 & remove_reference_wrapper(T1 &t)
+{
+    return t;
+}
+
+template<typename T1>
+T1 & remove_reference_wrapper(std::reference_wrapper<T1> t)
+{
+    return t.get();
+}
+
 // ------------------- //
 //  Custom Decay Type  //
 // ------------------- //
@@ -117,8 +133,20 @@ using is_base = typename std::is_base_of<T1, T2>;
 template<typename T1, typename T2>
 using is_constructible = typename std::is_constructible<T1, T2>;
 
+template<typename T1>
+using is_default_constructible = typename std::is_default_constructible<T1>;
+
+template<typename T1, typename T2>
+using is_copy_constructible = typename std::is_copy_constructible<T1>;
+
 template<typename T1, typename T2>
 using is_assignable = typename std::is_assignable<T1, T2>;
+
+template<typename T1>
+using is_copy_assignable = typename std::is_copy_assignable<T1>;
+
+template<typename T1>
+using is_move_assignable = typename std::is_move_assignable<T1>;
 
 template<typename T1>
 using return_type = typename std::result_of<T1>::type;

@@ -192,7 +192,7 @@ auto ArtsMatrix::transpose_multiply_block(const ArtsVector &v,
     -> ArtsVector
 {
     ArtsVector w; w.resize(this->ncols());
-    VectorView v_view = v[Range(start, extent)];
+    ConstVectorView v_view = v[Range(start, extent)];
     ::mult(w, ::transpose(*this), v_view);
     return w;
 }
