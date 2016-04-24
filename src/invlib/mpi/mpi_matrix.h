@@ -17,6 +17,33 @@
 namespace invlib
 {
 
+// -------------- //
+//  Matrix Class  //
+// -------------- //
+
+/**
+ * \brief Generic distributed MPI matrix.
+ *
+ * Provides a wrapper class for matrices that are distributed row-wise
+ * over processes. Currently only matrix-vector multiplication and
+ * transposed vector-matrix multiplication are supported. This requires
+ * the underlying matrix type to implement the following operations:
+ *
+ * - MV multiplicaiton: multiply(const VectorType &v)
+ * - transposed MV multiplication by a block:
+ *     transpose_multiply_block(const VectorType &v, int start, int extent)
+ *
+ * In addition the associated VectorType must provide a raw_pointer() function
+ * so that the results can be broad casted using MPI.
+ *
+ * The MPI matrix class holds matrix block local to the process as lvalue or
+ * as reference.
+ *
+ * \tparam LocalType The type of the local matrix block.
+ * \tparam StorageTrait Storage template that defines whether the local block
+ * is held as a reference or as lvalue. See invlib/mpi/traits.h.
+ *
+ */
 template
 <
 typename LocalType,
@@ -26,6 +53,10 @@ class MPIMatrix
 {
 
 public:
+
+    // -------------- //
+    //  Type Aliases  //
+    // -------------- //
 
     /*! The basic scalar type. */
     using RealType   = typename LocalType::RealType;
@@ -41,7 +72,10 @@ public:
     /*! The type used to store the local matrix. */
     using StorageType = typename StorageTrait<LocalType>::type;
 
-    template <typename = enable_if<is_same<StorageType, LocalType>>>
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
+
     MPIMatrix();
 
     MPIMatrix(const MPIMatrix &) = default;
@@ -57,16 +91,13 @@ public:
 
     MPIMatrix(const LocalType &local_matrix);
 
-    template <typename = enable_if<is_same<StorageType, LocalType>>>
     void resize(unsigned int i, unsigned int j);
 
-    static MPIMatrix<LocalType, LValue> split_matrix(const MatrixType &matrix);
     static void broadcast(LocalType &local);
 
     unsigned int rows() const;
     unsigned int cols() const;
 
-    template <typename = enable_if<is_same<StorageType, LocalType>>>
     LocalType& get_local();
 
     RealType operator()(unsigned int i, unsigned int j) const;

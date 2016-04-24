@@ -38,7 +38,6 @@ public:
     /*! The type used to store the local vector. */
     using StorageType = typename StorageTrait<LocalType>::type;
 
-    template <typename = enable_if<is_same<StorageType, LocalType>>>
     MPIVector();
 
     template
