@@ -93,7 +93,9 @@ public:
 
     void resize(unsigned int i, unsigned int j);
 
+
     static void broadcast(LocalType &local);
+    MPIMatrix<LocalType, LValue> split_matrix(const MatrixType &local_matrix);
 
     unsigned int rows() const;
     unsigned int cols() const;
