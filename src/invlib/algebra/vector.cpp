@@ -2,14 +2,6 @@
 //  Vector Class  //
 // -------------- //
 
-template <typename Base>
-    template<typename>
-Vector<Base>::Vector()
-    : Base()
-{
-    // Nothing to do here.
-}
-
 // template <typename Base>
 // Vector<Base>::Vector(Base &&v)
 //     : Base(std::forward<Base>(v))

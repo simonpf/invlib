@@ -3,7 +3,6 @@ template
 typename LocalType,
 template <typename> typename StorageType
 >
-    template<typename>
 MPIVector<LocalType, StorageType>::MPIVector()
     : local(), local_rows(0)
 {
@@ -59,7 +58,6 @@ template
 typename LocalType,
 template <typename> typename StorageType
 >
-    template <typename>
 auto MPIVector<LocalType, StorageType>::resize(unsigned int i)
     -> void
 {
@@ -114,7 +112,6 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-    template <typename>
 auto MPIVector<LocalType, StorageTemplate>::get_local()
     -> LocalType &
 {
@@ -183,6 +180,19 @@ auto MPIVector<LocalType, StorageTemplate>::operator()(unsigned int i)
         return local(i - row_indices[rank]);
     else
         return local_element;
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
+auto MPIVector<LocalType, StorageTemplate>::broadcast() const
+    -> LocalType
+{
+    LocalType v; v.resize(m);
+    broadcast_local_block(v.raw_pointer(), local.raw_pointer());
+    return v;
 }
 
 

@@ -3,14 +3,6 @@
 // -------------- //
 
 template<typename Base>
-    template<typename>
-Matrix<Base>::Matrix()
-    : Base()
-{
-    // Nothing to do here.
-}
-
-template<typename Base>
 Matrix<Base>::Matrix(const Matrix &t)
     : Base(t)
 {

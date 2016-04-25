@@ -47,18 +47,18 @@ public:
     >
     MPIVector(T &&local_vector);
 
-    template <typename = enable_if<is_same<StorageType, LocalType>>>
     void resize(unsigned int i);
 
     unsigned int rows() const;
 
-    template <typename = enable_if<is_same<StorageType, LocalType>>>
     LocalType & get_local();
 
     const LocalType & get_local() const;
 
     RealType operator()(unsigned int i) const;
     RealType& operator()(unsigned int i);
+
+    LocalType broadcast() const;
 
     operator LocalType() const;
 

@@ -3,7 +3,6 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-template<typename>
 MPIMatrix<LocalType, StorageTemplate>::MPIMatrix()
     : local(), local_rows(0)
 {
@@ -116,48 +115,47 @@ MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(const LocalType &local_matrix)
     n = remove_reference_wrapper(local).cols();
 }
 
+// template
+// <
+// typename LocalType,
+// template <typename> typename StorageTemplate
+// >
+// auto MPIMatrix<LocalType, StorageTemplate>::split_matrix(const MatrixType &local_matrix)
+//     -> MPIMatrix<LocalType, LValue>
+// {
+//     int rank;
+//     int nprocs;
+//     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+//     // Distribute rows evenly over MPI processes.
+//     unsigned int total_rows = local_matrix.rows();
+//     unsigned int local_rows = total_rows / nprocs;
+//     unsigned int remainder = total_rows % nprocs;
+//     unsigned int local_start = local_rows * rank;
+
+
+//     if (rank < remainder)
+//     {
+//         local_rows += 1;
+//         local_start += rank;
+//     }
+//     else
+//     {
+//         local_start += remainder;
+//     }
+
+//     unsigned int n = local_matrix.cols();
+//     LocalType block = local_matrix.get_block(local_start, 0, local_rows, n);
+//     MPIMatrix<LocalType, LValue> splitted_matrix(block);
+//     return splitted_matrix;
+// }
+
 template
 <
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-auto MPIMatrix<LocalType, StorageTemplate>::split_matrix(const MatrixType &local_matrix)
-    -> MPIMatrix<LocalType, LValue>
-{
-    int rank;
-    int nprocs;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-
-    // Distribute rows evenly over MPI processes.
-    unsigned int total_rows = local_matrix.rows();
-    unsigned int local_rows = total_rows / nprocs;
-    unsigned int remainder = total_rows % nprocs;
-    unsigned int local_start = local_rows * rank;
-
-
-    if (rank < remainder)
-    {
-        local_rows += 1;
-        local_start += rank;
-    }
-    else
-    {
-        local_start += remainder;
-    }
-
-    unsigned int n = local_matrix.cols();
-    LocalType block = local_matrix.get_block(local_start, 0, local_rows, n);
-    MPIMatrix<LocalType, LValue> splitted_matrix(block);
-    return splitted_matrix;
-}
-
-template
-<
-typename LocalType,
-template <typename> typename StorageTemplate
->
-template<typename>
 auto MPIMatrix<LocalType, StorageTemplate>::resize(unsigned int i,
                                                    unsigned int j)
       -> void
@@ -241,7 +239,6 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-template <typename>
 auto MPIMatrix<LocalType, StorageTemplate>::get_local()
     -> LocalType &
 {
