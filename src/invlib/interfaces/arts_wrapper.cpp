@@ -241,6 +241,11 @@ auto ArtsSparse::cols() const
     return A.ncols();
 }
 
+ArtsSparse::operator(unsigned int i, unsigned int j)
+{
+    return A.ro(i, j);
+}
+
 auto ArtsSparse::multiply(const ArtsMatrix &B) const
     -> ArtsMatrix
 {

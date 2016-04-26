@@ -37,7 +37,11 @@ namespace invlib
  * so that the results can be broad casted using MPI.
  *
  * The MPI matrix class holds matrix block local to the process as lvalue or
- * as reference.
+ * as reference. We refer to the type of the matrix used for each local block
+ * as the local type. The way in wich the local type is stored is refered to
+ * as the storage type (type in the general sense, not C++ Type). Currently
+ * storing the local matrix as lvalue and as rvalu reference to and existing
+ * matrix is supported.
  *
  * \tparam LocalType The type of the local matrix block.
  * \tparam StorageTrait Storage template that defines whether the local block
@@ -64,11 +68,6 @@ public:
     using VectorType = typename LocalType::VectorType;
     /*! The local Matrix type.  */
     using MatrixType = LocalType;
-    /*!
-     * Result type of an algebraic expression with MPIMatrix as right hand
-     * operator.
-     */
-    using ResultType = LocalType;
     /*! The type used to store the local matrix. */
     using StorageType = typename StorageTrait<LocalType>::type;
 
@@ -76,6 +75,11 @@ public:
     //  Constructors and Destructors   //
     // ------------------------------- //
 
+    /*! Default Constructor.
+     *
+     * Works only if the local matrix is an lvalu matrix.
+     *
+     */
     MPIMatrix();
 
     MPIMatrix(const MPIMatrix &) = default;
@@ -84,13 +88,43 @@ public:
     MPIMatrix & operator=(const MPIMatrix &) = default;
     MPIMatrix & operator=(MPIMatrix &&) = default;
 
+    /*!
+     * Generic constructor that forwards the call to the constructor of
+     * local type so that the MPI matrix can be constructed from any type
+     * the local type can be constructed from.
+     */
     template <typename T,
               typename = enable_if<is_constructible<CopyWrapper<StorageType>, T>>,
               typename = disable_if<is_same<decay<T>, MPIMatrix>>>
     MPIMatrix(T &&local_matrix);
 
+    /*!
+     * Construct MPI matrix from local matrix. The constructor assumes that
+     * every MPI process holds a local block of a matrix with the rows
+     * distributed contiguously and in increasing order (but not
+     * necessarily uniformly) over MPI ranks. The constructed MPIMatrix object
+     * represents the full matrix with m rows, where m is the sum of all rows
+     * of the matrices in each MPI process.
+     *
+     * \param local_matrix The local block of each process represented by
+     * a matrix of the given local type.
+     */
     MPIMatrix(const LocalType &local_matrix);
 
+    // --------------- //
+    //  Manipulations  //
+    // --------------- //
+
+    /*!
+     * Resize the local matrix. Resizes the local matrix held by each MPI
+     * process. This method is only available if the local matrix is mutable,
+     * i.e. is stored as lvaule. The resulting MPIMatrix object represents
+     * the global \f$n_{\text{proc}} * i \times j \f$ matrix where
+     *  \f$n_\text{proc}\f$ is the number of MPI processes.
+     *
+     * \param i The number of local rows.
+     * \param j The number of columns
+     */
     void resize(unsigned int i, unsigned int j);
 
 
