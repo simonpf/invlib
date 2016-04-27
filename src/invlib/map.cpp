@@ -221,7 +221,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
         x += dx;
 
         // Check for convergence.
-        RealType conv = - dot(dx, g) / n;
+        RealType conv = dot(dx, H * dx) / n;
         if (conv < M.get_tolerance())
         {
             converged = true;
@@ -316,7 +316,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 
         // Test for convergence.
         g  = tmp * (yi - y) + inv(Sa) * (x - xa);
-        RealType conv = - dot(dx, g) / n;
+        RealType conv = dot(dx, H * dx) / n;
         if (conv < M.get_tolerance())
         {
             converged = true;

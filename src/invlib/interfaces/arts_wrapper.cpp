@@ -241,7 +241,8 @@ auto ArtsSparse::cols() const
     return A.ncols();
 }
 
-ArtsSparse::operator(unsigned int i, unsigned int j)
+auto ArtsSparse::operator()(unsigned int i, unsigned int j) const
+    -> RealType
 {
     return A.ro(i, j);
 }
