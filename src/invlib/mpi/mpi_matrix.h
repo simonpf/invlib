@@ -67,6 +67,8 @@ public:
     /*! The basic vector type  */
     using VectorType = typename LocalType::VectorType;
     /*! The local Matrix type.  */
+    using ResultType = typename LocalType::VectorType;
+    /*! The local Matrix type.  */
     using MatrixType = LocalType;
     /*! The type used to store the local matrix. */
     using StorageType = typename StorageTrait<LocalType>::type;
