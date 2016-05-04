@@ -153,7 +153,7 @@ using return_type = typename std::result_of<T1>::type;
 
 template<typename T1>
 using CopyWrapper = typename std::conditional<std::is_lvalue_reference<T1>::value,
-                                              std::reference_wrapper<decay<T1>>,
+                                              std::reference_wrapper<const decay<T1>>,
                                               decay<T1>>::type;
 
 

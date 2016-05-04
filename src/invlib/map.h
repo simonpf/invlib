@@ -252,8 +252,8 @@ template
 <
 typename ForwardModel,
 typename MatrixType,
-typename SaType,
-typename SeType,
+typename SaType  = MatrixType,
+typename SeType  = MatrixType,
 Formulation Form = Formulation::STANDARD
 >
 class MAP;

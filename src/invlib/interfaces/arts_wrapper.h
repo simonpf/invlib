@@ -174,7 +174,7 @@ public:
     Index rows() const;
     Index cols() const;
 
-    RealType operator(unsigned int i, unsigned int j);
+    RealType operator()(unsigned int i, unsigned int j) const;
 
     // ------------ //
     //  Arithmetic  //

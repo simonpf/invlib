@@ -20,10 +20,23 @@ include(FindLAPACK)
 # MPI
 include(FindMPI)
 
+# Eigen
+find_package(Eigen3)
+
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+if (NOT EIGEN3_FOUND)
+  message(WARNING "Could not find Eigen3 library, which is required to build some \
+                   examples. If Eigen3 is not detected automatically consider \
+                   setting EIGEN3_INCLUDE_DIR to the path containing Eigen3.")
+endif (NOT EIGEN3_FOUND)
+
+
 include_directories ("${PROJECT_SOURCE_DIR}/src/"
                      "${PROJECT_SOURCE_DIR}/test/"
                      "${Boost_INCLUDE_DIRS}")
 
 # Build tests.
 add_subdirectory(test)
+add_subdirectory(examples)
 
