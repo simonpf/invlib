@@ -60,7 +60,7 @@ auto ConjugateGradient::solve(const MatrixType &A,
 
         i++;
         if (i % 10 == 0)
-            log.step(i, rnorm);
+            log.step(i, rnorm / vnorm);
     }
     log.finalize(i);
 
