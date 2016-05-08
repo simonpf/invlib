@@ -61,8 +61,8 @@ typename VectorType
 auto dot(const T1 &v, const T2 &w)
     -> typename VectorType::RealType
 {
-    return dot(static_cast<typename VectorType::BaseType>(v),
-               static_cast<typename VectorType::BaseType>(w));
+    return dot(static_cast<const typename VectorType::BaseType&>(v),
+               static_cast<const typename VectorType::BaseType&>(w));
 }
 
 // ------------------------------- //

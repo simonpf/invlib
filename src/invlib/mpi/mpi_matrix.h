@@ -17,6 +17,19 @@
 namespace invlib
 {
 
+template
+<
+typename Base
+>
+class Vector;
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTrait
+>
+class MPIVector;
+
 // -------------- //
 //  Matrix Class  //
 // -------------- //
@@ -64,9 +77,15 @@ public:
 
     /*! The basic scalar type. */
     using RealType   = typename LocalType::RealType;
-    /*! The basic vector type  */
-    using VectorType = typename LocalType::VectorType;
+    /*! The MPI type corresponding to the local vector type. */
+    using NonMPIVectorType = typename LocalType::VectorType;
     /*! The local Matrix type.  */
+    template<template <typename> typename VectorStorageType>
+    using MPIVectorType = Vector<MPIVector<typename LocalType::VectorType,
+                                           VectorStorageType>>;
+    /*! The basic vector type  */
+    using VectorType = typename MPIVectorType<LValue>::BaseType;
+    /*! The basic vector type  */
     using ResultType = typename LocalType::VectorType;
     /*! The local Matrix type.  */
     using MatrixType = LocalType;
@@ -79,7 +98,7 @@ public:
 
     /*! Default Constructor.
      *
-     * Works only if the local matrix is an lvalu matrix.
+     * Works only if the local matrix is an lvalue matrix.
      *
      */
     MPIMatrix();
@@ -141,8 +160,15 @@ public:
     RealType operator()(unsigned int i, unsigned int j) const;
     RealType& operator()(unsigned int i, unsigned int j);
 
-    VectorType multiply(const VectorType &) const;
-    VectorType transpose_multiply(const VectorType &) const;
+    NonMPIVectorType multiply(const NonMPIVectorType &) const;
+    NonMPIVectorType transpose_multiply(const NonMPIVectorType &) const;
+
+    template <template <typename> typename VectorStorageType>
+    MPIVectorType<LValue> multiply(const MPIVectorType<VectorStorageType> &v) const;
+
+    template <template <typename> typename VectorStorageType>
+    MPIVectorType<LValue>
+        transpose_multiply(const MPIVectorType<VectorStorageType> &v) const;
 
     /* operator MPIMatrix<LocalType, ConstRef>() const; */
     /* operator LocalType(); */

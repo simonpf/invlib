@@ -305,11 +305,11 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-auto MPIMatrix<LocalType, StorageTemplate>::multiply(const VectorType &v) const
-    -> VectorType
+auto MPIMatrix<LocalType, StorageTemplate>::multiply(const NonMPIVectorType &v) const
+    -> NonMPIVectorType
 {
-    VectorType w{}; w.resize(m);
-    VectorType w_local{}; w_local.resize(local_rows);
+    NonMPIVectorType w{}; w.resize(m);
+    NonMPIVectorType w_local{}; w_local.resize(local_rows);
     w_local = remove_reference_wrapper(local).multiply(v);
     broadcast_local_block(w.raw_pointer(), w_local.raw_pointer());
     return w;
@@ -320,11 +320,11 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
-auto MPIMatrix<LocalType, StorageTemplate>::transpose_multiply(const VectorType &v) const
-    -> VectorType
+auto MPIMatrix<LocalType, StorageTemplate>::transpose_multiply(const NonMPIVectorType &v) const
+    -> NonMPIVectorType
 {
-    VectorType w_local{};   w_local.resize(n);
-    VectorType w{};   w.resize(n);
+    NonMPIVectorType w_local{};   w_local.resize(n);
+    NonMPIVectorType w{};   w.resize(n);
 
     w_local =
         remove_reference_wrapper(local).transpose_multiply_block(v, row_indices[rank], row_ranges[rank]);
@@ -332,6 +332,37 @@ auto MPIMatrix<LocalType, StorageTemplate>::transpose_multiply(const VectorType 
     return w;
 }
 
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
+template <template <typename> typename VectorStorageTemplate>
+auto MPIMatrix<LocalType, StorageTemplate>
+    ::multiply(const MPIVectorType<VectorStorageTemplate> &v) const
+    -> MPIVectorType<LValue>
+{
+    MPIVectorType<LValue> w = remove_reference_wrapper(local).multiply(v);
+    return w;
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
+template <template <typename> typename VectorStorageTemplate>
+auto MPIMatrix<LocalType, StorageTemplate>
+    ::transpose_multiply(const MPIVectorType<VectorStorageTemplate> &v) const
+    -> MPIVectorType<LValue>
+{
+
+    NonMPIVectorType w; w.resize(n);
+    NonMPIVectorType w_local;
+    w_local = remove_reference_wrapper(local).transpose_multiply(v.get_local());
+    reduce_vector_sum(w.raw_pointer(), w_local.raw_pointer());
+    return MPIVectorType<LValue>::split(w);
+}
 // template
 // <
 // typename LocalType,

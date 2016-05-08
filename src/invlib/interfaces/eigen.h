@@ -1,6 +1,8 @@
 #include <Eigen/Sparse>
 #include <utility>
 
+#include "invlib/traits.h"
+
 using EigenSparseBase   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 using EigenVectorBase   = Eigen::VectorXd;
 
@@ -31,7 +33,11 @@ public:
 
     EigenVector() = default;
 
-    template <typename T>
+    template
+    <
+    typename T,
+    typename = invlib::enable_if<invlib::is_constructible<EigenVectorBase, T>>
+    >
     EigenVector(T &&t)
         : EigenVectorBase(std::forward<T>(t))
     {
@@ -42,9 +48,29 @@ public:
     //     Manipulation    //
     // ------------------- //
 
+    unsigned int rows() const
+    {
+        return this->EigenVectorBase::rows();
+    }
+
     void resize(unsigned int n)
     {
         this->EigenVectorBase::resize((int) n);
+    }
+
+    EigenVector get_block(unsigned int start, unsigned int extent) const
+    {
+        return this->block((int) start, 0, (int) extent, 1);
+    }
+
+    RealType * raw_pointer()
+    {
+        return this->data();
+    }
+
+    const RealType * raw_pointer() const
+    {
+        return this->data();
     }
 
     // ---------------------- //
@@ -104,7 +130,11 @@ public:
     //  Constructors  //
     // -------------- //
 
-    template<typename T>
+    template
+    <
+    typename T,
+    typename = invlib::enable_if<invlib::is_constructible<EigenVectorBase, T>>
+    >
     EigenSparse(T &&t)
         : EigenSparseBase(std::forward<T>(t))
     {
@@ -117,14 +147,23 @@ public:
 
     unsigned int rows() const
     {
-        std::cout << "rows" << std::endl;
-        std::cout << this << std::endl;
         return this->EigenSparseBase::rows();
     }
 
     unsigned int cols() const
     {
         return this->EigenSparseBase::cols();
+    }
+
+    EigenSparse get_block(unsigned int row_start,
+                          unsigned int col_start,
+                          unsigned int row_extent,
+                          unsigned int col_extent) const
+    {
+        return this->block((int) row_start,
+                           (int) col_start,
+                           (int) row_extent,
+                           (int) col_extent);
     }
 
     // ---------------------- //

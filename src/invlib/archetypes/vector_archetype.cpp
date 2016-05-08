@@ -16,6 +16,22 @@ auto VectorArchetype<Real>::operator=(const VectorArchetype<Real> &v)
 }
 
 template <typename Real>
+auto VectorArchetype<Real>::get_block(unsigned int i,
+                                      unsigned int di) const
+    -> VectorArchetype
+{
+    assert((di > 0) &&(i + di <= n));
+
+    VectorArchetype block; block.resize(di);
+    int data_start = i;
+    int data_end = data_start + di;
+
+    std::copy(&data[data_start], &data[data_end], &block.data[0]);
+
+    return block;
+}
+
+template <typename Real>
 void VectorArchetype<Real>::resize(unsigned int i)
 {
     n = i;

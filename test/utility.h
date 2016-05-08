@@ -51,7 +51,7 @@ void set_identity(MatrixType &A)
 }
 
 /**
- * \brief Generate random vector.
+ * \brief Generate andom vector.
  *
  * Generate a random of length @n with uniformly distributed elements in the
  * range [-1.0,1.0]. Assumes that the provided vector type can be resized

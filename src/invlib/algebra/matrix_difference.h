@@ -215,7 +215,7 @@ public:
      * \todo Add static asserts.
      */
     template <typename T3>
-    Difference<T3> operator-(const T3 &&C) const;
+    Difference<T3> operator-(T3 &&C) const;
 
     operator ResultType() const;
 

@@ -1,3 +1,7 @@
+// ---------------- //
+//    MPI Vector    //
+// ---------------- //
+
 template
 <
 typename LocalType,
@@ -51,6 +55,26 @@ MPIVector<LocalType, StorageType>::MPIVector(T && local_vector)
     }
 
     m = index;
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageType
+>
+auto MPIVector<LocalType, StorageType>::split(const LocalType& v)
+    -> MPIVector<LocalType, LValue>
+{
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+    MPIVector<LocalType, LValue> w;
+    w.resize(v.rows());
+
+    w.get_local() = v.get_block(w.row_indices[rank], w.row_ranges[rank]);
+
+    return w;
 }
 
 template
@@ -238,4 +262,65 @@ auto MPIVector<LocalType, StorageType>::broadcast_local_block(double *vector,
         MPI_Bcast(vector + row_indices[i], row_ranges[i], mpi_data_type,
                   i, MPI_COMM_WORLD);
     }
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageType
+>
+auto MPIVector<LocalType, StorageType>::accumulate(const MPIVector &v)
+    -> void
+{
+    local.accumulate(v.local);
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageType
+>
+auto MPIVector<LocalType, StorageType>::subtract(const MPIVector &v)
+    -> void
+{
+    local.subtract(v.local);
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageType
+>
+auto MPIVector<LocalType, StorageType>::scale(RealType c)
+    -> void
+{
+    local.scale(c);
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageType
+>
+auto MPIVector<LocalType, StorageType>::norm() const
+    -> RealType
+{
+    return sqrt(dot(*this, *this));
+}
+
+// ---------------- //
+//    Dot Product   //
+// ---------------- //
+
+template
+<
+    typename T1,
+    template <typename> typename StorageType
+>
+auto dot(const MPIVector<T1, StorageType> &v, const MPIVector<T1, StorageType> &w)
+    -> typename MPIVector<T1, StorageType>::RealType
+{
+    using RealType = typename MPIVector<T1, StorageType>::RealType;
+    RealType local = dot(v.local, w.local);
+    return mpi_sum(local);
 }

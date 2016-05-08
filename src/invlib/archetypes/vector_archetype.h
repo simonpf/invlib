@@ -106,6 +106,9 @@ public:
     VectorArchetype& operator=(VectorArchetype &&) = default;
     ~VectorArchetype() = default;
 
+    VectorArchetype get_block(unsigned int i,
+                              unsigned int di) const;
+
     // ----------------- //
     //   Manipulations   //
     // ----------------- //
