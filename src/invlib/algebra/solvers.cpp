@@ -37,7 +37,7 @@ auto ConjugateGradient::solve(const MatrixType &A,
     RealType tol, alpha, beta, rnorm, vnorm;
     VectorType x, r, p, xnew, rnew, pnew;
 
-    x = 0.0 * v;
+    x = v;
     r = A * x - v;
     p = -1.0 * r;
     vnorm = v.norm();
@@ -50,7 +50,7 @@ auto ConjugateGradient::solve(const MatrixType &A,
     {
         alpha = dot(r, r) / dot(p, A * p);
         xnew  = x + alpha *     p;
-        rnew  = A * xnew - v;
+        rnew  = r + alpha * A * p;
         beta  = dot(rnew, rnew) / dot(r, r);
         pnew  = beta * p - rnew;
 

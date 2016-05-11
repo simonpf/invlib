@@ -1,5 +1,5 @@
 #include "invlib/map.h"
-#include "invlib/interfaces/eigen.h"
+#include "eigen.h"
 #include "invlib/algebra/precision_matrix.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/optimization/gauss_newton.h"
@@ -30,7 +30,7 @@ public:
         return K;
     }
 
-    unsigned int m, n;
+    const unsigned int m, n;
 
 private:
 
@@ -41,6 +41,9 @@ private:
 
 int main()
 {
+
+    using MatrixType = invlib::Matrix<EigenSparse>;
+    using VectorType = invlib::Vector<EigenVector>;
 
     using SolverType      = invlib::ConjugateGradient;
     using MinimizerType   = invlib::GaussNewton<double, SolverType>;
@@ -64,12 +67,12 @@ int main()
     SolverType    cg(1e-6, 1);
     MinimizerType gn(1e-6, 1, cg);
     LinearModel   F(K, xa);
-    std::cout << F.m << " | " << F.n << std::endl;
     MAPType       oem(F, xa, Pa, Pe);
 
     // Run OEM.
     VectorType x;
     oem.compute(x, y, gn, 0);
 
+    write_vector(x, "x.vec")
 }
 
