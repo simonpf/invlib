@@ -73,6 +73,6 @@ int main()
     VectorType x;
     oem.compute(x, y, gn, 0);
 
-    write_vector(x, "x.vec")
+    write_vector(x, "x.vec");
 }
 

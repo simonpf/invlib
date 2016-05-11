@@ -7,7 +7,7 @@
  * in the example.
  */
 using EigenSparseBase = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-using EigenVectorBase  = Eigen::VectorXd;
+using EigenVectorBase = Eigen::VectorXd;
 using EigenIndex   = int;
 
 
