@@ -152,7 +152,16 @@ public:
     void resize(unsigned int i, unsigned int j);
 
 
+    /** Broadcast the local matrix of process 0 to all other
+     *  processes. After the call  to broadcast all processes will have
+     *  the same local matrix as process 0. */
     static void broadcast(LocalType &local);
+
+    /** Split the matrix \p local_matrix evenly over processes. Splits up the rows
+     * of the matrix \p local_matrix evenly over the running MPI processes and
+     * creates an MPI matrix with lvalue storage type by copying the block from
+     * \p local_matrix that corresponds to the row-range of each process. The
+     * returned MPI matrix is a distributed representation of \p local_matrix. */
     static MPIMatrix<LocalType, LValue> split_matrix(const MatrixType &local_matrix);
 
     unsigned int rows() const;
@@ -167,14 +176,12 @@ public:
     NonMPIVectorType transpose_multiply(const NonMPIVectorType &) const;
 
     template <template <typename> typename VectorStorageType>
-    MPIVectorType<LValue> multiply(const MPIVectorType<VectorStorageType> &v) const;
+    auto multiply(const MPIVectorType<VectorStorageType> &v) const;
+        -> MPIVectorType<LValue>
 
     template <template <typename> typename VectorStorageType>
-    MPIVectorType<LValue>
-        transpose_multiply(const MPIVectorType<VectorStorageType> &v) const;
-
-    /* operator MPIMatrix<LocalType, ConstRef>() const; */
-    /* operator LocalType(); */
+    auto transpose_multiply(const MPIVectorType<VectorStorageType> &v) const
+        -> MPIVectorType<LValue>;
 
 private:
 
@@ -192,7 +199,7 @@ private:
     int nprocs;
 
     CopyWrapper<StorageType> local;
-    RealType    local_element;
+    RealType     local_element;
     unsigned int local_rows;
     unsigned int m, n;
 
