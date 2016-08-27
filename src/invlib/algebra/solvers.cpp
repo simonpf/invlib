@@ -37,14 +37,13 @@ auto ConjugateGradient::solve(const MatrixType &A,
     RealType tol, alpha, beta, rnorm, vnorm;
     VectorType x, r, p, xnew, rnew, pnew;
 
-    x = v;
+    x = 0.0 * v;
     r = A * x - v;
     p = -1.0 * r;
     vnorm = v.norm();
     rnorm = r.norm();
 
     log.init(tolerance, rnorm, vnorm);
-
     int i = 0;
     while (rnorm / vnorm > tolerance)
     {
@@ -59,11 +58,12 @@ auto ConjugateGradient::solve(const MatrixType &A,
         p = pnew;
 
         i++;
-        if (i % 10 == 0)
+        if (i % 10 == 0) {
             log.step(i, rnorm / vnorm);
+        }
     }
-    log.finalize(i);
 
+    log.finalize(i);
     return x;
 }
 

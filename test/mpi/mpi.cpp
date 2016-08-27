@@ -10,7 +10,6 @@ using namespace invlib;
 
 int main()
 {
-
     // MPI Setup.
     MPI_Init(nullptr, nullptr);
 
@@ -27,109 +26,123 @@ int main()
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis_m(1, 500);
-    std::uniform_int_distribution<> dis_n(1, 500);
+    std::uniform_int_distribution<> dis_m(2, 500);
+    std::uniform_int_distribution<> dis_n(2, 500);
 
     typename DMatrix::RealType max_err = 0.0;
-    DMatrix M = random<DMatrix>(4,8);
-    SMatrix::broadcast(M);
-    SMatrix MM = SMatrix::split_matrix(M);
-
-    SVector v; v.resize(4);
-
-    for (int i = 0; i < 4; i++)
-        v(i) = 0.0;
-    v(2) = 1.0;
-
-    SVector w  = transp(MM) * v;
-
-    DVector w2  = w;
-
-    if (rank == 0)
-    {
-        std::cout << M << std::endl;
-        std::cout << w.rows() << std::endl;
-        std::cout << w2 << std::endl;
-    }
 
     // -------------------- //
     // Standard Matrix Mult //
     // -------------------- //
 
-    // int n_tests = 100;
-    // for (int i = 0; i < n_tests; i++)
-    // {
-    //     int m = dis_m(gen);
-    //     int n = dis_n(gen);
+    int n_tests = 100;
+    for (int i = 0; i < n_tests; i++)
+    {
+        int m = dis_m(gen);
+        int n = dis_n(gen);
 
-    //     MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
-    //     MPI_Bcast(&n ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&n ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
 
-    //     DVector v; v.resize(n);
-    //     fill(v, 1.0);
+        DVector v; v.resize(n);
+        SVector v_mpi{}; v_mpi.resize(n);
+        fill(v, 1.0);
+        fill(v_mpi, 1.0);
 
-    //     DVector w{}; w.resize(m);
-    //     DVector w_mpi{}; w.resize(m);
+        DVector w;
+        DVector w_mpi;
+        SVector w_v_mpi;
 
-    //     auto M = random<DMatrix>(m, n);
-    //     SMatrix::broadcast(M);
+        auto M = random<DMatrix>(m, n);
+        SMatrix::broadcast(M);
 
-    //     MPI_Barrier(MPI_COMM_WORLD);
-    //     MPI_Barrier(MPI_COMM_WORLD);
-    //     SMatrix SM = SMatrix::split_matrix(M);
+        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
+        SMatrix SM = SMatrix::split_matrix(M);
 
-    //     w     = M * v;
-    //     w_mpi = SM * v;
+        w       = M * v;
+        w_mpi   = SM * v;
+        w_v_mpi = SM * v_mpi;
 
 
-    //     double err = maximum_error(w, w_mpi);
-    //     if (err > max_err)
-    //         max_err = err;
-    // }
+        double err = maximum_error(w, w_mpi);
+        DVector temp = w_v_mpi.broadcast();
 
-    // if (rank == 0)
-    // {
-    //     std::cout << "Testing MPI multiply: Max. rel. error = ";
-    //     std::cout << max_err << std::endl;
-    // }
+        err = std::max(err, maximum_error(w, temp));
+        if (err > max_err)
+            max_err = err;
+    }
 
-    // // ------------------------- //
-    // // Transposed Multiplication //
-    // // ------------------------- //
+    if (rank == 0)
+    {
+        std::cout << "Testing MPI multiply:           Max. rel. error = ";
+        std::cout << max_err << std::endl;
+    }
 
-    // for (int i = 0; i < n_tests; i++)
-    // {
-    //     int m = dis_m(gen);
-    //     int n = dis_n(gen);
+    // ------------------------- //
+    // Transposed Multiplication //
+    // ------------------------- //
 
-    //     MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
-    //     MPI_Bcast(&n ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+    for (int i = 0; i < n_tests; i++)
+    {
+        int m = dis_m(gen);
+        int n = dis_n(gen);
 
-    //     DVector v; v.resize(m);
-    //     fill(v, 1.0);
+        MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&n ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
 
-    //     DVector w{}; w.resize(n);
-    //     DVector w_mpi{}; w.resize(n);
+        DVector v; v.resize(m);
+        fill(v, 1.0);
 
-    //     auto M = random<DMatrix>(m, n);
-    //     SMatrix::broadcast(M);
+        DVector w{};
+        DVector w_mpi{};
 
-    //     SMatrix SM = SMatrix::split_matrix(M);
+        auto M = random<DMatrix>(m, n);
+        SMatrix::broadcast(M);
 
-    //     w     = transp(M) * v;
-    //     w_mpi = transp(SM) * v;
+        SMatrix SM = SMatrix::split_matrix(M);
 
-    //     double err = maximum_error(w, w_mpi);
-    //     if (err > max_err)
-    //         max_err = err;
-    // }
+        w     = transp(M) * v;
+        w_mpi = transp(SM) * v;
 
-    // if (rank == 0)
-    // {
-    //     std::cout << "Testing MPI transpose_multiply: Max. rel. error = ";
-    //     std::cout << max_err << std::endl;
-    // }
+        double err = maximum_error(w, w_mpi);
+        if (err > max_err)
+            max_err = err;
+    }
+
+    if (rank == 0)
+    {
+        std::cout << "Testing MPI transpose_multiply: Max. rel. error = ";
+        std::cout << max_err << std::endl;
+    }
+
+    // ------------------------- //
+    //       Dot Prodcut         //
+    // ------------------------- //
+
+    max_err = 0.0;
+
+    for (int i = 0; i < n_tests; i++)
+    {
+        int m = dis_m(gen);
+        MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+        SVector v       = random<SVector>(m);
+        DVector v_local = v.broadcast();
+
+        auto dot_1 = dot(v, v);
+        auto dot_2 = dot(v_local, v_local);
+
+        auto err = std::abs(dot_1 - dot_2) / std::max(std::abs(dot_1),
+                                                      std::abs(dot_2));
+        if (err > max_err)
+            max_err = err;
+    }
+
+    if (rank == 0)
+    {
+        std::cout << "Testing MPI dot:                Max. rel. error = ";
+        std::cout << max_err << std::endl;
+    }
 
     MPI_Finalize();
-
 }

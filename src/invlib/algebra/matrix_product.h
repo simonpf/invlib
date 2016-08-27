@@ -138,46 +138,26 @@ public:
      */
     ///@{
 
-    /*! Multiply product by a vector.
+    /*! Multiply product from the right.
      *
-     * If a MatrixProduct \f$C = A B\f$ object is multiplied by a vector \f$u\f$, 
-     * the result is computed successively by first computig the matrix-vector
-     * product \f$ v = B u\f$ and then the result \f$w = Av\f$.
+     * If a MatrixProduct \f$C = A B\f$ object is multiplied by a matrix or
+     * vector expression, the matrix or vector expression is evaluated first
+     * to its result type and then this intermediate result is successively
+     * multiplied with B and A.
      *
-     * The multiplication operation is handed down the algebraic expression tree
-     * using the method multiply(const VectorType &v), which must be provided by both
-     * operands of the multiplication A and B.
+     * The result type of the the product of a matrix product and a matrix or
+     * vector expression is the result type of the matrix or vector expression.
      *
-     * Except for the allocation of the result vector, the computation requires
-     * the allocation of a temporary vector to hold the intermediate result 
-     * \f$v\f$.
+     * Each of the matrices A and B must thus provide multiply methods for
+     * multiplying them from the right with the result type.
      *
-     * \return The product of the matrix product \f$A B\f$ and the vector \f$u\f$
-     *
-     * \todo Consider making this function a template.
+     * \tparam T3 The type of the matrix or vector expression being multiplied
+     * from the right.
+     * \return The product of the matrix product \f$A B\f$ and the matrix or
+     * vector expression \f$t\f$
      */
-    VectorType multiply(const VectorType &u) const;
-
-    /*! Multiply product by a matrix.
-     *
-     * The product of a MatrixProduct \f$E = A B\f$ object and a
-     * matrix \f$C\f$ is computed in a in the same way as the product of a
-     * MatrixProduct and a vector, namely by first computing the temporary result
-     * \f$D = B C\f$ and then finally \f$E = A * D\f$.
-     *
-     * The multiplication is delegated to the operands by calling the
-     * member function multiply(const MatrixType &), which must be provided
-     * by both types.
-     *
-     * Except for the matrix to hold the result, an additional matrix is allocated
-     * during computation to hold the temporary vector \f$D\f$.
-     *
-     * \return The product of the matrix product \f$AB\f$ and the
-     * vector \f$u\f$.
-     *
-     * \todo Consider making this function a template.
-     */
-    MatrixType multiply(const MatrixType &u) const;
+    template <typename T3>
+    auto multiply(const T3 &u) const -> typename T3::ResultType;
 
     /*! Inverse of a matrix product.
      *

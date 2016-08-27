@@ -46,15 +46,19 @@ class MPIVector;
  * - transposed MV multiplication by a block:
  *     transpose_multiply_block(const VectorType &v, int start, int extent)
  *
- * In addition the associated VectorType must provide a raw_pointer() function
+ * In addition the associated VectorType must provide a data_pointer() function
  * so that the results can be broad casted using MPI.
  *
- * The MPI matrix class holds matrix block local to the process as lvalue or
- * as reference. We refer to the type of the matrix used for each local block
- * as the local type. The way in wich the local type is stored is refered to
- * as the storage type (type in the general sense, not C++ Type). Currently
- * storing the local matrix as lvalue and as rvalu reference to and existing
- * matrix is supported.
+ * The MPI matrix class holds the local matrix block of the process as
+ * lvalue or as reference. We refer to the type of the matrix used for
+ * each local block as the local type. The way in wich the local type
+ * is stored is refered to as the storage type . Currently two storage
+ * types are supported: Storing the local matrix as a reference
+ * (default) and storing the lo local matrix as an lvalue,
+ * i.e. copying / moving it into the MPIMatrix object on construction.
+ *
+ * \attention When storing the local matrix by reference implicit conversion
+ * may lead to dangling references.
  *
  * \tparam LocalType The type of the local matrix block.
  * \tparam StorageTrait Storage template that defines whether the local block
@@ -84,7 +88,7 @@ public:
     using MPIVectorType = Vector<MPIVector<typename LocalType::VectorType,
                                            VectorStorageType>>;
     /*! The basic vector type  */
-    using VectorType = typename MPIVectorType<LValue>::BaseType;
+    using VectorType = typename LocalType::VectorType;
     /*! The basic vector type  */
     using ResultType = typename LocalType::VectorType;
     /*! The local Matrix type.  */
@@ -98,8 +102,7 @@ public:
 
     /*! Default Constructor.
      *
-     * Works only if the local matrix is an lvalue matrix.
-     *
+     * Works only if the local matrix is stored as lvalue.
      */
     MPIMatrix();
 

@@ -9,9 +9,10 @@ namespace invlib
 /**
  * \brief Linear forward model for testing.
  *
- * On construction the linear model by generating a random m times n matrix
- * K, that is used as the linear forward model. Implementes all necesary
- * for the computation of the MAP estimator using the MAP class.
+ * On construction the linear model is created by generating a random
+ * m times n matrix K, that is used as the Jacobian of the linear
+ * forward model. Implements all necesary functions for the computation of the
+ * MAP estimator using the MAP class.
  *
  * \tparam MatrixType The matrix type to be used for the linear model.
  */

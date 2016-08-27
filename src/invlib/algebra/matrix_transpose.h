@@ -67,6 +67,9 @@ public:
     //   Nested Evaluation   //
     // --------------------- //
 
+    template <typename T2>
+    auto multiply(const T2 &t) const -> typename T2::ResultType;
+
     /*! Multiply this transposed expression by a vector.
      *
      * Evaluates the algebraic expression and uses the
@@ -146,9 +149,9 @@ private:
  *
  */
 template <typename T1>
-MatrixTranspose<T1> transp(T1 &&A)
+MatrixTranspose<RemoveReferenceWrapper<T1>> transp(T1 &&A)
 {
-    return MatrixTranspose<T1>(A);
+    return MatrixTranspose<RemoveReferenceWrapper<T1>>(A);
 }
 
 #include "matrix_transpose.cpp"

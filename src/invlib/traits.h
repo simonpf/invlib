@@ -156,7 +156,29 @@ using CopyWrapper = typename std::conditional<std::is_lvalue_reference<T1>::valu
                                               std::reference_wrapper<const decay<T1>>,
                                               decay<T1>>::type;
 
+// ----------------------------- //
+//      Template equality        //
+// ----------------------------- //
 
-}      // namespace::invlib
+template
+<
+template <typename> class TT1,
+template <typename> class TT2
+>
+struct is_same_template
+{
+    static constexpr bool value = false;
+};
+
+template
+<
+template <typename> class TT1
+>
+struct is_same_template<TT1, TT1>
+{
+    static constexpr bool value = true;
+};
+
+}     // namespace::invlib
 
 #endif // TRAITS_H

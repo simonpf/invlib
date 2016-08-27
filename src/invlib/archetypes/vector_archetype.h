@@ -139,8 +139,8 @@ public:
      */
     unsigned int rows() const;
 
-    RealType * raw_pointer(int i = 0);
-    const RealType * raw_pointer(int i = 0) const;
+    RealType * data_pointer(int i = 0);
+    const RealType * data_pointer(int i = 0) const;
 
     // ------------ //
     //  Arithmetic  //

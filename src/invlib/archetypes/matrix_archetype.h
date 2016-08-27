@@ -116,8 +116,8 @@ public:
     unsigned int rows() const;
 
     /*! Raw pointer to the matrix data. Needed for MPI testing. */
-    RealType * raw_pointer();
-    const RealType * raw_pointer() const;
+    RealType * data_pointer();
+    const RealType * data_pointer() const;
 
     // ------------ //
     //  Arithmetic  //

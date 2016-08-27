@@ -7,25 +7,15 @@ template
 typename T1,
 typename T2
 >
-auto MatrixProduct<T1, T2>::multiply(const VectorType &u) const
-    -> VectorType
+template <typename T3>
+auto MatrixProduct<T1, T2>::multiply(const T3 &t) const
+    -> typename T3::ResultType
 {
-    VectorType v = static_cast<const decay<T2>&>(B).multiply(u);
-    VectorType w = static_cast<const decay<T1>&>(A).multiply(v);
-    return w;
-}
+    using T3ResultType = typename T3::ResultType;
 
-template
-<
-typename T1,
-typename T2
->
-auto MatrixProduct<T1, T2>::multiply(const MatrixType &C) const
-    -> MatrixType
-{
-    VectorType D = B.multiply(C);
-    VectorType E = A.multiply(D);
-    return E;
+    T3ResultType u = remove_reference_wrapper(B).multiply(t);
+    T3ResultType v = remove_reference_wrapper(A).multiply(u);
+    return v;
 }
 
 template

@@ -7,7 +7,7 @@
 #include <invlib/archetypes/matrix_archetype.h>
 
 constexpr double EPS = 1e-8;
-constexpr unsigned int ntests = 100;
+constexpr unsigned int ntests = 10;
 
 using Archetype = invlib::Matrix<MatrixArchetype<double>>;
 using Arts = invlib::Matrix<ArtsMatrix>;

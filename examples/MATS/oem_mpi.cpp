@@ -1,5 +1,5 @@
 #include "invlib/map.h"
-#include "invlib/interfaces/eigen.h"
+#include "eigen_mpi.h"
 #include "invlib/algebra/precision_matrix.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/optimization/gauss_newton.h"
@@ -71,7 +71,6 @@ int main()
     VectorType y     = read_vector("data/y.vec");
     VectorType xa    = read_vector("data/xa.vec");
 
-
     MPIVectorType y_mpi  = MPIVectorType::split(y);
     MPIVectorType xa_mpi = MPIVectorType::split(xa);
 
@@ -84,7 +83,12 @@ int main()
 
     // Run OEM.
     MPIVectorType x_mpi{};
-    oem.compute<MinimizerType, invlib::MPILog>(x_mpi, y_mpi, gn, 0);
+    oem.compute<invlib::MPILog>(x_mpi, y_mpi, gn, 1);
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (rank == 0)
+        write_vector(x, "x.vec");
 
     MPI_Finalize();
 

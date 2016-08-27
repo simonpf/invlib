@@ -14,7 +14,8 @@ MAPBase<ForwardModel, MatrixType, SaType, SeType>
           const VectorType &xa_,
           const SaType     &Sa_,
           const SeType     &Se_)
-    : m(F_.m), n(F_.n), F(F_), xa(xa_), y_ptr(nullptr), Sa(Sa_), Se(Se_)
+    : m(F_.m), n(F_.n), F(F_), xa(xa_), y_ptr(nullptr), Sa(Sa_), Se(Se_),
+      evaluate_time(duration<double>::zero()), Jacobian_time(duration<double>::zero())
 {
     // Nothing to do here.
 }
@@ -155,6 +156,13 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
     return G;
 }
 
+template<typename ReferenceType, typename OtherType>
+auto inline operator *(std::reference_wrapper<ReferenceType> & A, const OtherType & B)
+    -> decltype(remove_reference_wrapper(A) * B)
+{
+    return remove_reference_wrapper(A) * B;
+}
+
 // ----------------- //
 //   Standard Form   //
 // ----------------- //
@@ -288,6 +296,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 {
 
     Log<LogType::MAP> log(verbosity);
+    log.init(Formulation::STANDARD, M);
     auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
@@ -316,7 +325,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
 
         // Test for convergence.
         g  = tmp * (yi - y) + inv(Sa) * (x - xa);
-        RealType conv = dot(dx, H * dx) / n;
+        RealType conv = dot(dx, g) / n;
         if (conv < M.get_tolerance())
         {
             converged = true;

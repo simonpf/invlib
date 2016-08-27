@@ -97,14 +97,14 @@ unsigned int MatrixArchetype<Real>::rows() const
 }
 
 template <typename Real>
-auto MatrixArchetype<Real>::raw_pointer()
+auto MatrixArchetype<Real>::data_pointer()
     -> Real *
 {
     return data.get();
 }
 
 template <typename Real>
-auto MatrixArchetype<Real>::raw_pointer() const
+auto MatrixArchetype<Real>::data_pointer() const
     -> const Real *
 {
     return data.get();

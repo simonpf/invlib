@@ -96,6 +96,8 @@ public:
     //   Nested Evaluation   //
     // --------------------- //
 
+    template <typename T3>
+    auto multiply(const T3 &v) const -> typename T3::ResultType;
     /*! Multiply sum expression by a vector.
      *
      * Avoids explicit evaluation of the sum by passing the vector down

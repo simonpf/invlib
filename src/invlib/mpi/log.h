@@ -2,6 +2,7 @@
 #define MPI_LOG_H
 
 #include "../log.h"
+#include "mpi.h"
 
 namespace invlib
 {

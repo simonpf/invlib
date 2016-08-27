@@ -63,12 +63,12 @@ public:
         return this->block((int) start, 0, (int) extent, 1);
     }
 
-    RealType * raw_pointer()
+    RealType * data_pointer()
     {
         return this->data();
     }
 
-    const RealType * raw_pointer() const
+    const RealType * data_pointer() const
     {
         return this->data();
     }

@@ -215,7 +215,7 @@ auto MPIVector<LocalType, StorageTemplate>::broadcast() const
     -> LocalType
 {
     LocalType v; v.resize(m);
-    broadcast_local_block(v.raw_pointer(), local.raw_pointer());
+    broadcast_local_block(v.data_pointer(), local.data_pointer());
     return v;
 }
 
@@ -228,7 +228,7 @@ template <typename> typename StorageType
 MPIVector<LocalType, StorageType>::operator LocalType() const
 {
     LocalType v; v.resize(m);
-    broadcast_local_block(v.raw_pointer(), local.raw_pointer());
+    broadcast_local_block(v.data_pointer(), local.data_pointer());
     return v;
 }
 
@@ -253,7 +253,7 @@ typename LocalType,
 template <typename> typename StorageType
 >
 auto MPIVector<LocalType, StorageType>::broadcast_local_block(double *vector,
-                                                 const double *block) const
+                                                              const double *block) const
     -> void
 {
     memcpy(vector + row_indices[rank], block, row_ranges[rank] * sizeof(double));

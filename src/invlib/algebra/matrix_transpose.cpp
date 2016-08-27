@@ -6,6 +6,14 @@ MatrixTranspose<T1>::MatrixTranspose(T1 A_)
 }
 
 template<typename T1>
+template<typename T2>
+auto MatrixTranspose<T1>::multiply(const T2 &v) const
+    -> typename T2::ResultType
+{
+    return remove_reference_wrapper(A).transpose_multiply(v);
+}
+
+template<typename T1>
 auto MatrixTranspose<T1>::multiply(const VectorType &v) const
     -> VectorType
 {
