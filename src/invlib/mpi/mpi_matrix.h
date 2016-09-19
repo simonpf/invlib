@@ -176,8 +176,8 @@ public:
     NonMPIVectorType transpose_multiply(const NonMPIVectorType &) const;
 
     template <template <typename> typename VectorStorageType>
-    auto multiply(const MPIVectorType<VectorStorageType> &v) const;
-        -> MPIVectorType<LValue>
+    auto multiply(const MPIVectorType<VectorStorageType> &v) const
+        -> MPIVectorType<LValue>;
 
     template <template <typename> typename VectorStorageType>
     auto transpose_multiply(const MPIVectorType<VectorStorageType> &v) const
