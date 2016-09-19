@@ -22,10 +22,10 @@ ConjugateGradient::ConjugateGradient(double tol, int verbosity_)
 
 template
 <
-typename VectorType,
-         typename MatrixType,
-         template <LogType> class Log
-    >
+    typename VectorType,
+    typename MatrixType,
+    template <LogType> class Log
+>
 auto ConjugateGradient::solve(const MatrixType &A,
         const VectorType &v)
     -> VectorType
@@ -67,26 +67,67 @@ auto ConjugateGradient::solve(const MatrixType &A,
     return x;
 }
 
-// -----------------------  //
-//  Preconditioned Solver   //
-// -----------------------  //
+// ----------------------------------------- //
+//  Preconditioned Conjugate Gradient Solver //
+// ----------------------------------------- //
 
-template<typename Solver, typename Transformation>
-PreconditionedSolver<Solver, Transformation>::
-PreconditionedSolver(Solver s, Transformation t)
-    : solver(s), transformation(t)
+template<typename F>
+PreconditionedConjugateGradient<F>::PreconditionedConjugateGradient(
+    F f_,
+    double tolerance_,
+    int verbosity_)
+    : f(f_), verbosity(verbosity_), tolerance(tolerance)
 {
-    // Nothin to do here.
+    // Nothing to do here.
 }
 
-template<typename Solver, typename Transformation>
-    template<typename VectorType, typename MatrixType>
-auto PreconditionedSolver<Solver, Transformation>::solve(const MatrixType &A,
-                                                         const VectorType &v)
+template <typename F>
+template
+<
+    typename VectorType,
+    typename MatrixType,
+    template <LogType> class Log
+>
+auto PreconditionedConjugateGradient<F>::solve(const MatrixType &A,
+                                               const VectorType &v)
     -> VectorType
 {
-    VectorType vt = transformation.apply(v);
-    auto At       = transformation.apply(A);
-    VectorType x  = transformation.apply(solver.solve(At, vt));
+    using RealType = typename VectorType::RealType;
+
+    Log<LogType::SOL_CG> log(verbosity);
+
+    RealType tol, alpha, beta, rnorm, vnorm;
+    VectorType x, y, r, p, xnew, ynew, rnew, pnew;
+
+    x = v;
+    r = A * x - v;
+    y = f(r);
+    p = -1.0 * y;
+    vnorm = v.norm();
+    rnorm = r.norm();
+
+    log.init(tolerance, rnorm, vnorm);
+    int i = 0;
+    while (rnorm / vnorm > tolerance)
+    {
+        alpha = dot(r, y) / dot(p, A * p);
+        xnew  = x + alpha *     p;
+        rnew  = r + alpha * A * p;
+        ynew  = f(x);
+        beta  = dot(rnew, ynew) / dot(r, y);
+        pnew  = beta * p - ynew;
+
+        x = xnew;
+        r = rnew; rnorm = r.norm();
+        p = pnew;
+        y = ynew;
+
+        i++;
+        if (i % 10 == 0) {
+            log.step(i, rnorm / vnorm);
+        }
+    }
+
+    log.finalize(i);
     return x;
 }
