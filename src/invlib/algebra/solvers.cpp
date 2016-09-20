@@ -76,7 +76,7 @@ PreconditionedConjugateGradient<F>::PreconditionedConjugateGradient(
     F f_,
     double tolerance_,
     int verbosity_)
-    : f(f_), verbosity(verbosity_), tolerance(tolerance)
+    : f(f_), verbosity(verbosity_), tolerance(tolerance_)
 {
     // Nothing to do here.
 }
@@ -113,7 +113,7 @@ auto PreconditionedConjugateGradient<F>::solve(const MatrixType &A,
         alpha = dot(r, y) / dot(p, A * p);
         xnew  = x + alpha *     p;
         rnew  = r + alpha * A * p;
-        ynew  = f(x);
+        ynew  = f(rnew);
         beta  = dot(rnew, ynew) / dot(r, y);
         pnew  = beta * p - ynew;
 
