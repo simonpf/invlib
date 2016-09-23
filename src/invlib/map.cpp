@@ -7,9 +7,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-MAPBase<ForwardModel, MatrixType, SaType, SeType>
+MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::MAPBase(ForwardModel     &F_,
           const VectorType &xa_,
           const SaType     &Sa_,
@@ -25,9 +26,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::cost_function(const VectorType &x,
                 const VectorType &y,
                 const VectorType &yi)
@@ -43,9 +45,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::cost_function(const VectorType &x)
     -> RealType
 {
@@ -60,9 +63,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::cost_x(const VectorType &x)
     -> RealType
 {
@@ -75,9 +79,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::cost_y(const VectorType &y,
          const VectorType &yi)
     -> RealType
@@ -91,9 +96,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::evaluate(const VectorType& x)
     -> FMVectorType
 {
@@ -117,9 +123,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::Jacobian(const VectorType& x, VectorType &y)
     -> JacobianType
 {
@@ -143,9 +150,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAPBase<ForwardModel, MatrixType, SaType, SeType>
+auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
@@ -172,9 +180,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
+MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
 ::MAP( ForwardModel &F_,
        const VectorType   &xa_,
        const SaType &Sa_,
@@ -189,10 +198,11 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
 template<typename Minimizer, template <LogType> class Log>
-auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::STANDARD>
+auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
 ::compute(VectorType       &x,
           const VectorType &y,
           Minimizer M,
@@ -267,9 +277,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
+MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
 ::MAP( ForwardModel &F_,
        const VectorType   &xa_,
        const SaType &Sa_,
@@ -284,10 +295,11 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
 template<typename Minimizer, template <LogType> class Log>
-auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::NFORM>
+auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
 ::compute(VectorType       &x,
           const VectorType &y,
           Minimizer M,
@@ -363,9 +375,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
+MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 ::MAP( ForwardModel &F_,
        const VectorType   &xa_,
        const SaType &Sa_,
@@ -380,9 +393,10 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
-auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
+auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
@@ -398,10 +412,11 @@ template
 typename ForwardModel,
 typename MatrixType,
 typename SaType,
-typename SeType
+typename SeType,
+typename VectorType
 >
 template<typename Minimizer, template <LogType> class Log>
-auto MAP<ForwardModel, MatrixType, SaType, SeType, Formulation::MFORM>
+auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 ::compute(VectorType       &x,
           const VectorType &y,
           Minimizer M,

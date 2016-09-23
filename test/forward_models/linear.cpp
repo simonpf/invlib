@@ -53,11 +53,11 @@ void linear_test(unsigned int n)
     PrecisionMatrix Pe(SeInv), Pa(SaInv);
 
     Model F(n,n);
-    MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, Formulation::STANDARD>
+    MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, VectorType, Formulation::STANDARD>
         std(F, xa, Pa, Pe);
-    MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, Formulation::NFORM>
+    MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, VectorType, Formulation::NFORM>
         nform(F, xa, Pa, Pe);
-    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::MFORM>
+    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::MFORM>
         mform(F, xa, Sa, Se);
 
     // Test inversion using standard solver.

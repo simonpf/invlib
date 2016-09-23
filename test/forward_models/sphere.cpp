@@ -34,11 +34,11 @@ void sphere_test(unsigned int n)
     VectorType y  = random<VectorType>(1);
 
     Model F(n);
-    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::STANDARD>
+    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::STANDARD>
         std(F, xa, Sa, Se);
-    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::NFORM>
+    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::NFORM>
         nform(F, xa, Sa, Se);
-    MAP<Model, MatrixType, MatrixType, MatrixType, Formulation::MFORM>
+    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::MFORM>
         mform(F, xa, Sa, Se);
 
     GaussNewton<RealType> GN{};
