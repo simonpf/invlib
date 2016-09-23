@@ -44,6 +44,27 @@ auto MatrixTranspose<T1>::solve(const VectorType &v) const
 }
 
 template<typename T1>
+auto MatrixTranspose<T1>::diagonal() const
+    -> VectorType
+{
+    return A.diagonal();
+}
+
+template<typename T1>
+auto MatrixTranspose<T1>::row(size_t i) const
+    -> VectorType
+{
+    return A.col(i);
+}
+
+template<typename T1>
+auto MatrixTranspose<T1>::col(size_t i) const
+    -> VectorType
+{
+    return A.row(i);
+}
+
+template<typename T1>
     template<typename T2>
 auto MatrixTranspose<T1>::operator+(T2 &&B) const
     -> Sum<T2>

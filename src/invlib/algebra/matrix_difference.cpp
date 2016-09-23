@@ -43,6 +43,33 @@ auto MatrixDifference<T1, T2>::invert() const
 }
 
 template<typename T1, typename T2>
+auto MatrixDifference<T1, T2>::diagonal() const
+    -> VectorType
+{
+    VectorType diag = A.diagonal();
+    diag.subtract(B.diagonal());
+    return diag;
+}
+
+template<typename T1, typename T2>
+auto MatrixDifference<T1, T2>::row(size_t i) const
+    -> VectorType
+{
+    VectorType r = A.row(i);
+    r.subtract(B.row(i));
+    return r;
+}
+
+template<typename T1, typename T2>
+auto MatrixDifference<T1, T2>::col(size_t i) const
+    -> VectorType
+{
+    VectorType c = A.col(i);
+    c.subtract(B.col(i));
+    return c;
+}
+
+template<typename T1, typename T2>
     template<typename T3>
 auto MatrixDifference<T1, T2>::operator*(T3 &&C) const
     -> Product<T3>

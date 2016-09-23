@@ -44,8 +44,8 @@ PROJECT_NUMBER         =
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = invlib: A generic implementation of Bayesian methods for
-inverse problems.
+PROJECT_BRIEF          = "A generic implementation of Bayesian methods for
+inverse problems."
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -688,7 +688,7 @@ LAYOUT_FILE            =
 # LATEX_BIB_STYLE. To use this feature you need bibtex and perl available in the
 # search path. See also \cite for info how to create references.
 
-CITE_BIB_FILES         =
+CITE_BIB_FILES         = citations.bib
 
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages

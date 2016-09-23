@@ -50,7 +50,7 @@ public:
         }
     }
 
-    VectorArchetype<double> operator()(VectorArchetype<double> &v)
+    VectorArchetype<double> operator()(const VectorArchetype<double> &v)
     {
         VectorArchetype<double> w{}; w.resize(v.rows());
         for (size_t i = 0; i < v.rows(); i++)

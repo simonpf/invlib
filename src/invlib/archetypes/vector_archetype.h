@@ -41,7 +41,7 @@ RealType dot(const VectorArchetype<RealType>&, const VectorArchetype<RealType>&)
 
 /*! Vector archetype.
  *
- * Implements a straight forward dense vector class to verify the 
+ * Implements a straight forward dense vector class to verify the
  * generic matrix algebra and illustrate the required interface
  * of the fundamental vector type.
  *

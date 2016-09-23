@@ -203,6 +203,35 @@ public:
      */
     MatrixType transpose() const;
 
+    /*! Return the vector representing the diagonal of the matrix.
+     *
+     * Creates the diagonal vector computing the dot products of the rows in the
+     * left operand with the corresponding columns of the right operand.
+     *
+     * \return The vector representing the diagonal of the product.
+     */
+    VectorType diagonal() const;
+
+    /*! Return row \p i of the matrix product.
+     *
+     * Computes the ith row of the matrix product by multiplying the transpose of the
+     * right-hand operand with the ith row of the left-hand operand.
+     *
+     * \arg i  The index of the row to compute.
+     * \return The ith row of the matrix product.
+     */
+    VectorType row(size_t i) const;
+
+    /*! Return column \p i of the matrix product.
+     *
+     * Computes the ith column of the matrix product by the
+     * left-hand operand with the ith column of the right-hand operand.
+     *
+     * \arg i  The index of the column to compute.
+     * \return The ith row of the matrix product.
+     */
+    VectorType col(size_t i) const;
+
     ///@}
     /*! \name Algebraic Operators
      *
@@ -216,7 +245,7 @@ public:
      *  of type T3.
      */
     template <typename T3>
-        using NestedProduct = typename decay<T2>::template Product<T3>;
+    using NestedProduct = typename decay<T2>::template Product<T3>;
 
     /*!
      * Type of the product of the the matrix product with another given object

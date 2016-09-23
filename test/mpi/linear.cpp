@@ -56,10 +56,10 @@ int main()
     Model F(n,n);
 
     MAP<Model, MatrixType, PrecisionMatrixType, PrecisionMatrixType,
-        Formulation::STANDARD>
+        VectorType, Formulation::STANDARD>
         std(F, xa, Pa, Pe);
     MAP<Model, MatrixType, PrecisionMatrixType, PrecisionMatrixType,
-        Formulation::NFORM>
+        VectorType, Formulation::NFORM>
         nform(F, xa, Pa, Pe);
 
     // Test inversion using CG solver.

@@ -63,6 +63,9 @@ public:
     MatrixTranspose & operator=(const MatrixTranspose &) = default;
     MatrixTranspose & operator=(MatrixTranspose &&) = default;
 
+    size_t cols() const {return A.cols();}
+    size_t rows() const {return A.rows();}
+
     // --------------------- //
     //   Nested Evaluation   //
     // --------------------- //
@@ -113,6 +116,37 @@ public:
      * \return The solution \f$x\f$ of the linear system \f$x = A^T2 v\f$
      */
     VectorType solve(const VectorType& v) const;
+
+    /*! Diagonal of this transposed expression.
+     *
+     * This is an identity operation, so the call is simply forwarded to the underlying
+     * expression.
+     *
+     * \return A VectorType object representing the diagonal of this arithmetic expression.
+     */
+    VectorType diagonal() const;
+
+    /*! Row i of this transposed expression.
+     *
+     * The ith row of the transposed expression is the ith column of the non-transposed
+     * expression, thus the call is simply fowarded to the column() member function of
+     * the underlying expression.
+     *
+     * \return A VectorType object representing the ith row of this transposed arithmetic
+     *  expression.
+     */
+    VectorType row(size_t i) const;
+
+    /*! Column i of this transposed expression.
+     *
+     * The ith column of the transposed expression is the ith column of the non-transposed
+     * expression, thus the call is simply fowarded to the row() member function of
+     * the underlying expression.
+     *
+     * \return A VectorType object representing the ith column of this transposed
+     * arithmetic expression.
+     */
+    VectorType col(size_t i) const;
 
     // --------------------- //
     // Arithmetic Operators  //

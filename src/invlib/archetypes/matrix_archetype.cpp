@@ -310,6 +310,46 @@ auto MatrixArchetype<Real>::backsubstitution(const VectorType &b) const
 }
 
 template<typename Real>
+auto MatrixArchetype<Real>::diagonal() const
+    -> VectorType
+{
+    assert(m == n);
+
+    VectorType v; v.resize(m);
+    for (size_t i = 0; i < m; i++)
+    {
+        v(i) = operator()(i,i);
+    }
+    return v;
+}
+
+template<typename Real>
+auto MatrixArchetype<Real>::row(size_t i) const
+    -> VectorType
+{
+    assert(i < m);
+    VectorType v; v.resize(n);
+    for (size_t j = 0; j < n; j++)
+    {
+        v(j) = operator()(i,j);
+    }
+    return v;
+}
+
+template<typename Real>
+auto MatrixArchetype<Real>::col(size_t i) const
+    -> VectorType
+{
+    assert(i < n);
+    VectorType v; v.resize(m);
+    for (size_t j = 0; j < m; j++)
+    {
+        v(j) = operator()(j,i);
+    }
+    return v;
+}
+
+template<typename Real>
 auto MatrixArchetype<Real>::transpose()
     -> MatrixType
 {

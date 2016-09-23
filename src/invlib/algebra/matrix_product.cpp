@@ -62,6 +62,45 @@ template
 typename T1,
 typename T2
 >
+auto MatrixProduct<T1, T2>::diagonal() const
+    -> VectorType
+{
+    size_t m = A.rows();
+    VectorType diag; diag.resize(m);
+    for (size_t i = 0; i < m; i++)
+    {
+        diag(i) = dot(A.row(i), B.col(i));
+    }
+    return diag;
+}
+
+template
+<
+typename T1,
+typename T2
+>
+auto MatrixProduct<T1, T2>::row(size_t i) const
+    -> VectorType
+{
+    return B.transpose_multiply(A.col(i));
+}
+
+template
+<
+typename T1,
+typename T2
+>
+auto MatrixProduct<T1, T2>::col(size_t i) const
+    -> VectorType
+{
+    return A.multiply(B.col(i));
+}
+
+template
+<
+typename T1,
+typename T2
+>
 MatrixProduct<T1, T2>::operator ResultType() const
 {
     ResultType C = A.multiply(static_cast<const ResultType &>(B));

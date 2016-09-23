@@ -154,6 +154,36 @@ MatrixType random_positive_definite(unsigned int m)
 }
 
 /**
+ * \brief Generate random diagonal matrix.
+ *
+ * Generate a random @m times @m diagonal matrix with elements
+ * uniformly distributed in the range [-1.0,1.0]. Assumes that the
+ * provided matrix type can be resized using the memeber function
+ * <tt>resize(unsigned int, unsigned int)</tt> and that elements can
+ * be accessed using <tt>operator()(unsigned int, unsigned int)</tt>.
+ *
+ * \tparam Matrx The type of the matrix to generate.
+ */
+template
+<
+typename MatrixType
+>
+MatrixType random_diagonal(unsigned int m)
+{
+    MatrixType M; M.resize(m, m);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(-1,1);
+
+    for (unsigned int i = 0; i < m; i++)
+    {
+        M(i,i) = dis(gen);
+    }
+
+    return M;
+}
+
+/**
  * \brief Element-wise maximum error.
  *
  * Given two objects @A and @B of a type that provides an element iterator, the
