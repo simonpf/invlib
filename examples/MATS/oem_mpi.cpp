@@ -88,7 +88,7 @@ int main()
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0)
-        write_vector(x, "x.vec");
+        write_vector(x_mpi, "x.vec");
 
     MPI_Finalize();
 
