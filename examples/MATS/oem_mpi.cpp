@@ -51,7 +51,8 @@ int main()
     using MAPType         = invlib::MAP<LinearModel,
                                         MPIMatrixType,
                                         PrecisionMatrix,
-                                        PrecisionMatrix>;
+                                        PrecisionMatrix,
+                                        MPIVectorType>;
 
     // Initialize MPI.
     MPI_Init(nullptr, nullptr);
@@ -83,7 +84,7 @@ int main()
 
     // Run OEM.
     MPIVectorType x_mpi{};
-    oem.compute<invlib::MPILog>(x_mpi, y_mpi, gn, 1);
+    oem.compute<MinimizerType, invlib::MPILog>(x_mpi, y_mpi, gn, 1);
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -91,6 +92,5 @@ int main()
         write_vector(x_mpi, "x.vec");
 
     MPI_Finalize();
-
 }
 
