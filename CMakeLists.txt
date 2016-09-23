@@ -21,7 +21,7 @@ include(FindLAPACK)
 include(FindMPI)
 
 # Eigen
-find_package(Eigen3)
+include(cmake/FindEigen3.cmake)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
