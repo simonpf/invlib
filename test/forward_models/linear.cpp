@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "invlib/algebra.h"
+#include "invlib/algebra/preconditioners.h"
 #include "invlib/algebra/precision_matrix.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/map.h"
@@ -42,6 +43,7 @@ void linear_test(unsigned int n)
     using PrecisionMatrix = PrecisionMatrix<MatrixType>;
     using Id     = MatrixIdentity<MatrixType>;
     using Model  = Linear<MatrixType>;
+    using Preconditioner = JacobianPreconditioner<VectorType>;
 
     MatrixType Se = random_positive_definite<MatrixType>(n);
     MatrixType Sa = random_positive_definite<MatrixType>(n);
@@ -101,6 +103,27 @@ void linear_test(unsigned int n)
     BOOST_TEST((e1 < EPS), "Error STD - NFORM CG = " << e1);
     BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);
     BOOST_TEST((e3 < EPS), "Error STD - MFORM CG = " << e3);
+
+    // Test inversion using Preconditioned CG solver.
+    using CGType = PreconditionedConjugateGradient<Preconditioner, false>;
+    CGType pre_cg(1e-6);
+    GaussNewton<RealType, CGType> gn_pre_cg(pre_cg);
+    gn_pre_cg.set_tolerance(1e-6); gn_cg.set_maximum_iterations(1000);
+    LevenbergMarquardt<RealType, Id, CGType> lm_pre_cg(I, pre_cg);
+    lm_pre_cg.set_tolerance(1e-6); lm_cg.set_maximum_iterations(1000);
+
+    std.compute(x_std_lm, y, lm_pre_cg);
+    std.compute(x_std_gn, y, gn_pre_cg);
+    nform.compute(x_n_gn, y, gn_pre_cg);
+    mform.compute(x_m_gn, y, gn_pre_cg);
+
+    e1 = maximum_error(x_std_lm, x_std_gn);
+    e2 = maximum_error(x_std_gn, x_n_gn);
+    e3 = maximum_error(x_std_gn, x_m_gn);
+
+    BOOST_TEST((e1 < EPS), "Error STD - NFORM PRE CG = " << e1);
+    BOOST_TEST((e2 < EPS), "Error STD - MFORM PRE CG = " << e2);
+    BOOST_TEST((e3 < EPS), "Error STD - MFORM PRE CG = " << e3);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)

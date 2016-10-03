@@ -82,7 +82,7 @@ typename T2
 auto MatrixProduct<T1, T2>::row(size_t i) const
     -> VectorType
 {
-    return B.transpose_multiply(A.col(i));
+    return B.transpose_multiply(A.row(i));
 }
 
 template
@@ -93,7 +93,7 @@ typename T2
 auto MatrixProduct<T1, T2>::col(size_t i) const
     -> VectorType
 {
-    return A.multiply(B.col(i));
+    return A.multiply(remove_reference_wrapper(B).col(i));
 }
 
 template

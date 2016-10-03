@@ -167,6 +167,11 @@ public:
     unsigned int rows() const;
     unsigned int cols() const;
 
+    MPIVectorType<LValue> col(size_t i) const;
+    NonMPIVectorType      row(size_t i) const;
+
+    MPIVectorType<LValue> diagonal() const;
+
     LocalType& get_local();
 
     RealType operator()(unsigned int i, unsigned int j) const;

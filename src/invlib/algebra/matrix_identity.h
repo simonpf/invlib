@@ -84,6 +84,9 @@ public:
     /*! Return scaling factor of matrix */
     RealType scale() const;
 
+    /*! Return diagonal element of the identity matrix. */
+    RealType diagonal() const;
+
     // --------------------- //
     //   Nested Evaluation   //
     // --------------------- //
@@ -101,6 +104,7 @@ public:
     T1 solve(const T1 &A) const;
 
     void scale(RealType c);
+
     // --------------------- //
     // Arrithmetic Operators //
     // --------------------- //

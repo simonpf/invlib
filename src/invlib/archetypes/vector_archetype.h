@@ -87,7 +87,7 @@ public:
      * Should move the data references to the data holding the vector
      * elements into this object.
      */
-    VectorArchetype(VectorArchetype &&)            = default;
+    VectorArchetype(VectorArchetype &&) = default;
 
     /*! Assignment operator.
      *
@@ -154,6 +154,17 @@ public:
      */
     void accumulate(const VectorArchetype &v);
 
+    /*! Accumulate into vector.
+     *
+     * Add scalar to all elements in vector. This function is required
+     * if the diagonal of a sum involving an identity matrix is to be
+     * computed, which is the case if a Jacobian preconditioner is used
+     * for the Levenberg-Marquardt method with an identity damping matrix.
+     *
+     * \param v The scalar to add to each element.
+     */
+    void accumulate(RealType c);
+
     /*! Subtract from vector.
      *
      * Element-wise subtract another vector from this one.
@@ -169,6 +180,18 @@ public:
      * \param c The factor c to scale the vector with.
      */
     void scale(RealType c);
+
+    /*! Elementwise product of this vector and another vector.
+     *
+     * \param v The vector to elementwise multiply this vector with.
+     */
+    VectorArchetype element_multiply(const VectorArchetype & v) const;
+
+    /*! Elementwise inverse of the vector.
+     *
+     * Sets all elements in the vector to their reciprocal.
+     */
+    void element_invert();
 
     /*! Dot product of two vectors
      *

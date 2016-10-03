@@ -121,14 +121,17 @@ private:
  *
  * \tparam The type of the transformation.
  */
+template<typename F, bool Cached = true>
+class PreconditionedConjugateGradient;
+
 template<typename F>
-class PreconditionedConjugateGradient
+class PreconditionedConjugateGradient<F, true>
 {
 
 public:
 
     /*! Create a preconditioned CG solver object with given transformation,
-     *  convergence tolerance abd verbosity.
+     *  convergence tolerance and verbosity.
      *
      * \param f The functor implementing the action of the preconditioner \f$M = C^{T} C\f$
      * on an arbitrary vector.
@@ -136,7 +139,7 @@ public:
      * \f$\frac{|\mathbf{r}_k|}{|\mathbf{b}|}\f$.
      * \param verbosity If verbosity > 0, iteration progress is printed to standard out.
      */
-    PreconditionedConjugateGradient(F transform, double tol, int verbosity = 0);
+    PreconditionedConjugateGradient(const F &f, double tol, int verbosity = 0);
 
     /*! Solve linear system using the conjugate gradient method.
      *
@@ -162,9 +165,57 @@ public:
 
 private:
 
-    F      f;
+    const F & f;
     int    verbosity;
     double tolerance;
+};
+
+template<typename F>
+class PreconditionedConjugateGradient<F, false>
+{
+
+public:
+
+    /*! Create a non-cached preconditioned CG solver.
+     *
+     * For each call to the solve(...) member function, this solver
+     * will create a new preconditioner. This should be used if the solver
+     * is used for an iterative method with varying arguments and the
+     * the preconditioner cannot be reused.
+     *
+     * \param tol The tolerance on the relative residual up to which the
+     * iteration is continued.
+     * \param verbosity If verbosity > 0, log output is printed to standard out.
+     */
+    PreconditionedConjugateGradient(double tol, int verbosity = 0);
+
+    /*! Solve linear system using the conjugate gradient method.
+     *
+     * Takes an arbitrary algebraic expression representing a matrix
+     * \f$A\f$ that supports multiplication from the right by a vector
+     * and solves the corresponding linear system \f$Ax = v\f$. The
+     * iteration is stopped when the norm of the residual
+     * \f$r = Ax - v \f$ falls below the given convergence tolerance.
+    *
+     * \tparam MatrixType The algebraic expression type of representing the
+     * linear system.
+     * \tparam The fundamental vector type. Note: must be the fundamental type.
+     * \param A The algebraic expression representing the linear system.
+     * \param v The RHS vector \f$v\f$ of the linear system.
+     */
+    template
+    <
+    typename VectorType,
+    typename MatrixType,
+    template <LogType> class Log = StandardLog
+    >
+    VectorType solve(const MatrixType&A, const VectorType& v);
+
+private:
+
+    int    verbosity;
+    double tolerance;
+
 };
 
 #include "solvers.cpp"

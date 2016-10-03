@@ -245,6 +245,42 @@ template
 typename LocalType,
 template <typename> typename StorageTemplate
 >
+auto MPIMatrix<LocalType, StorageTemplate>::row(size_t i) const
+    -> NonMPIVectorType
+{
+    NonMPIVectorType r(static_cast<MPIVectorType<LValue>>(local.row(i)));
+    return r;
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
+auto MPIMatrix<LocalType, StorageTemplate>::col(size_t i) const
+    -> MPIVectorType<LValue>
+{
+    MPIVectorType<LValue> c(local.col(i));
+    return c;
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
+auto MPIMatrix<LocalType, StorageTemplate>::diagonal() const
+    -> MPIVectorType<LValue>
+{
+    MPIVectorType<LValue> c(local.diagonal());
+    return c;
+}
+
+template
+<
+typename LocalType,
+template <typename> typename StorageTemplate
+>
 auto MPIMatrix<LocalType, StorageTemplate>::get_local()
     -> LocalType &
 {

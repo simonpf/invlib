@@ -16,5 +16,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src/"
 link_directories(${Boost_LIBRARIES}
                 "/home/simon/src/arts/build/src")
 
-add_executable(run_all run_all.cpp)
-target_link_libraries(run_all matpack ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+if (Boost_FOUND)
+  add_executable(run_all run_all.cpp)
+  target_link_libraries(run_all matpack ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+endif (Boost_FOUND)

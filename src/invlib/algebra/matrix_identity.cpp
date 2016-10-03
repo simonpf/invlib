@@ -18,6 +18,13 @@ auto MatrixIdentity<Matrix>::scale() const
 }
 
 template <typename Matrix>
+auto MatrixIdentity<Matrix>::diagonal() const
+    ->  RealType
+{
+    return c;
+}
+
+template <typename Matrix>
     template <typename T1>
 auto MatrixIdentity<Matrix>::multiply(T1 &A) const
     -> T1

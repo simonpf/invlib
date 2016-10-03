@@ -197,8 +197,7 @@ template
 <
 typename T
 >
-typename T::RealType maximum_error( T &A,
-                                    T &B )
+typename T::RealType maximum_error(T &A, T &B )
 {
     using std::max;
     using std::abs;

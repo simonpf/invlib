@@ -26,8 +26,8 @@ int main()
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis_m(2, 500);
-    std::uniform_int_distribution<> dis_n(2, 500);
+    std::uniform_int_distribution<> dis_m(nprocs, 100);
+    std::uniform_int_distribution<> dis_n(nprocs, 100);
 
     typename DMatrix::RealType max_err = 0.0;
 
@@ -131,9 +131,19 @@ int main()
 
         auto dot_1 = dot(v, v);
         auto dot_2 = dot(v_local, v_local);
+        auto dot_3 = dot(v, v_local);
+        auto dot_4 = dot(v_local, v);
 
         auto err = std::abs(dot_1 - dot_2) / std::max(std::abs(dot_1),
                                                       std::abs(dot_2));
+        if (err > max_err)
+            max_err = err;
+
+        err = std::abs(dot_1 - dot_3) / std::max(std::abs(dot_1), std::abs(dot_3));
+        if (err > max_err)
+            max_err = err;
+
+        err = std::abs(dot_1 - dot_4) / std::max(std::abs(dot_1), std::abs(dot_4));
         if (err > max_err)
             max_err = err;
     }
@@ -141,6 +151,51 @@ int main()
     if (rank == 0)
     {
         std::cout << "Testing MPI dot:                Max. rel. error = ";
+        std::cout << max_err << std::endl;
+    }
+
+    // ------------------------- //
+    //       Dot Prodcut         //
+    // ------------------------- //
+
+    max_err = 0.0;
+
+    for (int i = 0; i < n_tests; i++)
+    {
+        int m = dis_m(gen);
+        int n = dis_n(gen);
+
+        MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&n ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
+
+        DVector v; v.resize(m);
+        fill(v, 1.0);
+
+        DVector w{};
+        DVector w_mpi{};
+
+        auto M_1 = random<DMatrix>(m, n);
+        SMatrix::broadcast(M_1);
+        auto M_2 = random<DMatrix>(m, m);
+        SMatrix::broadcast(M_2);
+
+        SMatrix SM_1 = SMatrix::split_matrix(M_1);
+        SMatrix SM_2 = SMatrix::split_matrix(M_2);
+
+        DMatrix M_4 = transp(M_1) * M_2 * M_1;
+        DVector diag_1 = M_4.diagonal();
+        std::cout << "diag: " << m << " / " << n << std::endl;
+        DVector diag_2 = (transp(SM_1) * SM_2 * SM_1).diagonal();
+        std::cout << "done." << std::endl;
+
+        auto err = maximum_error<DVector>(diag_1, diag_2);
+        if (err > max_err)
+            max_err = err;
+    }
+
+    if (rank == 0)
+    {
+        std::cout << "Testing MPI diagonal:           Max. rel. error = ";
         std::cout << max_err << std::endl;
     }
 

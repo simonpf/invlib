@@ -324,3 +324,31 @@ auto dot(const MPIVector<T1, StorageType> &v, const MPIVector<T1, StorageType> &
     RealType local = dot(v.local, w.local);
     return mpi_sum(local);
 }
+
+template
+<
+    typename T1,
+    template <typename> typename StorageType
+>
+auto dot(const T1 &v, const MPIVector<T1, StorageType> &w)
+    -> typename MPIVector<T1, StorageType>::RealType
+{
+    using RealType = typename MPIVector<T1, StorageType>::RealType;
+    RealType local = dot(v.get_block(w.row_indices[w.rank], w.row_ranges[w.rank]),
+                         w.local);
+    return mpi_sum(local);
+}
+
+template
+<
+    typename T1,
+    template <typename> typename StorageType
+>
+auto dot(const MPIVector<T1, StorageType> &v, const T1 &w)
+    -> typename MPIVector<T1, StorageType>::RealType
+{
+    using RealType = typename MPIVector<T1, StorageType>::RealType;
+    RealType local = dot(w.get_block(v.row_indices[v.rank], v.row_ranges[v.rank]),
+                         v.local);
+    return mpi_sum(local);
+}

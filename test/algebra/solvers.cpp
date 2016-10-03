@@ -5,6 +5,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
+#include "invlib/algebra/preconditioners.h"
 #include "utility.h"
 #include "test_types.h"
 
@@ -38,54 +39,27 @@ void solver_test(unsigned int n)
     BOOST_TEST((error < EPS), "CG solver error: " << error);
 }
 
-class JacobianPreconditioner
-{
-public:
-    JacobianPreconditioner(const MatrixArchetype<double> & M)
-        : diag(M.rows())
-    {
-        for (size_t i = 0; i < M.rows(); i++)
-        {
-            diag[i] = M(i,i);
-        }
-    }
-
-    VectorArchetype<double> operator()(const VectorArchetype<double> &v)
-    {
-        VectorArchetype<double> w{}; w.resize(v.rows());
-        for (size_t i = 0; i < v.rows(); i++)
-        {
-            w(i) = v(i) / diag[i];
-        }
-        return w;
-    }
-
-private:
-
-    std::vector<double> diag;
-
-};
-
 void cg_test(unsigned int n)
 {
     using MatrixType = Matrix<MatrixArchetype<double>>;
     using VectorType = Vector<VectorArchetype<double>>;
+    using Preconditioner = JacobianPreconditioner<VectorType>;
 
     auto A  = random_positive_definite<MatrixType>(n);
     auto v = random<VectorType>(n);
     VectorType w; w.resize(n);
 
     Standard std{};
-    JacobianPreconditioner pre(A);
-    PreconditionedConjugateGradient<JacobianPreconditioner> cg(pre, 1e-20);
+    JacobianPreconditioner<VectorType> pre(A);
+    PreconditionedConjugateGradient<Preconditioner, true> cg(pre, 1e-20);
 
     w = A * std.solve(A, v);
     double error = maximum_error(v, w);
-    BOOST_TEST((error < EPS), "Standard solver error: " << error);
+    BOOST_TEST((error < EPS), "CG solver error:                " << error);
 
     w = A * cg.solve(A, v);
     error = maximum_error(v, w);
-    BOOST_TEST((error < EPS), "CG solver error: " << error);
+    BOOST_TEST((error < EPS), "Preconditioned CG solver error: " << error);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(solver,

@@ -63,8 +63,8 @@ public:
     MatrixTranspose & operator=(const MatrixTranspose &) = default;
     MatrixTranspose & operator=(MatrixTranspose &&) = default;
 
-    size_t cols() const {return A.cols();}
-    size_t rows() const {return A.rows();}
+    size_t cols() const {return A.rows();}
+    size_t rows() const {return A.cols();}
 
     // --------------------- //
     //   Nested Evaluation   //

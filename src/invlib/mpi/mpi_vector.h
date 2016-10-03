@@ -81,9 +81,23 @@ public:
     void scale(RealType c);
     RealType norm() const;
 
+
     template <typename T1, template <typename> typename StorageType>
-    friend auto dot(const MPIVector<T1, StorageType> &v,
-                    const MPIVector<T1, StorageType> &w)
+    friend auto dot(
+        const MPIVector<T1, StorageType> &,
+        const MPIVector<T1, StorageType> &)
+    -> typename MPIVector<T1, StorageType>::RealType;
+
+    template <typename T1, template <typename> typename StorageType>
+    friend auto dot(
+        const T1 &,
+        const MPIVector<T1, StorageType> &)
+    -> typename MPIVector<T1, StorageType>::RealType;
+
+    template <typename T1, template <typename> typename StorageType>
+    friend auto dot(
+        const MPIVector<T1, StorageType> &,
+        const T1 &)
     -> typename MPIVector<T1, StorageType>::RealType;
 
 private:

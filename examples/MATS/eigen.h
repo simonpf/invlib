@@ -63,6 +63,20 @@ public:
         *this *= c;
     }
 
+    /*! Required for Jacobian preconditioner. */
+    VectorType element_multiply(const VectorType &v) const
+    {
+        VectorType w = cwiseProduct(v);
+        return w;
+    }
+
+    /*! Required for Jacobian preconditioner. */
+    void element_invert()
+    {
+        cwiseInverse();
+    }
+
+
     RealType norm() const
     {
         return this->EigenVectorBase::norm();

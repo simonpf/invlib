@@ -58,13 +58,13 @@ struct HasBaseType
     using ArrayOfOne = char[1];
     using ArrayOfTwo = char[2];
 
-    template<typename U, typename = typename U::BaseType>
+    template<typename U, typename = typename U::VectorType::BaseType>
     static ArrayOfOne & func(int);
 
     template<typename U>
     static ArrayOfTwo & func(...);
 
-    template<typename U, typename Base = typename U::BaseType>
+    template<typename U, typename Base = typename U::VectorType::BaseType>
     static const Base & typeFunc(int);
 
     template<typename U>
