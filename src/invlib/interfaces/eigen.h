@@ -31,7 +31,8 @@ public:
     //  Constructors  //
     // -------------- //
 
-    EigenVector() = default;
+    EigenVector()                    = default;
+    EigenVector(const EigenVector &) = default;
 
     template
     <

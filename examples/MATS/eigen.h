@@ -31,12 +31,13 @@ public:
     //  Constructors  //
     // -------------- //
 
-    EigenVector() = default;
+    EigenVector()                    = default;
+    EigenVector(const EigenVector &) = default;
 
     template
     <
-        typename T//,
-        //typename = invlib::enable_if<invlib::is_constructible<EigenVectorBase, T>>
+        typename T,
+        typename = invlib::enable_if<invlib::is_constructible<EigenVectorBase, T>>
     >
     EigenVector(T &&t)
         : EigenVectorBase(std::forward<T>(t))
