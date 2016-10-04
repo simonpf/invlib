@@ -18,5 +18,5 @@ link_directories(${Boost_LIBRARIES}
 
 if (Boost_FOUND)
   add_executable(run_all run_all.cpp)
-  target_link_libraries(run_all matpack ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+  target_link_libraries(run_all ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 endif (Boost_FOUND)

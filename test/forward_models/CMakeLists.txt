@@ -11,7 +11,7 @@ link_directories(${Boost_LIBRARIES}
 # Executables
 if (Boost_FOUND)
   add_executable(sphere sphere.cpp)
-  target_link_libraries(sphere matpack ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+  target_link_libraries(sphere ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
   add_executable(linear linear.cpp)
-  target_link_libraries(linear matpack ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+  target_link_libraries(linear ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 endif (Boost_FOUND)
