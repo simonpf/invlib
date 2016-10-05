@@ -111,7 +111,7 @@ double dot(const EigenVector &v, const EigenVector &w)
 //   Eigen Sparse    //
 // ----------------- //
 
-class EigenSparse : protected EigenSparseBase
+class EigenSparse : public EigenSparseBase
 {
 
 public:

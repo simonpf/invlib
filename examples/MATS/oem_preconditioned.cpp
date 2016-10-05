@@ -2,7 +2,6 @@
 #include "eigen.h"
 #include "invlib/algebra/precision_matrix.h"
 #include "invlib/algebra/solvers.h"
-#include "invlib/algebra/preconditioners.h"
 #include "invlib/optimization/gauss_newton.h"
 
 #include "eigen_io.h"
@@ -40,20 +39,47 @@ private:
 
 };
 
+// Implementation of a Jacobian preconditioner for the Eigen3 backend
+// which is necessary due to performance reasons.
+struct JacobianPreconditioner
+{
+    JacobianPreconditioner(const EigenSparse & K,
+                           const EigenSparse & SaInv,
+                           const EigenSparse & SeInv)
+    {
+        diag = SaInv.diagonal();
+        for (size_t i = 0; i < K.cols(); i++)
+        {
+            std::cout << i << std::endl;
+            diag(i) += K.col(i).dot(SeInv.diagonal() * K.col(i));
+        }
+        diag.cwiseInverse();
+    }
+
+    VectorType operator()(const VectorType &v) const
+    {
+        VectorType w; w.resize(v.rows());
+        w = diag.array() * v.array();
+        return w;
+    }
+
+private:
+
+    VectorType diag;
+
+};
+
 int main()
 {
 
     using MatrixType = invlib::Matrix<EigenSparse>;
     using VectorType = invlib::Vector<EigenVector>;
 
-    // Jacobian preconditioner using VectorType to store the element-wise inverse
-    // of the diagonal.
-    using Preconditioner  = invlib::JacobianPreconditioner<VectorType>;
     // Un-cached (seconde template argument = false), preconditioned CG solver.
     // Un-cached meaning that the preconditioner is reinitialized, i.e. the
     // diagonal of the Jacobian preconditioner recomputed, on each invocation.
-    using SolverType      = invlib::PreconditionedConjugateGradient<Preconditioner,
-                                                                    false>;
+    using SolverType = invlib::PreconditionedConjugateGradient<JacobianPreconditioner,
+                                                               true>;
     using MinimizerType   = invlib::GaussNewton<double, SolverType>;
     using PrecisionMatrix = invlib::PrecisionMatrix<MatrixType>;
     using MAPType         = invlib::MAP<LinearModel,
@@ -71,8 +97,11 @@ int main()
     VectorType y     = read_vector("data/y.vec");
     VectorType xa    = read_vector("data/xa.vec");
 
+    // Setup the preconditioner.
+    JacobianPreconditioner pre(K, SaInv, SeInv);
+
     // Setup OEM.
-    SolverType    cg(1e-6, 1);
+    SolverType    cg(pre, 1e-6, 1);
     MinimizerType gn(1e-6, 1, cg);
     LinearModel   F(K, xa);
     MAPType       oem(F, xa, Pa, Pe);

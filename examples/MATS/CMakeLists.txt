@@ -11,7 +11,8 @@ include_directories("${PROJECT_SOURCE_DIR}/src/"
 if (EIGEN3_FOUND)
     add_executable(oem oem.cpp)
     add_executable(oem_preconditioned oem_preconditioned.cpp)
-
     add_executable(oem_mpi oem_mpi.cpp)
     target_link_libraries(oem_mpi ${MPI_LIBRARIES})
+    add_executable(oem_preconditioner_mpi oem_preconditioned_mpi.cpp)
+    target_link_libraries(oem_preconditioner_mpi ${MPI_LIBRARIES})
 endif (EIGEN3_FOUND)

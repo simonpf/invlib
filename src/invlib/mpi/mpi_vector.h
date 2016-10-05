@@ -65,6 +65,9 @@ public:
     LocalType & get_local();
     const LocalType & get_local() const;
 
+    size_t get_index() const {return row_indices[rank];}
+    size_t get_range() const {return row_ranges[rank];}
+
     RealType operator()(unsigned int i) const;
     RealType& operator()(unsigned int i);
 
