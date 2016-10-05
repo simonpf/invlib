@@ -92,5 +92,7 @@ int main()
         write_vector(x_mpi, "x.vec");
 
     MPI_Finalize();
+
+    return 0;
 }
 

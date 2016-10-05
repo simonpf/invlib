@@ -74,5 +74,7 @@ int main()
     oem.compute(x, y, gn, 0);
 
     write_vector(x, "x.vec");
+
+    return 0.0;
 }
 
