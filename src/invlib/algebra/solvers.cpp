@@ -99,7 +99,7 @@ auto PreconditionedConjugateGradient<F, true>::solve(const MatrixType &A,
     RealType tol, alpha, beta, rnorm, r0;
     VectorType x, y, r, p, xnew, ynew, rnew, pnew;
 
-    x = f(v);
+    x = 0.0 * v;
     r = A * x - v;
     y = f(r);
     p = -1.0 * y;
@@ -160,7 +160,7 @@ auto PreconditionedConjugateGradient<F, false>::solve(const MatrixType &A,
     RealType tol, alpha, beta, rnorm, r0;
     VectorType x, y, r, p, xnew, ynew, rnew, pnew;
 
-    x = f(v);
+    x = 0.0 * v;
     r = A * x - v;
     y = f(r);
     p = -1.0 * y;

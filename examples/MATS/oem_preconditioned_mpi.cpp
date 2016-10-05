@@ -121,7 +121,7 @@ int main()
 
     // Run OEM.
     MPIVectorType x_mpi{};
-    oem.compute<MinimizerType, invlib::MPILog>(x_mpi, y_mpi, gn, 1);
+    oem.compute<MinimizerType, invlib::MPILog>(x_mpi, y_mpi, gn, 0);
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
