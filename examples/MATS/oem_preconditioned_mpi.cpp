@@ -53,12 +53,12 @@ struct JacobianPreconditioner
     {
         diag.resize(SaInv.rows());
         VectorType diag_full = SaInv.diagonal();
-        std::cout << "creating diagonal vector: " << diag_full.rows() << " / " << diag.get_index() << " / " << diag.get_range() << std::endl;
         diag = diag_full.get_block(diag.get_index(), diag.get_range());
         for (size_t i = diag.get_index(); i < diag.get_range(); i++)
         {
-            std::cout << "block access: " << i << std::endl;
-            diag(i)  += K.col(i).dot(SeInv.diagonal() * K.col(i));
+            size_t j = i - diag.get_index();
+            diag.get_local().operator()(j) +=
+                K.col(i).dot(SeInv.diagonal() * K.col(i));
         }
         diag.get_local().cwiseInverse();
     }
@@ -117,7 +117,6 @@ int main()
     SolverType    cg(pre, 1e-6, 1);
     MinimizerType gn(1e-6, 1, cg);
     LinearModel   F(K_mpi, xa_mpi);
-    std::cout << F.m << " | " << F.n << std::endl;
     MAPType       oem(F, xa_mpi, Pa, Pe);
 
     // Run OEM.
