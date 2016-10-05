@@ -49,10 +49,15 @@ struct JacobianPreconditioner
     JacobianPreconditioner(const MatrixType & K,
                            const MatrixType & SaInv,
                            const MatrixType & SeInv)
+        : diag()
     {
-        diag = SaInv.diagonal();
+        diag.resize(SaInv.rows());
+        VectorType diag_full = SaInv.diagonal();
+        std::cout << "creating diagonal vector: " << diag_full.rows() << " / " << diag.get_index() << " / " << diag.get_range() << std::endl;
+        diag = diag_full.get_block(diag.get_index(), diag.get_range());
         for (size_t i = diag.get_index(); i < diag.get_range(); i++)
         {
+            std::cout << "block access: " << i << std::endl;
             diag(i)  += K.col(i).dot(SeInv.diagonal() * K.col(i));
         }
         diag.get_local().cwiseInverse();
