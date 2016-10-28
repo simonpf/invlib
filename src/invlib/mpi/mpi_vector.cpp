@@ -110,11 +110,11 @@ auto MPIVector<LocalType, StorageType>::resize(unsigned int i)
     row_indices.reserve(nprocs);
     row_ranges.reserve(nprocs);
 
-    for (unsigned int i = 0; i < nprocs; i++)
+    for (unsigned int k = 0; k < nprocs; k++)
     {
-        row_indices[i] = index;
-        row_ranges[i]  = proc_rows[i];
-        index += proc_rows[i];
+        row_indices[k] = index;
+        row_ranges[k]  = proc_rows[k];
+        index += proc_rows[k];
     }
 
     local.resize(local_rows);

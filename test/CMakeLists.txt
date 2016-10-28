@@ -5,6 +5,7 @@ add_subdirectory(algebra)
 add_subdirectory(forward_models)
 add_subdirectory(profiling)
 add_subdirectory(mpi)
+add_subdirectory(readers)
 
 include_directories(SYSTEM "${Boost_INCLUDE_DIRS}")
 include_directories("${PROJECT_SOURCE_DIR}/src/"

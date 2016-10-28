@@ -3,6 +3,8 @@
 
 #include "invlib/traits.h"
 
+namespace invlib {
+
 using EigenSparseBase   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 using EigenVectorBase   = Eigen::VectorXd;
 
@@ -195,3 +197,5 @@ public:
     }
 
 };
+
+} // namespace invlib
