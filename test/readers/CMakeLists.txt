@@ -10,4 +10,5 @@ link_directories(${Boost_LIBRARIES})
 
 if (Boost_FOUND)
   add_executable(readers readers.cpp)
+  add_executable(writers writers.cpp)
 endif (Boost_FOUND)

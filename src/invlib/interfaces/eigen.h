@@ -14,7 +14,7 @@ class EigenSparse;
 //   Eigen Vector    //
 // ----------------- //
 
-class EigenVector : protected EigenVectorBase
+class EigenVector : public EigenVectorBase
 {
 
 public:
@@ -125,7 +125,7 @@ double dot(const EigenVector &v, const EigenVector &w)
 //   Eigen Sparse    //
 // ----------------- //
 
-class EigenSparse : protected EigenSparseBase
+class EigenSparse : public EigenSparseBase
 {
 
 public:
@@ -143,6 +143,8 @@ public:
     // -------------- //
     //  Constructors  //
     // -------------- //
+
+    EigenSparse() = default;
 
     template
     <
