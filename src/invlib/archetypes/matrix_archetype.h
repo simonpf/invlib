@@ -1,5 +1,5 @@
 /**
- * \file archtypes/dense_matrix.h
+ * \file archtypes/matrix.h
  *
  * \brief Contains the MatrixArchetype class, which is an archetype for the basic
  * matrix type used.
@@ -11,6 +11,8 @@
 #include "invlib/archetypes/vector_archetype.h"
 #include <memory>
 #include <iterator>
+
+namespace invlib {
 
 // ------------------------  //
 //   Matrix Archetype Class  //
@@ -96,6 +98,7 @@ public:
      * \return Lvalue reference to the matrix element in row i
      * and column j.
      */
+
     inline Real & operator()(unsigned int, unsigned int);
 
     /*! Constant element access.
@@ -267,4 +270,5 @@ std::ostream & operator<<(std::ostream &, const MatrixArchetype<Real>&);
 
 #include "matrix_archetype.cpp"
 
-#endif
+}       // namespace invlib
+#endif  // ARCHETYPES_MATRIX_ARCHETYPE

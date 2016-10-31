@@ -19,5 +19,6 @@ int main()
     matrix.setFromTriplets(triplets.begin(), triplets.end());
 
     std::cout << matrix << std::endl;
-    write_matrix_arts("test.xml", matrix);
+    write_matrix_arts("test_bin.xml", matrix, Format::Binary);
+    write_matrix_arts("test.xml",     matrix, Format::ASCII);
 }

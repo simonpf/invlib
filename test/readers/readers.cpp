@@ -1,4 +1,3 @@
-
 #include "invlib/interfaces/eigen.h"
 #include "invlib/io/readers.h"
 
