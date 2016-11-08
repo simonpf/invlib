@@ -8,7 +8,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src/"
 
 link_directories(${Boost_LIBRARIES})
 
+# Executables
 if (Boost_FOUND)
-  add_executable(readers readers.cpp)
-  add_executable(writers writers.cpp)
+  add_executable(read_and_write read_and_write.cpp)
 endif (Boost_FOUND)

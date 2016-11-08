@@ -9,10 +9,14 @@
 #include "pugixml.cpp"
 #include "endian.h"
 
+#include "invlib/sparse/sparse_base.h"
+
 namespace invlib
 {
 
 enum class Format {ASCII, Binary};
+
+using SparseMatrix = SparseBase<double, Representation::Coordinates>;
 
 template <typename T> void write_matrix_arts(const std::string &,
                                              const T &,
@@ -20,29 +24,10 @@ template <typename T> void write_matrix_arts(const std::string &,
 
 template <>
 void write_matrix_arts(const std::string & filename,
-                       const EigenSparse & matrix,
+                       const SparseMatrix & matrix,
                        Format format)
 {
-    size_t nnz = matrix.nonZeros();
-
-    std::vector<size_t> rinds{}, cinds{};
-    std::vector<double> data{};
-    rinds.reserve(matrix.cols());
-    cinds.reserve(nnz);
-    data.reserve(nnz);
-
-    size_t elemIndex = 0;
-    size_t outerIndex = 0;
-    size_t innerIndex = 0;
-    for (size_t i = 0; i < nnz; i++)
-    {
-        data.push_back(matrix.valuePtr()[i]);
-        rinds.push_back(matrix.innerIndexPtr()[i]);
-    }
-    for (size_t i = 0; i < matrix.cols(); i++)
-    {
-        cinds.push_back(matrix.outerIndexPtr()[i]);
-    }
+    size_t nnz = matrix.non_zeros();
 
     std::stringstream ss;
 
@@ -64,47 +49,48 @@ void write_matrix_arts(const std::string & filename,
     auto xml_matrix = xml_root.append_child("Sparse");
     ss << matrix.cols();
     xml_matrix.append_attribute("ncols") = ss.str().c_str();
-    ss.str(""); ss << matrix.rows();
+    ss.str(""); ss << nnz;
     xml_matrix.append_attribute("nrows") = ss.str().c_str();
 
     auto xml_rind= xml_matrix.append_child("RowIndex");
-    ss.str(""); ss << matrix.nonZeros();
+    ss.str(""); ss << matrix.non_zeros();
     xml_rind.append_attribute("nelem") = ss.str().c_str();
 
 
     auto xml_cind= xml_matrix.append_child("ColIndex");
-    ss.str(""); ss << matrix.nonZeros();
+    ss.str(""); ss << nnz;
     xml_cind.append_attribute("nelem") = ss.str().c_str();
 
     auto xml_data= xml_matrix.append_child("SparseData");
-    ss.str(""); ss << matrix.nonZeros();
-    xml_cind.append_attribute("nelem") = ss.str().c_str();
+    ss.str(""); ss << nnz;
+    xml_data.append_attribute("nelem") = ss.str().c_str();
 
     if (format == Format::ASCII)
     {
         ss.str("");
-        for (size_t i = 0; i < rinds.size(); i++)
+        for (size_t i = 0; i < nnz; i++)
         {
-            ss << rinds[i] << " ";
+            ss << matrix.row_index_pointer()[i] << " ";
         }
         auto nodechild = xml_rind.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
 
         ss.str("");
-        for (size_t i = 0; i < cinds.size(); i++)
+        for (size_t i = 0; i < nnz; i++)
         {
-            ss << data[i] << " ";
+            ss << matrix.column_index_pointer()[i] << " ";
+        }
+        nodechild = xml_cind.append_child(pugi::node_pcdata);
+        nodechild.set_value(ss.str().c_str());
+
+        ss.str("");
+        for (size_t i = 0; i < nnz; i++)
+        {
+            ss << matrix.element_pointer()[i] << " ";
         }
         nodechild = xml_data.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
 
-        ss.str("");
-        for (size_t i = 0; i < cinds.size(); i++)
-        {
-            ss << cinds[i] << " ";
-        }
-        nodechild = xml_cind.append_child(pugi::node_pcdata);
-        nodechild.set_value(ss.str().c_str());
     }
     else
     {
@@ -118,17 +104,17 @@ void write_matrix_arts(const std::string & filename,
 
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.four = htole32(rinds[i]);
+            buf.four = htole32(matrix.row_index_pointer()[i]);
             file.write(buf.buf, 4);
         }
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.four = htole32(cinds[i]);
+            buf.four = htole32(matrix.column_index_pointer()[i]);
             file.write(buf.buf, 4);
         }
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.eight = htole64(cinds[i]);
+            buf.eight = htobe64(reinterpret_cast<const uint64_t *>(matrix.element_pointer())[i]);
             file.write(buf.buf, 8);
         }
         file.close();

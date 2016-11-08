@@ -1,5 +1,3 @@
-#include <iostream>
-
 template <typename Real>
 MatrixArchetype<Real>::MatrixArchetype(const MatrixArchetype<Real> &A)
     : m(A.rows()), n(A.cols())

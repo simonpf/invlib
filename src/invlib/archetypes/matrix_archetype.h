@@ -264,7 +264,7 @@ private:
 
 };
 
-/*! Stream vector to string */
+/*! Stream matrix to string */
 template <typename Real>
 std::ostream & operator<<(std::ostream &, const MatrixArchetype<Real>&);
 

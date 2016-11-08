@@ -9,13 +9,17 @@
 #include "pugixml.cpp"
 #include "endian.h"
 
+#include "invlib/sparse/sparse_base.h"
+
 namespace invlib
 {
 
 template <typename T> T read_matrix_arts(const std::string &);
 
+using SparseMatrix = SparseBase<double, Representation::Coordinates>;
+
 template <>
-EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
+SparseMatrix read_matrix_arts<SparseMatrix>(const std::string & filename)
 {
     // Read xml file.
     pugi::xml_document doc;
@@ -28,7 +32,9 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
     // Rows and columns.
     pugi::xml_node sparse_node    = node.child("Sparse");
     std::string rows_string = sparse_node.attribute("nrows").value();
-    std::string cols_string = sparse_node.attribute("ncols").value();
+    std::string columns_string = sparse_node.attribute("ncols").value();
+    size_t m = std::stoi(rows_string);
+    size_t n = std::stoi(columns_string);
 
     pugi::xml_node rind_node       = sparse_node.child("RowIndex");
     pugi::xml_node cind_node       = sparse_node.child("ColIndex");
@@ -37,8 +43,8 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
     std::string nelem_string = rind_node.attribute("nelem").value();
 
     size_t nelem = std::stoi(nelem_string);
-    std::vector<Eigen::Triplet<double>> triplets{};
-    triplets.reserve(nelem);
+    std::vector<size_t> row_indices(nelem), column_indices(nelem);
+    std::vector<double> elements(nelem);
 
     if (format == "ascii")
     {
@@ -55,7 +61,10 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
             cind_stream >> cind;
             rind_stream >> rind;
             data_stream >> data;
-            triplets.emplace_back(cind, rind, data);
+
+            row_indices[i]    = rind;
+            column_indices[i] = cind;
+            elements[i]       = data;
         }
     }
     else if (format == "binary")
@@ -70,7 +79,6 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
         double data;
 
         std::ifstream stream(filename + ".bin", std::ios::in | std::ios::binary);
-        Eigen::Triplet<double> triplet{};
 
         if (stream.is_open())
         {
@@ -83,10 +91,9 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
                 buf.buf[3] = stream.get();
 
                 rind = le32toh(buf.four);
-                triplets.emplace_back(0, rind, 0.0);
+                row_indices[i] = rind;
             }
             // Read indices byte by byte and convert from little endian format.
-            for (size_t i = 0; i < nelem; i++)
             for (size_t i = 0; i < nelem; i++)
             {
                 buf.buf[0] = stream.get();
@@ -94,7 +101,7 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
                 buf.buf[2] = stream.get();
                 buf.buf[3] = stream.get();
                 cind = le32toh(buf.four);
-                triplets[i] = Eigen::Triplet<double>(cind, triplets[i].row(), 0.0);
+                column_indices[i] = cind;
             }
             // Read data byte by byte and convert from little endian format.
             for (size_t i = 0; i < nelem; i++)
@@ -109,15 +116,14 @@ EigenSparse read_matrix_arts<EigenSparse>(const std::string & filename)
                 buf.buf[7] = stream.get();
 
                 uint64_t host_endian = be64toh(buf.eight);
-                data = *reinterpret_cast<double*>(&host_endian);
-                triplets[i] = Eigen::Triplet<double>(cind, triplets[i].row(), 0.0);
-                triplets[i] = Eigen::Triplet<double>(triplets[i].col(),
-                                                     triplets[i].row(), data);
+                data = *reinterpret_cast<double *>(&host_endian);
+                elements[i] = data;
             }
         }
     }
 
-    EigenSparse matrix; matrix.setFromTriplets(triplets.begin(), triplets.end());
+    SparseMatrix matrix(m, n);
+    matrix.set(row_indices, column_indices, elements);
     return matrix;
 }
 
@@ -136,9 +142,7 @@ EigenVector read_vector_arts<EigenVector>(const std::string & filename)
     std::string format = node.attribute("format").value();
 
     // Number of elements.
-    pugi::xml_node sparse_node    = node.child("Vector");
-
-    pugi::xml_node vector_node = sparse_node.child("Vector");
+    pugi::xml_node vector_node = node.child("Vector");
     std::string nelem_string   = vector_node.attribute("nelem").value();
 
     size_t nelem = std::stoi(nelem_string);

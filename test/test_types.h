@@ -8,7 +8,7 @@
 constexpr double EPS = 1e-8;
 constexpr unsigned int ntests = 1;
 
-using Archetype = invlib::Matrix<MatrixArchetype<double>>;
+using Archetype = invlib::Matrix<invlib::MatrixArchetype<double>>;
 using matrix_types = boost::mpl::list<Archetype>;
 
 #endif // TEST_TEST_TYPES_H

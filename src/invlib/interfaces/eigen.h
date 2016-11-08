@@ -1,3 +1,6 @@
+#ifndef INTERFACES_EIGEN_H
+#define INTERFACES_EIGEN_H
+
 #include <Eigen/Sparse>
 #include <utility>
 
@@ -200,4 +203,5 @@ public:
 
 };
 
-} // namespace invlib
+}      // namespace invlib
+#endif // INTERFACES_EIGEN_H

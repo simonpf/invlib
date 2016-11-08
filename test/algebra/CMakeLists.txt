@@ -5,8 +5,7 @@ include_directories(SYSTEM "${Boost_INCLUDE_DIRS}")
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/")
 
-link_directories(${Boost_LIBRARIES}
-                "/home/simon/src/arts/build/src")
+link_directories(${Boost_LIBRARIES})
 
 # Executables
 if (Boost_FOUND)
