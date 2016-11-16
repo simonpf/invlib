@@ -1,17 +1,18 @@
 /**
- * \file archtypes/sparse.h
+ * \file sparse/sparse_base.h
  *
- * \brief Contains the Sparse class, which is an archetype for the sparse
- * matrices and used to convert between different representations and
- * library implementations.
+ * \brief Contains the SparseBase class, which is a base class for the sparse
+ * matrices and used as a base for different library implementations and to
+ *  convert between different representations.
  *
  */
-#ifndef ARCHETYPES_SPARSE_ARCHETYPE
-#define ARCHETYPES_SPARSE_ARCHETYPE
+#ifndef SPARSE_SPARSE_BASE
+#define SPARSE_SPARSE_BASE
 
 #include "invlib/archetypes/matrix_archetype.h"
 #include "invlib/archetypes/vector_archetype.h"
 #include "invlib/interfaces/eigen.h"
+#include "invlib/utility/array_deleter.h"
 
 #include <algorithm>
 #include <iterator>
@@ -28,27 +29,6 @@ namespace invlib
 // ------------------------  //
 
 enum class Representation {Coordinates, CompressedColumns, CompressedRows};
-
-/*! Destructor for shared_ptr of array types.
- *
- * Calls the delete[] destructor for array types created using new[]. This
- * is necessary to properly destroy shared objects of array type.
- *
- * \tparam T The underlying type of the array T[].
- */
-template <typename T>
-struct ArrayDeleter
-{
-    ArrayDeleter()                      = default;
-    ArrayDeleter(const ArrayDeleter & ) = default;
-    ArrayDeleter(      ArrayDeleter &&) = default;
-
-    void operator() (const T * ptr)
-    {
-        delete[] (* ptr);
-        delete ptr;
-    }
-};
 
 /*! Sparse archetype class template.
  *
@@ -306,4 +286,4 @@ std::ostream & operator << (
 #include "sparse_base.cpp"
 
 }      // namespace invlib
-#endif // ARCHETYPES_SPARSE_ARCHETYPE
+#endif // SPARSE_SPARSE_BASE

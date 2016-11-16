@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 
 add_subdirectory(algebra)
+add_subdirectory(backends)
 add_subdirectory(forward_models)
 add_subdirectory(io)
 add_subdirectory(mpi)

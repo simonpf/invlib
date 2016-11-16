@@ -19,6 +19,8 @@ include(FindBLAS)
 include(FindLAPACK)
 # MPI
 include(FindMPI)
+# CUDA
+include(FindCUDA)
 
 # Eigen
 include(cmake/FindEigen3.cmake)
@@ -37,6 +39,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/src/"
                      "${Boost_INCLUDE_DIRS}")
 
 # Build tests.
+add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(examples)
 

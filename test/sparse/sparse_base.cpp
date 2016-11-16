@@ -4,7 +4,6 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include "invlib/sparse/sparse_base.h"
-#include "../test_types.h"
 
 using namespace invlib;
 

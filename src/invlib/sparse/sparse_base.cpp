@@ -236,9 +236,12 @@ template
 SparseBase<Real, Representation::Coordinates>::
 operator SparseBase<Real, Representation::CompressedColumns>() const
 {
-    std::shared_ptr<size_t *> column_starts   {new (size_t *), ArrayDeleter<size_t *>()};
-    std::shared_ptr<size_t *> row_indices_new {new (size_t *), ArrayDeleter<size_t *>()};
-    std::shared_ptr<Real *>   elements_new    {new (Real *),   ArrayDeleter<Real *>()};
+    std::shared_ptr<size_t *> column_starts   {new (size_t *),
+                                               ArrayDeleter<size_t *>()};
+    std::shared_ptr<size_t *> row_indices_new {new (size_t *),
+                                               ArrayDeleter<size_t *>()};
+    std::shared_ptr<Real *>   elements_new    {new (Real *),
+                                               ArrayDeleter<Real *>()};
     *column_starts   = new size_t[n];
     *row_indices_new = new size_t[nnz];
     *elements_new    = new Real[nnz];
