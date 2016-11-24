@@ -141,13 +141,13 @@ SparseBase<Real, Representation::Coordinates>::SparseBase(
     size_t column_index = 0;
     for (size_t i = 0; i < nnz; i++)
     {
-        while ((column_index < n) && (matrix.column_start_pointer()[column_index] == i))
+        while ((column_index < n) && (matrix.get_column_start_pointer()[column_index] == i))
         {
             column_index++;
         }
-        row_index_vector[i]    = matrix.row_index_pointer()[i];
+        row_index_vector[i]    = matrix.get_row_index_pointer()[i];
         column_index_vector[i] = column_index - 1;
-        element_vector[i]      = matrix.element_pointer()[i];
+        element_vector[i]      = matrix.get_element_pointer()[i];
     }
     set(row_index_vector, column_index_vector, element_vector);
 }
@@ -165,13 +165,13 @@ SparseBase<Real, Representation::Coordinates>::SparseBase(
     size_t row_index = 0;
     for (size_t i = 0; i < nnz; i++)
     {
-        while ((row_index < m) && (matrix.row_start_pointer()[row_index] == i))
+        while ((row_index < m) && (matrix.get_row_start_pointer()[row_index] == i))
         {
             row_index++;
         }
         row_index_vector[i]    = row_index - 1;
-        column_index_vector[i] = matrix.column_index_pointer()[i];
-        element_vector[i]      = matrix.element_pointer()[i];
+        column_index_vector[i] = matrix.get_column_index_pointer()[i];
+        element_vector[i]      = matrix.get_element_pointer()[i];
     }
     set(row_index_vector, column_index_vector, element_vector);
 }
@@ -340,33 +340,15 @@ template
 <
     typename Real
 >
-SparseBase<Real, Representation::Coordinates>::
-operator EigenSparse() const
-{
-    std::vector<Eigen::Triplet<Real>> triplets(nnz);
-    for (size_t i = 0; i < nnz; i++)
-    {
-        triplets[i] = Triplet((*column_indices)[i], (*row_indices)[i], (*elements)[i]);
-    }
-    EigenSparse matrix;
-    matrix.setFromTriplets(triplets);
-
-    return matrix;
-}
-
-template
-<
-    typename Real
->
 bool SparseBase<Real, Representation::Coordinates>:: operator == (
     const SparseBase & B) const
 {
     bool equal = true;
     for (size_t i = 0; i < nnz; i++)
     {
-        equal = equal && ((*column_indices)[i] == B.column_index_pointer()[i]);
-        equal = equal && ((*row_indices)[i]    == B.row_index_pointer()[i]);
-        equal = equal && ((*elements)[i] == B.element_pointer()[i]);
+        equal = equal && ((*column_indices)[i] == B.get_column_index_pointer()[i]);
+        equal = equal && ((*row_indices)[i]    == B.get_row_index_pointer()[i]);
+        equal = equal && ((*elements)[i] == B.get_element_pointer()[i]);
     }
     return equal;
 }
@@ -381,23 +363,23 @@ std::ostream & operator << (
     std::cout << "row indices:    [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.row_index_pointer()[i] << ", ";
+        std::cout << matrix.get_row_index_pointer()[i] << ", ";
     }
-    std::cout << matrix.row_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
+    std::cout << matrix.get_row_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 
     std::cout << "column indices: [";
-    for (size_t i = 0; i < matrix.non_zeros(); i++)
+    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.column_index_pointer()[i] << ", ";
+        std::cout << matrix.get_column_index_pointer()[i] << ", ";
     }
-    std::cout << matrix.column_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
+    std::cout << matrix.get_column_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 
     std::cout << "elements:       [";
-    for (size_t i = 0; i < matrix.non_zeros(); i++)
+    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.element_pointer()[i] << ", ";
+        std::cout << matrix.get_element_pointer()[i] << ", ";
     }
-    std::cout << matrix.element_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
+    std::cout << matrix.get_element_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 }
 
 // ------------------ //
@@ -424,25 +406,25 @@ std::ostream & operator << (
 {
     std::cout << "Sparse matrix in compressed row representation:" << std::endl;
     std::cout << "row indices:   [";
-    for (size_t i = 0; i < matrix.non_zeros(); i++)
+    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.row_index_pointer()[i] << ", ";
+        std::cout << matrix.get_row_index_pointer()[i] << ", ";
     }
-    std::cout << matrix.row_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
+    std::cout << matrix.get_row_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 
     std::cout << "column starts: [";
-    for (size_t i = 0; i < matrix.cols(); i++)
+    for (size_t i = 0; i < matrix.cols() - 1; i++)
     {
-        std::cout << matrix.column_start_pointer()[i] << ", ";
+        std::cout << matrix.get_column_start_pointer()[i] << ", ";
     }
-    std::cout << matrix.column_start_pointer()[matrix.cols() - 1] << "]" << std::endl;
+    std::cout << matrix.get_column_start_pointer()[matrix.cols() - 1] << "]" << std::endl;
 
     std::cout << "elements:      [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.element_pointer()[i] << ", ";
+        std::cout << matrix.get_element_pointer()[i] << ", ";
     }
-    std::cout << matrix.element_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
+    std::cout << matrix.get_element_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 }
 
 // --------------- //
@@ -469,23 +451,23 @@ std::ostream & operator << (
 {
     std::cout << "Sparse matrix in compressed row representation:" << std::endl;
     std::cout << "row starts:     [";
-    for (size_t i = 0; i < matrix.rows(); i++)
+    for (size_t i = 0; i < matrix.rows() - 1; i++)
     {
-        std::cout << matrix.row_start_pointer()[i] << ", ";
+        std::cout << matrix.get_row_start_pointer()[i] << ", ";
     }
-    std::cout << matrix.row_start_pointer()[matrix.rows() - 1] << "]" << std::endl;
+    std::cout << matrix.get_row_start_pointer()[matrix.rows() - 1] << "]" << std::endl;
 
     std::cout << "column indices: [";
-    for (size_t i = 0; i < matrix.non_zeros(); i++)
+    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.column_index_pointer()[i] << ", ";
+        std::cout << matrix.get_column_index_pointer()[i] << ", ";
     }
-    std::cout << matrix.column_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
+    std::cout << matrix.get_column_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 
     std::cout << "elements:       [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.element_pointer()[i] << ", ";
+        std::cout << matrix.get_element_pointer()[i] << ", ";
     }
-    std::cout << matrix.element_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
+    std::cout << matrix.get_element_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 }

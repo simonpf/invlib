@@ -29,14 +29,16 @@ void handle_cuda_error(cudaError_t code,
 template <typename T>
 struct CudaDeleter
 {
-    CudaDeleter()                     = default;
-    CudaDeleter(const CudaDeleter & ) = default;
-    CudaDeleter(      CudaDeleter &&) = default;
+    CudaDeleter()                                 = default;
+    CudaDeleter(const CudaDeleter & )             = default;
+    CudaDeleter(      CudaDeleter &&)             = default;
+    CudaDeleter & operator=(const CudaDeleter & ) = default;
+    CudaDeleter & operator=(      CudaDeleter &&) = default;
 
     void operator() (const T * ptr)
     {
         if (* ptr) {
-            cudaFree(static_cast<void **>(ptr));
+            cudaFree(reinterpret_cast<void *>(*ptr));
         }
         delete ptr;
     }

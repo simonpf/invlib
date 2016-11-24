@@ -1,7 +1,7 @@
 /**
  * \file cuda/cublas_generic.h
  *
- * \brief Generic wrapper for the CuBLAS library.
+ * \brief Generic wrappers for the CuBLAS library.
  *
  */
 
@@ -10,6 +10,7 @@
 
 #include "cuda.h"
 #include "cublas_v2.h"
+#include "cusparse_v2.h"
 
 namespace invlib
 {
@@ -63,4 +64,3 @@ double dot<double>(cublasHandle_t handle, int m,
 }      // namespace cublas
 }      // namespace invlib
 #endif // CUDA_CUBLAS_GENERIC_H
-

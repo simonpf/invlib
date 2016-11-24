@@ -70,7 +70,7 @@ void write_matrix_arts(const std::string & filename,
         ss.str("");
         for (size_t i = 0; i < nnz; i++)
         {
-            ss << matrix.row_index_pointer()[i] << " ";
+            ss << matrix.get_row_index_pointer()[i] << " ";
         }
         auto nodechild = xml_rind.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
@@ -78,7 +78,7 @@ void write_matrix_arts(const std::string & filename,
         ss.str("");
         for (size_t i = 0; i < nnz; i++)
         {
-            ss << matrix.column_index_pointer()[i] << " ";
+            ss << matrix.get_column_index_pointer()[i] << " ";
         }
         nodechild = xml_cind.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
@@ -86,7 +86,7 @@ void write_matrix_arts(const std::string & filename,
         ss.str("");
         for (size_t i = 0; i < nnz; i++)
         {
-            ss << matrix.element_pointer()[i] << " ";
+            ss << matrix.get_element_pointer()[i] << " ";
         }
         nodechild = xml_data.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
@@ -104,17 +104,17 @@ void write_matrix_arts(const std::string & filename,
 
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.four = htole32(matrix.row_index_pointer()[i]);
+            buf.four = htole32(matrix.get_row_index_pointer()[i]);
             file.write(buf.buf, 4);
         }
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.four = htole32(matrix.column_index_pointer()[i]);
+            buf.four = htole32(matrix.get_column_index_pointer()[i]);
             file.write(buf.buf, 4);
         }
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.eight = htobe64(reinterpret_cast<const uint64_t *>(matrix.element_pointer())[i]);
+            buf.eight = htobe64(reinterpret_cast<const uint64_t *>(matrix.get_element_pointer())[i]);
             file.write(buf.buf, 8);
         }
         file.close();

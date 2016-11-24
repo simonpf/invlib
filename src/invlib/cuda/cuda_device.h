@@ -25,16 +25,18 @@ public:
     CudaDevice & operator= (const CudaDevice & ) = delete;
     CudaDevice & operator= (      CudaDevice &&) = delete;
 
-    CudaAllocator & get_allocator()           {return cuda_allocator;}
-    cublasHandle_t  get_cublas_handle() const {return cublas_handle;}
+    CudaAllocator &       get_allocator()             {return cuda_allocator;}
+    cublasHandle_t        get_cublas_handle()   const {return cublas_handle;}
+    cusparseHandle_t      get_cusparse_handle() const {return cusparse_handle;}
 
     dim3 get_1d_block()     const;
     dim3 get_1d_grid(int m) const;
 
 private:
 
-    CudaAllocator  cuda_allocator;
-    cublasHandle_t cublas_handle;
+    CudaAllocator      cuda_allocator;
+    cublasHandle_t     cublas_handle;
+    cusparseHandle_t   cusparse_handle;
 
     int block_size = 256;
 };

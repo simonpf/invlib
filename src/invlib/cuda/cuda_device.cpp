@@ -2,6 +2,7 @@ CudaDevice::CudaDevice()
     : cuda_allocator()
 {
     cublasCreate(&cublas_handle);
+    cusparseCreate(&cusparse_handle);
 }
 
 dim3 CudaDevice::get_1d_grid(int m) const

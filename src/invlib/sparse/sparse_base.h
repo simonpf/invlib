@@ -11,7 +11,6 @@
 
 #include "invlib/archetypes/matrix_archetype.h"
 #include "invlib/archetypes/vector_archetype.h"
-#include "invlib/interfaces/eigen.h"
 #include "invlib/utility/array_deleter.h"
 
 #include <algorithm>
@@ -40,7 +39,7 @@ enum class Representation {Coordinates, CompressedColumns, CompressedRows};
 template
 <
 typename Real,
-Representation rep
+Representation rep = Representation::Coordinates
 >
 class SparseBase;
 
@@ -104,13 +103,13 @@ public:
     //   Data Access   //
     // --------------- //
 
-    size_t * row_index_pointer()    {return * row_indices;}
-    size_t * column_index_pointer() {return * column_indices;}
-    Real   * element_pointer()      {return * elements;}
+    size_t * get_row_index_pointer()    {return * row_indices;}
+    size_t * get_column_index_pointer() {return * column_indices;}
+    Real   * get_element_pointer()      {return * elements;}
 
-    const size_t * row_index_pointer()    const {return * row_indices;}
-    const size_t * column_index_pointer() const {return * column_indices;}
-    const Real   * element_pointer()      const {return * elements;}
+    const size_t * get_row_index_pointer()    const {return * row_indices;}
+    const size_t * get_column_index_pointer() const {return * column_indices;}
+    const Real   * get_element_pointer()      const {return * elements;}
 
     size_t rows()     const  {return m;}
     size_t cols()     const  {return n;}
@@ -122,8 +121,6 @@ public:
 
     operator SparseBase<Real, Representation::CompressedColumns>() const;
     operator SparseBase<Real, Representation::CompressedRows>() const;
-
-    operator EigenSparse() const;
 
     operator MatrixArchetype<Real>() const;
 
@@ -185,13 +182,13 @@ public:
 
     void resize(size_t i, size_t j);
 
-    size_t * row_index_pointer()    {return * row_indices;}
-    size_t * column_start_pointer() {return * column_starts;}
-    Real   * element_pointer()      {return * elements;}
+    size_t * get_row_index_pointer()    {return * row_indices;}
+    size_t * get_column_start_pointer() {return * column_starts;}
+    Real   * get_element_pointer()      {return * elements;}
 
-    const size_t * row_index_pointer()    const {return * row_indices;}
-    const size_t * column_start_pointer() const {return * column_starts;}
-    const Real   * element_pointer()      const {return * elements;}
+    const size_t * get_row_index_pointer()    const {return * row_indices;}
+    const size_t * get_column_start_pointer() const {return * column_starts;}
+    const Real   * get_element_pointer()      const {return * elements;}
 
     size_t rows()     const  {return m;}
     size_t cols()     const  {return n;}
@@ -255,13 +252,13 @@ public:
 
     void resize(size_t i, size_t j);
 
-    size_t * row_start_pointer()    {return * row_starts;}
-    size_t * column_index_pointer() {return * column_indices;}
-    Real   * element_pointer()      {return * elements;}
+    size_t * get_row_start_pointer()    {return * row_starts;}
+    size_t * get_column_index_pointer() {return * column_indices;}
+    Real   * get_element_pointer()      {return * elements;}
 
-    const size_t * row_start_pointer()    const {return * row_starts;}
-    const size_t * column_index_pointer() const {return * column_indices;}
-    const Real   * element_pointer()      const {return * elements;}
+    const size_t * get_row_start_pointer()    const {return * row_starts;}
+    const size_t * get_column_index_pointer() const {return * column_indices;}
+    const Real   * get_element_pointer()      const {return * elements;}
 
     size_t rows()     const  {return m;}
     size_t cols()     const  {return n;}
