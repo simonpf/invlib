@@ -9,14 +9,14 @@
 #include "pugixml.cpp"
 #include "endian.h"
 
-#include "invlib/sparse/sparse_base.h"
+#include "invlib/sparse/sparse_data.h"
 
 namespace invlib
 {
 
 enum class Format {ASCII, Binary};
 
-using SparseMatrix = SparseBase<double, Representation::Coordinates>;
+using SparseMatrix = SparseData<double, Representation::Coordinates>;
 
 template <typename T> void write_matrix_arts(const std::string &,
                                              const T &,

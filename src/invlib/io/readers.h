@@ -9,14 +9,14 @@
 #include "pugixml.cpp"
 #include "endian.h"
 
-#include "invlib/sparse/sparse_base.h"
+#include "invlib/sparse/sparse_data.h"
 
 namespace invlib
 {
 
 template <typename T> T read_matrix_arts(const std::string &);
 
-using SparseMatrix = SparseBase<double, Representation::Coordinates>;
+using SparseMatrix = SparseData<double, Representation::Coordinates>;
 
 template <>
 SparseMatrix read_matrix_arts<SparseMatrix>(const std::string & filename)
@@ -131,7 +131,7 @@ SparseMatrix read_matrix_arts<SparseMatrix>(const std::string & filename)
 template <typename T> T read_vector_arts(const std::string &);
 
 template <>
-EigenVector read_vector_arts<EigenVector>(const std::string & filename)
+VectorData read_vector_arts<VectorData<double>>(const std::string & filename)
 {
     // Read xml file.
     pugi::xml_document doc;
@@ -147,7 +147,8 @@ EigenVector read_vector_arts<EigenVector>(const std::string & filename)
 
     size_t nelem = std::stoi(nelem_string);
 
-    EigenVector v; v.resize(nelem);
+    VectorData v; v.resize(nelem);
+    double * elements = v.get_element_pointer();
 
     if (format == "ascii")
     {
@@ -157,7 +158,7 @@ EigenVector read_vector_arts<EigenVector>(const std::string & filename)
         for (size_t i = 0; i < nelem; i++)
         {
             elem_stream >> data;
-            v[i] = data;
+            elements[i] = data;
         }
     }
     else if (format == "binary")
@@ -187,7 +188,7 @@ EigenVector read_vector_arts<EigenVector>(const std::string & filename)
 
                 uint64_t host_endian = be64toh(buf.eight);
                 data = *reinterpret_cast<double*>(&host_endian);
-                v[i] = data;
+                elements[i] = data;
             }
         }
     }

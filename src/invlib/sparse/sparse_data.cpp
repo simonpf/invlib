@@ -3,10 +3,10 @@
 // --------------------------- //
 
 template <typename Real>
-auto SparseBase<Real, Representation::Coordinates>::random(
+auto SparseData<Real, Representation::Coordinates>::random(
     size_t m,
     size_t n)
-    -> SparseBase
+    -> SparseData
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -31,21 +31,21 @@ auto SparseBase<Real, Representation::Coordinates>::random(
         elements.push_back(real_dis(gen));
     }
 
-    SparseBase matrix(m, n);
+    SparseData matrix(m, n);
     matrix.set(rows, columns, elements);
     return matrix;
 
 }
 
 template <typename Real>
-SparseBase<Real, Representation::Coordinates>::SparseBase(size_t m_, size_t n_)
+SparseData<Real, Representation::Coordinates>::SparseData(size_t m_, size_t n_)
     : m(m_), n(n_), nnz(0), column_indices(nullptr), row_indices(nullptr), elements(nullptr)
 {
     // Nothing to do here.
 }
 
 template <typename Real>
-SparseBase<Real, Representation::Coordinates>::SparseBase(
+SparseData<Real, Representation::Coordinates>::SparseData(
     const std::vector<size_t> & rows_,
     const std::vector<size_t> & columns_,
     const std::vector<Real>   & elements_)
@@ -88,7 +88,7 @@ SparseBase<Real, Representation::Coordinates>::SparseBase(
 }
 
 template <typename Real>
-SparseBase<Real, Representation::Coordinates>::SparseBase(
+SparseData<Real, Representation::Coordinates>::SparseData(
     const MatrixArchetype<Real> & matrix)
     : m(matrix.rows()), n(matrix.cols())
 {
@@ -129,8 +129,8 @@ SparseBase<Real, Representation::Coordinates>::SparseBase(
 }
 
 template <typename Real>
-SparseBase<Real, Representation::Coordinates>::SparseBase(
-    const SparseBase<Real, Representation::CompressedColumns> & matrix)
+SparseData<Real, Representation::Coordinates>::SparseData(
+    const SparseData<Real, Representation::CompressedColumns> & matrix)
     : m(matrix.rows()), n(matrix.cols()), nnz(matrix.non_zeros())
 {
 
@@ -153,8 +153,8 @@ SparseBase<Real, Representation::Coordinates>::SparseBase(
 }
 
 template <typename Real>
-SparseBase<Real, Representation::Coordinates>::SparseBase(
-    const SparseBase<Real, Representation::CompressedRows> & matrix)
+SparseData<Real, Representation::Coordinates>::SparseData(
+    const SparseData<Real, Representation::CompressedRows> & matrix)
     : m(matrix.rows()), n(matrix.cols()), nnz(matrix.non_zeros())
 {
 
@@ -180,7 +180,7 @@ template
 <
     typename Real
 >
-void SparseBase<Real, Representation::Coordinates>::set(
+void SparseData<Real, Representation::Coordinates>::set(
     const std::vector<size_t> & rows_,
     const std::vector<size_t> & columns_,
     const std::vector<Real>   & elements_)
@@ -233,8 +233,8 @@ template
 <
     typename Real
 >
-SparseBase<Real, Representation::Coordinates>::
-operator SparseBase<Real, Representation::CompressedColumns>() const
+SparseData<Real, Representation::Coordinates>::
+operator SparseData<Real, Representation::CompressedColumns>() const
 {
     std::shared_ptr<size_t *> column_starts   {new (size_t *),
                                                ArrayDeleter<size_t *>()};
@@ -277,7 +277,7 @@ operator SparseBase<Real, Representation::CompressedColumns>() const
         }
     }
 
-    SparseBase<Real, Representation::CompressedColumns> matrix{
+    SparseData<Real, Representation::CompressedColumns> matrix{
         m, n, nnz, row_indices_new, column_starts, elements_new
             };
 
@@ -288,8 +288,8 @@ template
 <
     typename Real
 >
-SparseBase<Real, Representation::Coordinates>::
-operator SparseBase<Real, Representation::CompressedRows>() const
+SparseData<Real, Representation::Coordinates>::
+operator SparseData<Real, Representation::CompressedRows>() const
 {
     std::shared_ptr<size_t *> row_starts{new (size_t *), ArrayDeleter<size_t *>()};
     *row_starts   = new size_t[m];
@@ -304,7 +304,7 @@ operator SparseBase<Real, Representation::CompressedRows>() const
         }
     }
 
-    SparseBase<Real, Representation::CompressedRows> matrix{
+    SparseData<Real, Representation::CompressedRows> matrix{
         m, n, nnz, row_starts, column_indices, elements
             };
 
@@ -315,7 +315,7 @@ template
 <
     typename Real
 >
-SparseBase<Real, Representation::Coordinates>::
+SparseData<Real, Representation::Coordinates>::
 operator MatrixArchetype<Real>() const
 {
     MatrixArchetype<Real> matrix; matrix.resize(m, n);
@@ -340,8 +340,8 @@ template
 <
     typename Real
 >
-bool SparseBase<Real, Representation::Coordinates>:: operator == (
-    const SparseBase & B) const
+bool SparseData<Real, Representation::Coordinates>:: operator == (
+    const SparseData & B) const
 {
     bool equal = true;
     for (size_t i = 0; i < nnz; i++)
@@ -357,27 +357,27 @@ bool SparseBase<Real, Representation::Coordinates>:: operator == (
 template <typename Real>
 std::ostream & operator << (
     std::ostream &,
-    const SparseBase<Real, Representation::Coordinates>& matrix)
+    const SparseData<Real, Representation::Coordinates>& matrix)
 {
-    std::cout << "Sparse matrix in coordinate representation:" << std::endl;
-    std::cout << "row indices:    [";
+    std::cout << "Sparse Matrix Data, Coordinate Representation:" << std::endl;
+    std::cout << "Row Indices:    [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.get_row_index_pointer()[i] << ", ";
+        std::cout << matrix.get_row_index_pointer()[i] << " ";
     }
     std::cout << matrix.get_row_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 
-    std::cout << "column indices: [";
+    std::cout << "Column Indices: [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.get_column_index_pointer()[i] << ", ";
+        std::cout << matrix.get_column_index_pointer()[i] << " ";
     }
     std::cout << matrix.get_column_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 
-    std::cout << "elements:       [";
+    std::cout << "Elements:       [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.get_element_pointer()[i] << ", ";
+        std::cout << matrix.get_element_pointer()[i] << " ";
     }
     std::cout << matrix.get_element_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 }
@@ -387,7 +387,7 @@ std::ostream & operator << (
 // ------------------ //
 
 template <typename Real>
-SparseBase<Real, Representation::CompressedColumns>::SparseBase(
+SparseData<Real, Representation::CompressedColumns>::SparseData(
     size_t m_, size_t n_, size_t nnz_,
     const std::shared_ptr<size_t *> & row_indices_,
     const std::shared_ptr<size_t *> & column_starts_,
@@ -402,24 +402,24 @@ SparseBase<Real, Representation::CompressedColumns>::SparseBase(
 template <typename Real>
 std::ostream & operator << (
     std::ostream &,
-    const SparseBase<Real, Representation::CompressedColumns>& matrix)
+    const SparseData<Real, Representation::CompressedColumns>& matrix)
 {
-    std::cout << "Sparse matrix in compressed row representation:" << std::endl;
-    std::cout << "row indices:   [";
+    std::cout << "Sparse Matrix Data, Compressed Row Representation:" << std::endl;
+    std::cout << "Row Indices:   [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_row_index_pointer()[i] << ", ";
     }
     std::cout << matrix.get_row_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 
-    std::cout << "column starts: [";
+    std::cout << "Column Starts: [";
     for (size_t i = 0; i < matrix.cols() - 1; i++)
     {
         std::cout << matrix.get_column_start_pointer()[i] << ", ";
     }
     std::cout << matrix.get_column_start_pointer()[matrix.cols() - 1] << "]" << std::endl;
 
-    std::cout << "elements:      [";
+    std::cout << "Elements:      [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_element_pointer()[i] << ", ";
@@ -432,7 +432,7 @@ std::ostream & operator << (
 // --------------- //
 
 template <typename Real>
-SparseBase<Real, Representation::CompressedRows>::SparseBase(
+SparseData<Real, Representation::CompressedRows>::SparseData(
     size_t m_, size_t n_, size_t nnz_,
     const std::shared_ptr<size_t *> & row_starts_,
     const std::shared_ptr<size_t *> & column_indices_,
@@ -447,27 +447,27 @@ SparseBase<Real, Representation::CompressedRows>::SparseBase(
 template <typename Real>
 std::ostream & operator << (
     std::ostream &,
-    const SparseBase<Real, Representation::CompressedRows>& matrix)
+    const SparseData<Real, Representation::CompressedRows>& matrix)
 {
-    std::cout << "Sparse matrix in compressed row representation:" << std::endl;
-    std::cout << "row starts:     [";
+    std::cout << "Sparse Matrix Data, Compressed Row Representation:" << std::endl;
+    std::cout << "Row Starts:     [";
     for (size_t i = 0; i < matrix.rows() - 1; i++)
     {
-        std::cout << matrix.get_row_start_pointer()[i] << ", ";
+        std::cout << matrix.get_row_start_pointer()[i] << " ";
     }
     std::cout << matrix.get_row_start_pointer()[matrix.rows() - 1] << "]" << std::endl;
 
-    std::cout << "column indices: [";
+    std::cout << "Column Indices: [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.get_column_index_pointer()[i] << ", ";
+        std::cout << matrix.get_column_index_pointer()[i] << " ";
     }
     std::cout << matrix.get_column_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 
-    std::cout << "elements:       [";
+    std::cout << "Elements:       [";
     for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
     {
-        std::cout << matrix.get_element_pointer()[i] << ", ";
+        std::cout << matrix.get_element_pointer()[i] << " ";
     }
     std::cout << matrix.get_element_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 }

@@ -1,7 +1,7 @@
 /**
  * \file sparse/sparse_base.h
  *
- * \brief Contains the SparseBase class, which is a base class for the sparse
+ * \brief Contains the SparseData class, which is a base class for the sparse
  * matrices and used as a base for different library implementations and to
  *  convert between different representations.
  *
@@ -41,13 +41,13 @@ template
 typename Real,
 Representation rep = Representation::Coordinates
 >
-class SparseBase;
+class SparseData;
 
 template
 <
 typename Real
 >
-class SparseBase<Real, Representation::Coordinates>
+class SparseData<Real, Representation::Coordinates>
 {
 public:
 
@@ -60,33 +60,33 @@ public:
     /*! The result type of multiplying an algebraic expression with this
      * matrix from the right.
      */
-    using ResultType = SparseBase;
+    using ResultType = SparseData;
 
     // ------------------- //
     //   Static Functions  //
     // ------------------- //
 
-    static auto random(size_t m, size_t n) -> SparseBase;
+    static auto random(size_t m, size_t n) -> SparseData;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
     // ------------------------------- //
 
-    SparseBase(size_t m, size_t n);
-    SparseBase(const std::vector<size_t> & row_indices,
+    SparseData(size_t m, size_t n);
+    SparseData(const std::vector<size_t> & row_indices,
                     const std::vector<size_t> & column_indices,
                     const std::vector<Real>   & elements);
 
-    SparseBase(const SparseBase & )             = default;
-    SparseBase(      SparseBase &&)             = default;
-    SparseBase & operator=(const SparseBase & ) = default;
-    SparseBase & operator=(      SparseBase &&) = default;
+    SparseData(const SparseData & )             = default;
+    SparseData(      SparseData &&)             = default;
+    SparseData & operator=(const SparseData & ) = default;
+    SparseData & operator=(      SparseData &&) = default;
 
-    SparseBase(const MatrixArchetype<Real> &);
-    SparseBase(const SparseBase<Real, Representation::CompressedColumns> &);
-    SparseBase(const SparseBase<Real, Representation::CompressedRows> &);
+    SparseData(const MatrixArchetype<Real> &);
+    SparseData(const SparseData<Real, Representation::CompressedColumns> &);
+    SparseData(const SparseData<Real, Representation::CompressedRows> &);
 
-    ~SparseBase() = default;
+    ~SparseData() = default;
 
     // ----------------- //
     //   Manipulations   //
@@ -97,7 +97,7 @@ public:
              const std::vector<Real>   & elements);
     void resize(size_t i, size_t j);
 
-    bool operator == (const SparseBase &) const;
+    bool operator == (const SparseData &) const;
 
     // --------------- //
     //   Data Access   //
@@ -119,8 +119,8 @@ public:
     //   Conversions   //
     // --------------- //
 
-    operator SparseBase<Real, Representation::CompressedColumns>() const;
-    operator SparseBase<Real, Representation::CompressedRows>() const;
+    operator SparseData<Real, Representation::CompressedColumns>() const;
+    operator SparseData<Real, Representation::CompressedRows>() const;
 
     operator MatrixArchetype<Real>() const;
 
@@ -139,13 +139,13 @@ private:
 template <typename Real>
 std::ostream & operator << (
     std::ostream &,
-    const SparseBase<Real, Representation::Coordinates>&);
+    const SparseData<Real, Representation::Coordinates>&);
 
 template
 <
 typename Real
 >
-class SparseBase<Real, Representation::CompressedColumns>
+class SparseData<Real, Representation::CompressedColumns>
 {
 public:
 
@@ -158,23 +158,23 @@ public:
     /*! The result type of multiplying an algebraic expression with this
      * matrix from the right.
      */
-    using ResultType = SparseBase;
+    using ResultType = SparseData;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
     // ------------------------------- //
 
-    SparseBase(size_t m, size_t n, size_t nnz,
+    SparseData(size_t m, size_t n, size_t nnz,
                     const std::shared_ptr<size_t *> & row_indices,
                     const std::shared_ptr<size_t *> & column_starts,
                     const std::shared_ptr<Real *>   & elements);
 
-    SparseBase(const SparseBase & )             = default;
-    SparseBase(      SparseBase &&)             = default;
-    SparseBase & operator=(const SparseBase & ) = default;
-    SparseBase & operator=(      SparseBase &&) = default;
+    SparseData(const SparseData & )             = default;
+    SparseData(      SparseData &&)             = default;
+    SparseData & operator=(const SparseData & ) = default;
+    SparseData & operator=(      SparseData &&) = default;
 
-    ~SparseBase() = default;
+    ~SparseData() = default;
 
     // ----------------- //
     //   Manipulations   //
@@ -208,13 +208,13 @@ private:
 template <typename Real>
 std::ostream & operator << (
     std::ostream &,
-    const SparseBase<Real, Representation::CompressedColumns>&);
+    const SparseData<Real, Representation::CompressedColumns>&);
 
 template
 <
 typename Real
 >
-class SparseBase<Real, Representation::CompressedRows>
+class SparseData<Real, Representation::CompressedRows>
 {
 public:
 
@@ -227,24 +227,24 @@ public:
     /*! The result type of multiplying an algebraic expression with this
      * matrix from the right.
      */
-    using ResultType = SparseBase;
+    using ResultType = SparseData;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
     // ------------------------------- //
 
-    SparseBase() = delete;
-    SparseBase(size_t m, size_t n, size_t nnz,
+    SparseData() = delete;
+    SparseData(size_t m, size_t n, size_t nnz,
                     const std::shared_ptr<size_t *> & row_starts,
                     const std::shared_ptr<size_t *> & column_indices,
                     const std::shared_ptr<Real *>   & elements);
 
-    SparseBase(const SparseBase & )             = default;
-    SparseBase(      SparseBase &&)             = default;
-    SparseBase & operator=(const SparseBase & ) = default;
-    SparseBase & operator=(      SparseBase &&) = default;
+    SparseData(const SparseData & )             = default;
+    SparseData(      SparseData &&)             = default;
+    SparseData & operator=(const SparseData & ) = default;
+    SparseData & operator=(      SparseData &&) = default;
 
-    ~SparseBase() = default;
+    ~SparseData() = default;
 
     // ----------------- //
     //   Manipulations   //
@@ -278,9 +278,9 @@ private:
 template <typename Real>
 std::ostream & operator << (
     std::ostream &,
-    const SparseBase<Real, Representation::CompressedRows>&);
+    const SparseData<Real, Representation::CompressedRows>&);
 
-#include "sparse_base.cpp"
+#include "sparse_data.cpp"
 
 }      // namespace invlib
 #endif // SPARSE_SPARSE_BASE

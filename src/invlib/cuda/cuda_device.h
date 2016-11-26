@@ -4,7 +4,6 @@
  * \brief Class representing cuda devices.
  *
  */
-
 #ifndef CUDA_CUDA_DEVICE_H
 #define CUDA_CUDA_DEVICE_H
 
@@ -15,6 +14,15 @@
 namespace invlib
 {
 
+/*! CudaDevice class representing a CUDA compute device.
+ *
+ * The CudaDevice class holds device specific ressources and settings.
+ * Each CUDA vector or matrix holds a reference to a CudaDevice object,
+ * which represents the device that the object is stored on.
+ *
+ * Each CudaDevice object holds a CuBLAS and CuSparse handle as well as
+ * a CudaAllocator object.
+ */
 class CudaDevice
 {
 public:
@@ -41,6 +49,7 @@ private:
     int block_size = 256;
 };
 
+/*! Struct holding the CUDA default device. */
 struct Cuda
 {
     static CudaDevice default_device;

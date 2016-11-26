@@ -20,7 +20,7 @@ void read_and_write_test()
 
     // Generate random sparse matrix.
 
-    using SparseMatrix = SparseBase<double, Representation::Coordinates>;
+    using SparseMatrix = SparseData<double, Representation::Coordinates>;
     auto A = SparseMatrix::random(m, n);
 
     std::cout << A << std::endl;

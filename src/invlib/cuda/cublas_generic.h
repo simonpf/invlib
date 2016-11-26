@@ -17,8 +17,17 @@ namespace invlib
 namespace cublas
 {
 
-// axpy
-
+/*! Generic CuBLAS axpy
+ *
+ * Wrapper for the CuBLAS saxpy and daxpy functions that perform scaled
+ * addition of two vectors:
+ * \f[
+ *  \vec{y} = \vec{y} + \alpha \vec{x}
+ * \f]
+ *
+ * For a detailed description of the functions arguments see CuBLAS documentation.
+ *
+ */
 template<typename T>
 void axpy(cublasHandle_t handle, int m, T alpha,
           const T * x, int x_inc, T * y, int y_inc);
@@ -51,6 +60,17 @@ float dot<float>(cublasHandle_t handle, int m,
     return result;
 }
 
+/*! Generic CuBLAS dot
+ *
+ * Wrapper for the CuBLAS sdot and ddot functions that compute the
+ * dot product of two vectors:
+ * \f[
+ *  \sum_{i = 0}^n x_i y_i
+ * \f]
+ *
+ * For a detailed description of the functions arguments see CuBLAS documentation.
+ *
+ */
 template<>
 double dot<double>(cublasHandle_t handle, int m,
                    const double * x, int x_inc,
