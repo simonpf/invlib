@@ -70,6 +70,22 @@ void VectorData<Real>::resize(size_t n_)
     *elements = new Real[n];
 }
 
+template
+<
+typename Real
+>
+bool VectorData<Real>::operator== (const VectorData & w) const
+{
+    bool result = true;
+
+    const Real * w_elements = w.get_element_pointer();
+    for (size_t i = 0; i < n; i++)
+    {
+        result = result && numerical_equality((*elements)[i], w_elements[i]);
+    }
+    return result;
+}
+
 template <typename Real>
 std::ostream & operator<<(std::ostream &, const VectorData<Real> & vector)
 {

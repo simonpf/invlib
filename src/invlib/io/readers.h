@@ -14,12 +14,9 @@
 namespace invlib
 {
 
-template <typename T> T read_matrix_arts(const std::string &);
-
 using SparseMatrix = SparseData<double, Representation::Coordinates>;
 
-template <>
-SparseMatrix read_matrix_arts<SparseMatrix>(const std::string & filename)
+SparseMatrix read_matrix_arts(const std::string & filename)
 {
     // Read xml file.
     pugi::xml_document doc;
@@ -127,11 +124,7 @@ SparseMatrix read_matrix_arts<SparseMatrix>(const std::string & filename)
     return matrix;
 }
 
-
-template <typename T> T read_vector_arts(const std::string &);
-
-template <>
-VectorData read_vector_arts<VectorData<double>>(const std::string & filename)
+VectorData<double> read_vector_arts(const std::string & filename)
 {
     // Read xml file.
     pugi::xml_document doc;
@@ -147,7 +140,7 @@ VectorData read_vector_arts<VectorData<double>>(const std::string & filename)
 
     size_t nelem = std::stoi(nelem_string);
 
-    VectorData v; v.resize(nelem);
+    VectorData<double> v; v.resize(nelem);
     double * elements = v.get_element_pointer();
 
     if (format == "ascii")

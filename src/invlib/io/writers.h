@@ -10,6 +10,7 @@
 #include "endian.h"
 
 #include "invlib/sparse/sparse_data.h"
+#include "invlib/dense/vector_data.h"
 
 namespace invlib
 {
@@ -18,11 +19,6 @@ enum class Format {ASCII, Binary};
 
 using SparseMatrix = SparseData<double, Representation::Coordinates>;
 
-template <typename T> void write_matrix_arts(const std::string &,
-                                             const T &,
-                                             Format format = Format::ASCII);
-
-template <>
 void write_matrix_arts(const std::string & filename,
                        const SparseMatrix & matrix,
                        Format format)
@@ -123,13 +119,8 @@ void write_matrix_arts(const std::string & filename,
     xml_doc.save_file(filename.c_str());
 }
 
-template <typename T> void write_vector_arts(const std::string &,
-                                             const T &,
-                                             Format format = Format::ASCII);
-
-template <>
 void write_vector_arts(const std::string & filename,
-                       const EigenVector & vector,
+                       const VectorData<double> & vector,
                        Format format)
 {
     size_t nelem = vector.rows();
@@ -155,12 +146,13 @@ void write_vector_arts(const std::string & filename,
     ss << nelem;
     xml_vector.append_attribute("nelem") = ss.str().c_str();
 
+    const double * elements = vector.get_element_pointer();
     if (format == Format::ASCII)
     {
         ss.str("");
         for (size_t i = 0; i < nelem; i++)
         {
-            ss << vector(i) << " ";
+            ss << elements[i] << " ";
         }
         auto nodechild = xml_vector.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
@@ -177,7 +169,7 @@ void write_vector_arts(const std::string & filename,
 
         for (size_t i = 0; i < nelem; i++)
         {
-            buf.eight = htole64(vector(i));
+            buf.eight = htobe64(*reinterpret_cast<const uint64_t *>(elements + i));
             file.write(buf.buf, 8);
         }
         file.close();

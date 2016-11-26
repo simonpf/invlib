@@ -348,7 +348,7 @@ bool SparseData<Real, Representation::Coordinates>:: operator == (
     {
         equal = equal && ((*column_indices)[i] == B.get_column_index_pointer()[i]);
         equal = equal && ((*row_indices)[i]    == B.get_row_index_pointer()[i]);
-        equal = equal && ((*elements)[i] == B.get_element_pointer()[i]);
+        equal = equal && numerical_equality((*elements)[i], B.get_element_pointer()[i]);
     }
     return equal;
 }

@@ -12,6 +12,7 @@
 #include "invlib/archetypes/matrix_archetype.h"
 #include "invlib/archetypes/vector_archetype.h"
 #include "invlib/utility/array_deleter.h"
+#include "invlib/utility/functions.h"
 
 #include <algorithm>
 #include <iterator>

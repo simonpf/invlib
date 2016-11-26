@@ -13,6 +13,7 @@
 #include <random>
 
 #include "invlib/archetypes/vector_archetype.h"
+#include "invlib/utility/functions.h"
 #include "invlib/utility/array_deleter.h"
 
 namespace invlib
@@ -94,6 +95,13 @@ public:
     void resize(size_t n);
 
     size_t rows() const {return n;}
+
+    /*! Checks the equality of two vectors up to numerical precision.
+     *
+     * The threshold is set to 1e-4 for single precision floating point numbers and
+     * 1e-9 for double precision floating point numbers.
+     */
+    bool operator==(const VectorData &) const;
 
     // ------------ //
     //  Conversions //
