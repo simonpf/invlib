@@ -29,9 +29,10 @@ namespace invlib
 
 enum class Representation {Coordinates, CompressedColumns, CompressedRows};
 
-/*! Sparse archetype class template.
+/**
+ * \briref Sparse Data Class Template
  *
- * Represents archetypes for different sparse matrix representations.
+ * Represents sparse matrix data in different representation.
  *
  * \tparam Real The floating point type used to represent scalars.
  * \tparam Representation Representation type used for the sparse matrix.
@@ -43,6 +44,29 @@ Representation rep = Representation::Coordinates
 >
 class SparseData;
 
+/**
+ * \brief Sparse Data in Coordinate Representation
+ *
+ * In coordinate representation a sparse matrix is represented by three arrays:
+ *
+ * - A row index array holding the row indices of the elements.
+ * - A column index array holding the column indices of the elements.
+ * - An element array holding the elements corresponding to the above indices.
+ *
+ * The arrays are sorted first with respect to row indices and then with respect
+ * to column indices.
+ *
+ * A sparse data in coordinate representation can be constructed from three
+ * vectors holding the row indices, column indices and element data. The vectors
+ * will be sorted, but multiple entries will not be removed. The data can also
+ * be read from a sparse matrix stored in Arts data format using read_matrix_arts()
+ *
+ * Sparse data in coordinate representation also serves as a general conversion
+ * type between the different sparse representations.
+ *
+ * \tparam Real The floating point type used to represent scalars.
+ * \tparam Representation Representation type used for the sparse matrix.
+ */
 template
 <
 typename Real
@@ -74,8 +98,8 @@ public:
 
     SparseData(size_t m, size_t n);
     SparseData(const std::vector<size_t> & row_indices,
-                    const std::vector<size_t> & column_indices,
-                    const std::vector<Real>   & elements);
+               const std::vector<size_t> & column_indices,
+               const std::vector<Real>   & elements);
 
     SparseData(const SparseData & )             = default;
     SparseData(      SparseData &&)             = default;
@@ -141,6 +165,35 @@ std::ostream & operator << (
     std::ostream &,
     const SparseData<Real, Representation::Coordinates>&);
 
+/**
+ * \brief Sparse Data in Compressed Column Representation
+ *
+ * In compressed column representation a sparse \p m-times-\p n matrix with
+ * \p nnz entries is represented by three arrays:
+ *
+ * - A row index array of length \p nnz holding the row indices of the elements.
+ * - A column start array of length \p n holding the start index of the
+ *   elements of column i as the ith element.
+ * - An element array of length \p nnz holding the elements corresponding
+ *   to the above indices.
+ *
+ * The arrays are sorted first with respect to column indices and then with respect
+ * to row indices.
+ *
+ * A sparse data in coordinate representation can be constructed from three
+ * vectors holding the row indices, column starts and element data. The vectors
+ * will be sorted, but multiple entries will not be removed.
+ *
+ * It is also possible to convert a sparse matrix in coordinate format into
+ * a matrix in compressed  column format. This will require allocation of
+ * an size_t array of length \p nnz, a Real array of length \p nnz and a
+ * size_t array of length \p n as well as an additional temporary size_t array
+ * for the indirect sorting of the arrays. The critical operation here is the
+ * sorting which has a complexity of nnz * log(nnz).
+ *
+ * \tparam Real The floating point type used to represent scalars.
+ * \tparam Representation Representation type used for the sparse matrix.
+ */
 template
 <
 typename Real
@@ -210,6 +263,32 @@ std::ostream & operator << (
     std::ostream &,
     const SparseData<Real, Representation::CompressedColumns>&);
 
+/**
+ * \brief Sparse Data in Compressed Row Representation
+ *
+ * In compressed row representation a sparse \p m-times-\p n matrix with
+ * \p nnz entries is represented by three arrays:
+ *
+ * - A row start array of length \p m holding the index of the first
+ *   element of row i as the ith element.
+ * - A column index array of length \p nnz.
+ * - An element array of length \p nnz holding the elements corresponding
+ *   to the above indices.
+ *
+ * The arrays are sorted first with respect to row indices and then with respect
+ * to column indices.
+ *
+ * A sparse data in coordinate representation can be constructed from three
+ * vectors holding the row start indices, column indices and element data. The vectors
+ * will be sorted, but multiple entries will not be removed.
+ *
+ * It is also possible to convert a sparse matrix in coordinate format into
+ * a matrix in compressed row format. This will require allocation of
+ * an size_t array of length \p m. No resorting is required.
+ *
+ * \tparam Real The floating point type used to represent scalars.
+ * \tparam Representation Representation type used for the sparse matrix.
+ */
 template
 <
 typename Real
