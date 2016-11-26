@@ -12,11 +12,11 @@ void read_and_write_test()
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis_m(1, 100);
-    std::uniform_int_distribution<> dis_n(1, 100);
+    std::uniform_int_distribution<> dis_m(1, 1000);
+    std::uniform_int_distribution<> dis_n(1, 1000);
 
-    size_t m = 5; // dis_m(gen);
-    size_t n = 5; // dis_n(gen);
+    size_t m = dis_m(gen);
+    size_t n = dis_n(gen);
 
     // Generate random sparse matrix.
 
@@ -33,6 +33,7 @@ void read_and_write_test()
     invlib::write_matrix_arts("test_sparse_ascii.xml", A, Format::ASCII);
     B = invlib::read_matrix_arts("test_sparse_ascii.xml");
 
+    // TODO: Fix precision of arts ASCII writer.
     BOOST_TEST(A == B, "Error writing and reading Arts ASCII sparse matrix format.");
 
     using Vector = VectorData<double>;
@@ -53,7 +54,7 @@ void read_and_write_test()
 
 BOOST_AUTO_TEST_CASE(read_and_write)
 {
-    size_t ntests = 10;
+    size_t ntests = 100;
     for (unsigned int i = 0; i < ntests; i++)
     {
         read_and_write_test();

@@ -343,12 +343,25 @@ template
 bool SparseData<Real, Representation::Coordinates>:: operator == (
     const SparseData & B) const
 {
-    bool equal = true;
+    bool equal = (m == B.rows()) && (n == B.cols());
     for (size_t i = 0; i < nnz; i++)
     {
-        equal = equal && ((*column_indices)[i] == B.get_column_index_pointer()[i]);
-        equal = equal && ((*row_indices)[i]    == B.get_row_index_pointer()[i]);
-        equal = equal && numerical_equality((*elements)[i], B.get_element_pointer()[i]);
+        size_t row_index    = (*row_indices)[i];
+        size_t column_index = (*column_indices)[i];
+
+        Real element_sum       = (*elements)[i];
+        Real element_sum_other = B.get_element_pointer()[i];
+        while (((*row_indices)[i + 1]    == row_index) &&
+               ((*column_indices)[i + 1] == column_index) &&
+               (B.get_row_index_pointer()[i]    == row_index) &&
+               (B.get_column_index_pointer()[i] == column_index) &&
+               (i < nnz - 1))
+        {
+            i++;
+            element_sum       += (*elements)[i];
+            element_sum_other += B.get_element_pointer()[i];
+        }
+        equal = equal && numerical_equality(element_sum, element_sum_other);
     }
     return equal;
 }

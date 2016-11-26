@@ -45,7 +45,7 @@ void write_matrix_arts(const std::string & filename,
     auto xml_matrix = xml_root.append_child("Sparse");
     ss << matrix.cols();
     xml_matrix.append_attribute("ncols") = ss.str().c_str();
-    ss.str(""); ss << nnz;
+    ss.str(""); ss << matrix.rows();
     xml_matrix.append_attribute("nrows") = ss.str().c_str();
 
     auto xml_rind= xml_matrix.append_child("RowIndex");
