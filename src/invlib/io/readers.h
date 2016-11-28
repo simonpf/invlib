@@ -14,9 +14,11 @@
 namespace invlib
 {
 
-using SparseMatrix = SparseData<double, Representation::Coordinates>;
+template<typename Real, typename Index>
+using SparseMatrix = SparseData<Real, Index, Representation::Coordinates>;
 
-SparseMatrix read_matrix_arts(const std::string & filename)
+template <typename Real = double, typename Index = int>
+SparseMatrix<Real, Index> read_matrix_arts(const std::string & filename)
 {
     // Read xml file.
     pugi::xml_document doc;
@@ -30,8 +32,8 @@ SparseMatrix read_matrix_arts(const std::string & filename)
     pugi::xml_node sparse_node    = node.child("Sparse");
     std::string rows_string = sparse_node.attribute("nrows").value();
     std::string columns_string = sparse_node.attribute("ncols").value();
-    size_t m = std::stoi(rows_string);
-    size_t n = std::stoi(columns_string);
+    Index m = std::stoi(rows_string);
+    Index n = std::stoi(columns_string);
 
     pugi::xml_node rind_node       = sparse_node.child("RowIndex");
     pugi::xml_node cind_node       = sparse_node.child("ColIndex");
@@ -39,9 +41,9 @@ SparseMatrix read_matrix_arts(const std::string & filename)
 
     std::string nelem_string = rind_node.attribute("nelem").value();
 
-    size_t nelem = std::stoi(nelem_string);
-    std::vector<size_t> row_indices(nelem), column_indices(nelem);
-    std::vector<double> elements(nelem);
+    Index nelem = std::stoi(nelem_string);
+    std::vector<Index> row_indices(nelem), column_indices(nelem);
+    std::vector<Real> elements(nelem);
 
     if (format == "ascii")
     {
@@ -50,8 +52,8 @@ SparseMatrix read_matrix_arts(const std::string & filename)
         std::stringstream data_stream(data_node.child_value());
 
         std::string cind_string, rind_string, data_string;
-        size_t rind, cind;
-        double data;
+        Index rind, cind;
+        Real data;
 
         for (size_t i = 0; i < nelem; i++)
         {
@@ -88,7 +90,7 @@ SparseMatrix read_matrix_arts(const std::string & filename)
                 buf.buf[3] = stream.get();
 
                 rind = le32toh(buf.four);
-                row_indices[i] = rind;
+                row_indices[i] = static_cast<Index>(rind);
             }
             // Read indices byte by byte and convert from little endian format.
             for (size_t i = 0; i < nelem; i++)
@@ -98,7 +100,7 @@ SparseMatrix read_matrix_arts(const std::string & filename)
                 buf.buf[2] = stream.get();
                 buf.buf[3] = stream.get();
                 cind = le32toh(buf.four);
-                column_indices[i] = cind;
+                column_indices[i] = static_cast<Index>(cind);
             }
             // Read data byte by byte and convert from little endian format.
             for (size_t i = 0; i < nelem; i++)
@@ -114,17 +116,18 @@ SparseMatrix read_matrix_arts(const std::string & filename)
 
                 uint64_t host_endian = be64toh(buf.eight);
                 data = *reinterpret_cast<double *>(&host_endian);
-                elements[i] = data;
+                elements[i] = static_cast<Real>(data);
             }
         }
     }
 
-    SparseMatrix matrix(m, n);
+    SparseMatrix<Real, Index> matrix(m, n);
     matrix.set(row_indices, column_indices, elements);
     return matrix;
 }
 
-VectorData<double> read_vector_arts(const std::string & filename)
+template<typename Real = double>
+VectorData<Real> read_vector_arts(const std::string & filename)
 {
     // Read xml file.
     pugi::xml_document doc;
@@ -140,13 +143,13 @@ VectorData<double> read_vector_arts(const std::string & filename)
 
     size_t nelem = std::stoi(nelem_string);
 
-    VectorData<double> v; v.resize(nelem);
-    double * elements = v.get_element_pointer();
+    VectorData<Real> v; v.resize(nelem);
+    Real * elements = v.get_element_pointer();
 
     if (format == "ascii")
     {
         std::stringstream elem_stream(vector_node.child_value());
-        double data;
+        Real data;
 
         for (size_t i = 0; i < nelem; i++)
         {
@@ -181,7 +184,7 @@ VectorData<double> read_vector_arts(const std::string & filename)
 
                 uint64_t host_endian = be64toh(buf.eight);
                 data = *reinterpret_cast<double*>(&host_endian);
-                elements[i] = data;
+                elements[i] = static_cast<Real>(data);
             }
         }
     }

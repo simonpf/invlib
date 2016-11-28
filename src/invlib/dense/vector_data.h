@@ -114,7 +114,7 @@ public:
 
 protected:
 
-    size_t n;
+    size_t n = 0;
     std::shared_ptr<Real *> elements;
 
 };

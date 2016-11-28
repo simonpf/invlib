@@ -17,10 +17,9 @@ namespace invlib
 
 enum class Format {ASCII, Binary};
 
-using SparseMatrix = SparseData<double, Representation::Coordinates>;
-
+template<typename Real, typename Index>
 void write_matrix_arts(const std::string & filename,
-                       const SparseMatrix & matrix,
+                       const SparseData<Real, Index, Representation::Coordinates> & matrix,
                        Format format)
 {
     size_t nnz = matrix.non_zeros();
@@ -100,17 +99,20 @@ void write_matrix_arts(const std::string & filename,
 
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.four = htole32(matrix.get_row_index_pointer()[i]);
+            uint32_t rind = static_cast<uint32_t>(matrix.get_row_index_pointer()[i]);
+            buf.four = htole32(rind);
             file.write(buf.buf, 4);
         }
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.four = htole32(matrix.get_column_index_pointer()[i]);
+            uint32_t cind = static_cast<uint32_t>(matrix.get_column_index_pointer()[i]);
+            buf.four = htole32(cind);
             file.write(buf.buf, 4);
         }
         for (size_t i = 0; i < nnz; i++)
         {
-            buf.eight = htobe64(reinterpret_cast<const uint64_t *>(matrix.get_element_pointer())[i]);
+            double elem = static_cast<double>(matrix.get_element_pointer()[i]);
+            buf.eight = htobe64(*reinterpret_cast<const uint64_t *>(&elem));
             file.write(buf.buf, 8);
         }
         file.close();
@@ -119,8 +121,9 @@ void write_matrix_arts(const std::string & filename,
     xml_doc.save_file(filename.c_str());
 }
 
+template <typename Real>
 void write_vector_arts(const std::string & filename,
-                       const VectorData<double> & vector,
+                       const VectorData<Real> & vector,
                        Format format)
 {
     size_t nelem = vector.rows();
@@ -169,7 +172,8 @@ void write_vector_arts(const std::string & filename,
 
         for (size_t i = 0; i < nelem; i++)
         {
-            buf.eight = htobe64(*reinterpret_cast<const uint64_t *>(elements + i));
+            double elem = static_cast<double>(elements[i]);
+            buf.eight = htobe64(*reinterpret_cast<const uint64_t *>(&elem));
             file.write(buf.buf, 8);
         }
         file.close();

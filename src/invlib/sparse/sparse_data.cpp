@@ -2,10 +2,10 @@
 //   Coordinate Representation //
 // --------------------------- //
 
-template <typename Real>
-auto SparseData<Real, Representation::Coordinates>::random(
-    size_t m,
-    size_t n)
+template <typename Real, typename Index>
+auto SparseData<Real, Index, Representation::Coordinates>::random(
+    Index m,
+    Index n)
     -> SparseData
 {
     std::random_device rd;
@@ -13,18 +13,18 @@ auto SparseData<Real, Representation::Coordinates>::random(
     std::uniform_real_distribution<> real_dis(-10,10);
     std::uniform_int_distribution<> m_dis(0, m-1);
     std::uniform_int_distribution<> n_dis(0, n-1);
-    std::uniform_int_distribution<> nelements_dis(std::min(m, n), std::max(m, n));
+    std::uniform_int_distribution<> nelements_dis(std::min(m, n), std::max(m , n));
 
-    std::vector<size_t> rows;
-    std::vector<size_t> columns;
+    std::vector<Index> rows;
+    std::vector<Index> columns;
     std::vector<Real>   elements;
 
-    size_t nelements = nelements_dis(gen);
+    Index nelements = nelements_dis(gen);
     rows.reserve(nelements);
     columns.reserve(nelements);
     elements.reserve(nelements);
 
-    for (size_t i = 0; i < nelements; i++)
+    for (Index i = 0; i < nelements; i++)
     {
         rows.push_back(m_dis(gen));
         columns.push_back(n_dis(gen));
@@ -37,27 +37,27 @@ auto SparseData<Real, Representation::Coordinates>::random(
 
 }
 
-template <typename Real>
-SparseData<Real, Representation::Coordinates>::SparseData(size_t m_, size_t n_)
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::SparseData(Index m_, Index n_)
     : m(m_), n(n_), nnz(0), column_indices(nullptr), row_indices(nullptr), elements(nullptr)
 {
     // Nothing to do here.
 }
 
-template <typename Real>
-SparseData<Real, Representation::Coordinates>::SparseData(
-    const std::vector<size_t> & rows_,
-    const std::vector<size_t> & columns_,
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::SparseData(
+    const std::vector<Index> & rows_,
+    const std::vector<Index> & columns_,
     const std::vector<Real>   & elements_)
 {
     // Indirectly sort elements.
-    std::vector<size_t> indices(rows.size());
-    for (size_t i = 0; i < indices.size(); i++)
+    std::vector<Index> indices(rows.size());
+    for (Index i = 0; i < indices.size(); i++)
     {
         indices[i] = i;
     }
 
-    auto comp = [&](size_t i, size_t j)
+    auto comp = [&](Index i, Index j)
         {
             return ((rows_[i] < rows_[j])  ||
                     (rows_[i] == rows_[j]) &&
@@ -69,17 +69,17 @@ SparseData<Real, Representation::Coordinates>::SparseData(
     m = (*row_indices)[indices.back()];
     n = (*column_indices)[indices.back()];
 
-    size_t nelements = elements.size();
+    Index nelements = elements.size();
 
-    column_indices = std::shared_ptr<size_t *>(new (size_t *), ArrayDeleter<size_t *>());
-    row_indices    = std::shared_ptr<size_t *>(new (size_t *), ArrayDeleter<size_t *>());
+    column_indices = std::shared_ptr<Index *>(new (Index *), ArrayDeleter<Index *>());
+    row_indices    = std::shared_ptr<Index *>(new (Index *), ArrayDeleter<Index *>());
     elements       = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
 
-    *column_indices = new size_t[nelements];
-    *row_indices    = new size_t[nelements];
+    *column_indices = new Index[nelements];
+    *row_indices    = new Index[nelements];
     *elements       = new Real[nelements];
 
-    for (size_t i = 0; i < nelements; i++)
+    for (Index i = 0; i < nelements; i++)
     {
         (*column_indices)[i]  = columns_[indices[i]];
         (*row_indices)[i]     = rows_[indices[i]];
@@ -87,15 +87,15 @@ SparseData<Real, Representation::Coordinates>::SparseData(
     }
 }
 
-template <typename Real>
-SparseData<Real, Representation::Coordinates>::SparseData(
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::SparseData(
     const MatrixArchetype<Real> & matrix)
     : m(matrix.rows()), n(matrix.cols())
 {
     nnz = 0;
-    for (size_t i = 0; i < m; i++)
+    for (Index i = 0; i < m; i++)
     {
-        for (size_t j = 0; j < n; j++)
+        for (Index j = 0; j < n; j++)
         {
             if (std::abs(matrix(i,j)) > 0.0)
             {
@@ -104,18 +104,18 @@ SparseData<Real, Representation::Coordinates>::SparseData(
         }
     }
 
-    column_indices = std::shared_ptr<size_t *>(new (size_t *), ArrayDeleter<size_t *>());
-    row_indices    = std::shared_ptr<size_t *>(new (size_t *), ArrayDeleter<size_t *>());
+    column_indices = std::shared_ptr<Index *>(new (Index *), ArrayDeleter<Index *>());
+    row_indices    = std::shared_ptr<Index *>(new (Index *), ArrayDeleter<Index *>());
     elements       = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
 
-    *column_indices = new size_t[nnz];
-    *row_indices    = new size_t[nnz];
+    *column_indices = new Index[nnz];
+    *row_indices    = new Index[nnz];
     *elements       = new Real[nnz];
 
-    size_t index = 0;
-    for (size_t i = 0; i < m; i++)
+    Index index = 0;
+    for (Index i = 0; i < m; i++)
     {
-        for (size_t j = 0; j < n; j++)
+        for (Index j = 0; j < n; j++)
         {
             if (std::abs(matrix(i,j)) > 0.0)
             {
@@ -128,18 +128,18 @@ SparseData<Real, Representation::Coordinates>::SparseData(
     }
 }
 
-template <typename Real>
-SparseData<Real, Representation::Coordinates>::SparseData(
-    const SparseData<Real, Representation::CompressedColumns> & matrix)
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::SparseData(
+    const SparseData<Real, Index, Representation::CompressedColumns> & matrix)
     : m(matrix.rows()), n(matrix.cols()), nnz(matrix.non_zeros())
 {
 
-    std::vector<size_t> row_index_vector(nnz);
-    std::vector<size_t> column_index_vector(nnz);
+    std::vector<Index> row_index_vector(nnz);
+    std::vector<Index> column_index_vector(nnz);
     std::vector<Real>   element_vector(nnz);
 
-    size_t column_index = 0;
-    for (size_t i = 0; i < nnz; i++)
+    Index column_index = 0;
+    for (Index i = 0; i < nnz; i++)
     {
         while ((column_index < n) && (matrix.get_column_start_pointer()[column_index] == i))
         {
@@ -152,18 +152,18 @@ SparseData<Real, Representation::Coordinates>::SparseData(
     set(row_index_vector, column_index_vector, element_vector);
 }
 
-template <typename Real>
-SparseData<Real, Representation::Coordinates>::SparseData(
-    const SparseData<Real, Representation::CompressedRows> & matrix)
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::SparseData(
+    const SparseData<Real, Index, Representation::CompressedRows> & matrix)
     : m(matrix.rows()), n(matrix.cols()), nnz(matrix.non_zeros())
 {
 
-    std::vector<size_t> row_index_vector(nnz);
-    std::vector<size_t> column_index_vector(nnz);
+    std::vector<Index> row_index_vector(nnz);
+    std::vector<Index> column_index_vector(nnz);
     std::vector<Real>   element_vector(nnz);
 
-    size_t row_index = 0;
-    for (size_t i = 0; i < nnz; i++)
+    Index row_index = 0;
+    for (Index i = 0; i < nnz; i++)
     {
         while ((row_index < m) && (matrix.get_row_start_pointer()[row_index] == i))
         {
@@ -178,24 +178,25 @@ SparseData<Real, Representation::Coordinates>::SparseData(
 
 template
 <
-    typename Real
+typename Real,
+typename Index
 >
-void SparseData<Real, Representation::Coordinates>::set(
-    const std::vector<size_t> & rows_,
-    const std::vector<size_t> & columns_,
+void SparseData<Real, Index, Representation::Coordinates>::set(
+    const std::vector<Index> & rows_,
+    const std::vector<Index> & columns_,
     const std::vector<Real>   & elements_)
 {
 
     nnz = elements_.size();
 
     // Indirectly sort elements.
-    std::vector<size_t> indices(nnz);
-    for (size_t i = 0; i < indices.size(); i++)
+    std::vector<Index> indices(nnz);
+    for (Index i = 0; i < indices.size(); i++)
     {
         indices[i] = i;
     }
 
-    auto comp = [&](size_t i, size_t j)
+    auto comp = [&](Index i, Index j)
         {
             return ((rows_[i] < rows_[j])  ||
                     (rows_[i] == rows_[j]) &&
@@ -211,17 +212,17 @@ void SparseData<Real, Representation::Coordinates>::set(
         assert(n > columns_[indices[nnz - 1]]);
     }
 
-    size_t nelements = elements_.size();
+    Index nelements = elements_.size();
 
-    column_indices = std::shared_ptr<size_t *>(new (size_t *), ArrayDeleter<size_t *>());
-    row_indices    = std::shared_ptr<size_t *>(new (size_t *), ArrayDeleter<size_t *>());
+    column_indices = std::shared_ptr<Index *>(new (Index *), ArrayDeleter<Index *>());
+    row_indices    = std::shared_ptr<Index *>(new (Index *), ArrayDeleter<Index *>());
     elements       = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
 
-    *column_indices = new size_t[nelements];
-    *row_indices    = new size_t[nelements];
+    *column_indices = new Index[nelements];
+    *row_indices    = new Index[nelements];
     *elements       = new Real[nelements];
 
-    for (size_t i = 0; i < nelements; i++)
+    for (Index i = 0; i < nelements; i++)
     {
         (*column_indices)[i] = columns_[indices[i]];
         (*row_indices)[i]    = rows_[indices[i]];
@@ -229,31 +230,28 @@ void SparseData<Real, Representation::Coordinates>::set(
     }
 }
 
-template
-<
-    typename Real
->
-SparseData<Real, Representation::Coordinates>::
-operator SparseData<Real, Representation::CompressedColumns>() const
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::
+operator SparseData<Real, Index, Representation::CompressedColumns>() const
 {
-    std::shared_ptr<size_t *> column_starts   {new (size_t *),
-                                               ArrayDeleter<size_t *>()};
-    std::shared_ptr<size_t *> row_indices_new {new (size_t *),
-                                               ArrayDeleter<size_t *>()};
+    std::shared_ptr<Index *> column_starts   {new (Index *),
+                                               ArrayDeleter<Index *>()};
+    std::shared_ptr<Index *> row_indices_new {new (Index *),
+                                               ArrayDeleter<Index *>()};
     std::shared_ptr<Real *>   elements_new    {new (Real *),
                                                ArrayDeleter<Real *>()};
-    *column_starts   = new size_t[n];
-    *row_indices_new = new size_t[nnz];
+    *column_starts   = new Index[n + 1];
+    *row_indices_new = new Index[nnz];
     *elements_new    = new Real[nnz];
 
     // Indirectly sort elements.
-    std::vector<size_t> indices(nnz);
-    for (size_t i = 0; i < nnz; i++)
+    std::vector<Index> indices(nnz);
+    for (Index i = 0; i < nnz; i++)
     {
         indices[i] = i;
     }
 
-    auto comp = [&](size_t i, size_t j)
+    auto comp = [&](Index i, Index j)
     {
         return (((*column_indices)[i] < (*column_indices)[j])  ||
                 ((*column_indices)[i] == (*column_indices)[j]) &&
@@ -261,14 +259,14 @@ operator SparseData<Real, Representation::CompressedColumns>() const
     };
     std::sort(indices.begin(), indices.end(), comp);
 
-    for(size_t i = 0; i < nnz; i++)
+    for(Index i = 0; i < nnz; i++)
     {
         (*row_indices_new)[i] = (*row_indices)[indices[i]];
         (*elements_new)[i]    = (*elements)[indices[i]];
     }
 
-    size_t j = 0;
-    for (size_t i = 0; i < n; i++)
+    Index j = 0;
+    for (Index i = 0; i < n; i++)
     {
         (*column_starts)[i] = j;
         while ((j < nnz) && (i == (*column_indices)[indices[j]]))
@@ -276,26 +274,24 @@ operator SparseData<Real, Representation::CompressedColumns>() const
             j++;
         }
     }
+    (*column_starts)[n] = nnz;
 
-    SparseData<Real, Representation::CompressedColumns> matrix{
+    SparseData<Real, Index, Representation::CompressedColumns> matrix{
         m, n, nnz, row_indices_new, column_starts, elements_new
             };
 
     return matrix;
 }
 
-template
-<
-    typename Real
->
-SparseData<Real, Representation::Coordinates>::
-operator SparseData<Real, Representation::CompressedRows>() const
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::
+operator SparseData<Real, Index, Representation::CompressedRows>() const
 {
-    std::shared_ptr<size_t *> row_starts{new (size_t *), ArrayDeleter<size_t *>()};
-    *row_starts   = new size_t[m];
+    std::shared_ptr<Index *> row_starts{new (Index *), ArrayDeleter<Index *>()};
+    *row_starts   = new Index[m + 1];
 
-    size_t j = 0;
-    for (size_t i = 0; i < m; i++)
+    Index j = 0;
+    for (Index i = 0; i < m; i++)
     {
         (*row_starts)[i] = j;
         while (i == (*row_indices)[j])
@@ -303,32 +299,30 @@ operator SparseData<Real, Representation::CompressedRows>() const
             j++;
         }
     }
+    (*row_starts)[m] = nnz;
 
-    SparseData<Real, Representation::CompressedRows> matrix{
+    SparseData<Real, Index, Representation::CompressedRows> matrix{
         m, n, nnz, row_starts, column_indices, elements
             };
 
     return matrix;
 }
 
-template
-<
-    typename Real
->
-SparseData<Real, Representation::Coordinates>::
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::Coordinates>::
 operator MatrixArchetype<Real>() const
 {
     MatrixArchetype<Real> matrix; matrix.resize(m, n);
 
-    for (size_t i = 0; i < m; i++)
+    for (Index i = 0; i < m; i++)
     {
-        for (size_t j = 0; j < n; j++)
+        for (Index j = 0; j < n; j++)
         {
             matrix(i, j) = 0.0;
         }
     }
 
-    for (size_t i = 0; i < nnz; i++)
+    for (Index i = 0; i < nnz; i++)
     {
         matrix((*row_indices)[i], (*column_indices)[i]) += (*elements)[i];
     }
@@ -336,18 +330,15 @@ operator MatrixArchetype<Real>() const
     return matrix;
 }
 
-template
-<
-    typename Real
->
-bool SparseData<Real, Representation::Coordinates>:: operator == (
+template <typename Real, typename Index>
+bool SparseData<Real, Index, Representation::Coordinates>:: operator == (
     const SparseData & B) const
 {
     bool equal = (m == B.rows()) && (n == B.cols());
-    for (size_t i = 0; i < nnz; i++)
+    for (Index i = 0; i < nnz; i++)
     {
-        size_t row_index    = (*row_indices)[i];
-        size_t column_index = (*column_indices)[i];
+        Index row_index    = (*row_indices)[i];
+        Index column_index = (*column_indices)[i];
 
         Real element_sum       = (*elements)[i];
         Real element_sum_other = B.get_element_pointer()[i];
@@ -367,28 +358,28 @@ bool SparseData<Real, Representation::Coordinates>:: operator == (
 }
 
 /*! Print sparse matrix to output stream. */
-template <typename Real>
+template <typename Real, typename Index>
 std::ostream & operator << (
     std::ostream &,
-    const SparseData<Real, Representation::Coordinates>& matrix)
+    const SparseData<Real, Index, Representation::Coordinates>& matrix)
 {
     std::cout << "Sparse Matrix Data, Coordinate Representation:" << std::endl;
     std::cout << "Row Indices:    [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_row_index_pointer()[i] << " ";
     }
     std::cout << matrix.get_row_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 
     std::cout << "Column Indices: [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_column_index_pointer()[i] << " ";
     }
     std::cout << matrix.get_column_index_pointer()[matrix.non_zeros()-1] << "]" << std::endl;
 
     std::cout << "Elements:       [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_element_pointer()[i] << " ";
     }
@@ -399,11 +390,11 @@ std::ostream & operator << (
 // Compressed Columns //
 // ------------------ //
 
-template <typename Real>
-SparseData<Real, Representation::CompressedColumns>::SparseData(
-    size_t m_, size_t n_, size_t nnz_,
-    const std::shared_ptr<size_t *> & row_indices_,
-    const std::shared_ptr<size_t *> & column_starts_,
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::CompressedColumns>::SparseData(
+    Index m_, Index n_, Index nnz_,
+    const std::shared_ptr<Index *> & row_indices_,
+    const std::shared_ptr<Index *> & column_starts_,
     const std::shared_ptr<Real *>   & elements_)
     : m(m_), n(n_), nnz(nnz_), column_starts(column_starts_),
       row_indices(row_indices_), elements(elements_)
@@ -412,28 +403,28 @@ SparseData<Real, Representation::CompressedColumns>::SparseData(
 }
 
 /*! Print sparse matrix to output stream. */
-template <typename Real>
+template <typename Real, typename Index>
 std::ostream & operator << (
     std::ostream &,
-    const SparseData<Real, Representation::CompressedColumns>& matrix)
+    const SparseData<Real, Index, Representation::CompressedColumns>& matrix)
 {
     std::cout << "Sparse Matrix Data, Compressed Row Representation:" << std::endl;
     std::cout << "Row Indices:   [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_row_index_pointer()[i] << ", ";
     }
     std::cout << matrix.get_row_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 
     std::cout << "Column Starts: [";
-    for (size_t i = 0; i < matrix.cols() - 1; i++)
+    for (Index i = 0; i < matrix.cols() - 1; i++)
     {
         std::cout << matrix.get_column_start_pointer()[i] << ", ";
     }
     std::cout << matrix.get_column_start_pointer()[matrix.cols() - 1] << "]" << std::endl;
 
     std::cout << "Elements:      [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_element_pointer()[i] << ", ";
     }
@@ -444,11 +435,11 @@ std::ostream & operator << (
 // Compressed Rows //
 // --------------- //
 
-template <typename Real>
-SparseData<Real, Representation::CompressedRows>::SparseData(
-    size_t m_, size_t n_, size_t nnz_,
-    const std::shared_ptr<size_t *> & row_starts_,
-    const std::shared_ptr<size_t *> & column_indices_,
+template <typename Real, typename Index>
+SparseData<Real, Index, Representation::CompressedRows>::SparseData(
+    Index m_, Index n_, Index nnz_,
+    const std::shared_ptr<Index *> & row_starts_,
+    const std::shared_ptr<Index *> & column_indices_,
     const std::shared_ptr<Real *>   & elements_)
     : m(m_), n(n_), nnz(nnz_), column_indices(column_indices_),
       row_starts(row_starts_), elements(elements_)
@@ -457,28 +448,28 @@ SparseData<Real, Representation::CompressedRows>::SparseData(
 }
 
 /*! Print sparse matrix to output stream. */
-template <typename Real>
+template <typename Real, typename Index>
 std::ostream & operator << (
     std::ostream &,
-    const SparseData<Real, Representation::CompressedRows>& matrix)
+    const SparseData<Real, Index, Representation::CompressedRows>& matrix)
 {
     std::cout << "Sparse Matrix Data, Compressed Row Representation:" << std::endl;
     std::cout << "Row Starts:     [";
-    for (size_t i = 0; i < matrix.rows() - 1; i++)
+    for (Index i = 0; i < matrix.rows() - 1; i++)
     {
         std::cout << matrix.get_row_start_pointer()[i] << " ";
     }
     std::cout << matrix.get_row_start_pointer()[matrix.rows() - 1] << "]" << std::endl;
 
     std::cout << "Column Indices: [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_column_index_pointer()[i] << " ";
     }
     std::cout << matrix.get_column_index_pointer()[matrix.non_zeros() - 1] << "]" << std::endl;
 
     std::cout << "Elements:       [";
-    for (size_t i = 0; i < matrix.non_zeros() - 1; i++)
+    for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {
         std::cout << matrix.get_element_pointer()[i] << " ";
     }
