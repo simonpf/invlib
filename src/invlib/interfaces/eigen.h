@@ -50,6 +50,15 @@ public:
         // Nothing to do here.
     }
 
+    EigenVector(const VectorData<double> & data)
+    {
+        BaseType::resize(data.rows());
+        for (size_t i = 0; i < data.rows(); i++)
+        {
+            BaseType::operator()(i) = data.get_element_pointer()[i];
+        }
+    }
+
     // ------------------- //
     //     Manipulation    //
     // ------------------- //
@@ -152,12 +161,29 @@ public:
     template
     <
     typename T,
-    typename = invlib::enable_if<invlib::is_constructible<EigenVectorBase, T>>
+    typename = invlib::enable_if<invlib::is_constructible<BaseType, T>>
     >
     EigenSparse(T &&t)
         : EigenSparseBase(std::forward<T>(t))
     {
         // Nothing to do here.
+    }
+
+    template <typename Index>
+    EigenSparse(const SparseData<double, Index, Representation::Coordinates> & data)
+    {
+        std::vector<Eigen::Triplet<double>> triplets{};
+
+        size_t nnz = data.non_zeros();
+        triplets.reserve(nnz);
+        for (size_t i = 0; i < nnz; i++)
+        {
+            triplets.emplace_back(data.get_column_index_pointer()[i],
+                                  data.get_row_index_pointer()[i],
+                                  data.get_element_pointer()[i]);
+        }
+        BaseType::resize(data.rows(), data.cols());
+        BaseType::setFromTriplets(triplets.begin(), triplets.end());
     }
 
     // ------------------- //

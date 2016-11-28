@@ -9,5 +9,5 @@ link_directories(${Boost_LIBRARIES})
 
 # Executables
 if (Boost_FOUND)
-  add_executable(sparse_base sparse_base.cpp)
+  add_executable(sparse_data sparse_data.cpp)
 endif (Boost_FOUND)

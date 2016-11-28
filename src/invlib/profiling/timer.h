@@ -21,7 +21,9 @@ namespace invlib
 {
 
 duration<double> multiply_mv_time;
+duration<double> multiply_mtv_time;
 duration<double> multiply_mm_time;
+duration<double> multiply_mtm_time;
 duration<double> solve_time;
 duration<double> invert_time;
 

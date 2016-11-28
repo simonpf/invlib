@@ -20,7 +20,7 @@ void read_and_write_test()
 
     // Generate random sparse matrix.
 
-    using SparseMatrix = SparseData<double, Representation::Coordinates>;
+    using SparseMatrix = SparseData<double, int, Representation::Coordinates>;
     auto A = SparseMatrix::random(m, n);
 
     // Write and read matrix.
@@ -49,6 +49,7 @@ void read_and_write_test()
     invlib::write_vector_arts("test_vector_ascii.xml", v, Format::ASCII);
     w = invlib::read_vector_arts("test_vector_ascii.xml");
 
+    // TODO: Fix precision of arts ASCII writer.
     BOOST_TEST(v == w, "Error writing and reading Arts ASCII vector format.");
 }
 

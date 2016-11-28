@@ -17,11 +17,11 @@ void conversions_test()
     size_t m = dis_m(gen);
     size_t n = dis_n(gen);
 
-    auto A = SparseData<double, Representation::Coordinates>::random(m, n);
+    auto A = SparseData<double, size_t, Representation::Coordinates>::random(m, n);
     MatrixArchetype<double> B(A);
-    SparseData<double, Representation::Coordinates> C(B);
-    SparseData<double, Representation::CompressedColumns> D1(C);
-    SparseData<double, Representation::Coordinates> E1(D1);
+    SparseData<double, size_t, Representation::Coordinates> C(B);
+    SparseData<double, size_t, Representation::CompressedColumns> D1(C);
+    SparseData<double, size_t, Representation::Coordinates> E1(D1);
     MatrixArchetype<double> F1(E1);
     MatrixArchetype<double> G = F1;
     G.subtract(B);
@@ -37,8 +37,8 @@ void conversions_test()
 
     BOOST_TEST((maximum_error < 1e-4), "Error: Maximum difference = " << maximum_error);
 
-    SparseData<double, Representation::CompressedRows> D2(C);
-    SparseData<double, Representation::Coordinates> E2(B);
+    SparseData<double, size_t, Representation::CompressedRows> D2(C);
+    SparseData<double, size_t, Representation::Coordinates> E2(B);
     MatrixArchetype<double> F2(E2);
     G = F2;
     G.subtract(B);

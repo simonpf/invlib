@@ -27,6 +27,8 @@ namespace cublas
  *
  * For a detailed description of the functions arguments see CuBLAS documentation.
  *
+ * \tparam Floating point type used for the representation of vector elements.
+ * Supported types: float, double.
  */
 template<typename T>
 void axpy(cublasHandle_t handle, int m, T alpha,
@@ -70,6 +72,8 @@ float dot<float>(cublasHandle_t handle, int m,
  *
  * For a detailed description of the functions arguments see CuBLAS documentation.
  *
+ * \tparam Floating point type used for the representation of vector elements.
+ * Supported types: float, double.
  */
 template<>
 double dot<double>(cublasHandle_t handle, int m,
