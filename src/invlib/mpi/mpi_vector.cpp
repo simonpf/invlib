@@ -5,7 +5,7 @@
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 MPIVector<LocalType, StorageType>::MPIVector()
     : local(), local_rows(0)
@@ -31,7 +31,7 @@ MPIVector<LocalType, StorageType>::MPIVector()
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
     template<typename T, typename>
 MPIVector<LocalType, StorageType>::MPIVector(T && local_vector)
@@ -60,7 +60,7 @@ MPIVector<LocalType, StorageType>::MPIVector(T && local_vector)
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::split(const LocalType& v)
     -> MPIVector<LocalType, LValue>
@@ -80,7 +80,7 @@ auto MPIVector<LocalType, StorageType>::split(const LocalType& v)
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::resize(unsigned int i)
     -> void
@@ -123,7 +123,7 @@ auto MPIVector<LocalType, StorageType>::resize(unsigned int i)
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIVector<LocalType, StorageTemplate>::rows() const
     -> unsigned int
@@ -134,7 +134,7 @@ auto MPIVector<LocalType, StorageTemplate>::rows() const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIVector<LocalType, StorageTemplate>::get_local()
     -> LocalType &
@@ -145,7 +145,7 @@ auto MPIVector<LocalType, StorageTemplate>::get_local()
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIVector<LocalType, StorageTemplate>::get_local() const
     -> const LocalType &
@@ -157,7 +157,7 @@ auto MPIVector<LocalType, StorageTemplate>::get_local() const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIVector<LocalType, StorageTemplate>::operator()(unsigned int i) const
     -> RealType
@@ -183,7 +183,7 @@ auto MPIVector<LocalType, StorageTemplate>::operator()(unsigned int i) const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIVector<LocalType, StorageTemplate>::operator()(unsigned int i)
     -> RealType &
@@ -209,7 +209,7 @@ auto MPIVector<LocalType, StorageTemplate>::operator()(unsigned int i)
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIVector<LocalType, StorageTemplate>::broadcast() const
     -> LocalType
@@ -223,7 +223,7 @@ auto MPIVector<LocalType, StorageTemplate>::broadcast() const
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 MPIVector<LocalType, StorageType>::operator LocalType() const
 {
@@ -235,7 +235,7 @@ MPIVector<LocalType, StorageType>::operator LocalType() const
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::broadcast_local_rows(int rows[]) const
     -> void
@@ -250,7 +250,7 @@ auto MPIVector<LocalType, StorageType>::broadcast_local_rows(int rows[]) const
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::broadcast_local_block(double *vector,
                                                               const double *block) const
@@ -267,7 +267,7 @@ auto MPIVector<LocalType, StorageType>::broadcast_local_block(double *vector,
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::accumulate(const MPIVector &v)
     -> void
@@ -278,7 +278,7 @@ auto MPIVector<LocalType, StorageType>::accumulate(const MPIVector &v)
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::subtract(const MPIVector &v)
     -> void
@@ -289,7 +289,7 @@ auto MPIVector<LocalType, StorageType>::subtract(const MPIVector &v)
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::scale(RealType c)
     -> void
@@ -300,7 +300,7 @@ auto MPIVector<LocalType, StorageType>::scale(RealType c)
 template
 <
 typename LocalType,
-template <typename> typename StorageType
+template <typename> class StorageType
 >
 auto MPIVector<LocalType, StorageType>::norm() const
     -> RealType
@@ -315,7 +315,7 @@ auto MPIVector<LocalType, StorageType>::norm() const
 template
 <
     typename T1,
-    template <typename> typename StorageType
+    template <typename> class StorageType
 >
 auto dot(const MPIVector<T1, StorageType> &v, const MPIVector<T1, StorageType> &w)
     -> typename MPIVector<T1, StorageType>::RealType
@@ -328,7 +328,7 @@ auto dot(const MPIVector<T1, StorageType> &v, const MPIVector<T1, StorageType> &
 template
 <
     typename T1,
-    template <typename> typename StorageType
+    template <typename> class StorageType
 >
 auto dot(const T1 &v, const MPIVector<T1, StorageType> &w)
     -> typename MPIVector<T1, StorageType>::RealType
@@ -342,7 +342,7 @@ auto dot(const T1 &v, const MPIVector<T1, StorageType> &w)
 template
 <
     typename T1,
-    template <typename> typename StorageType
+    template <typename> class StorageType
 >
 auto dot(const MPIVector<T1, StorageType> &v, const T1 &w)
     -> typename MPIVector<T1, StorageType>::RealType

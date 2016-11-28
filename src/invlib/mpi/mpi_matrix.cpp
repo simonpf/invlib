@@ -3,7 +3,7 @@
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 MPIMatrix<LocalType, StorageTemplate>::MPIMatrix()
     : local(), local_rows(0)
@@ -32,7 +32,7 @@ MPIMatrix<LocalType, StorageTemplate>::MPIMatrix()
 // template
 // <
 // typename LocalType,
-// template <typename> typename StorageTemplate
+// template <typename> class StorageTemplate
 // >
 // auto MPIMatrix<LocalType, StorageTemplate>::operator=(const MPIMatrix &A)
 //     -> MPIMatrix &
@@ -64,7 +64,7 @@ MPIMatrix<LocalType, StorageTemplate>::MPIMatrix()
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 template<typename T, typename, typename>
 MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(T &&local_matrix)
@@ -95,7 +95,7 @@ MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(T &&local_matrix)
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(const LocalType &local_matrix)
     : local(local_matrix), local_rows(remove_reference_wrapper(local).rows())
@@ -124,7 +124,7 @@ MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(const LocalType &local_matrix)
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::split_matrix(const MatrixType &local_matrix)
     -> MPIMatrix<LocalType, LValue>
@@ -160,7 +160,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::split_matrix(const MatrixType &local
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::resize(unsigned int i,
                                                    unsigned int j)
@@ -204,7 +204,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::resize(unsigned int i,
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::broadcast(LocalType &local)
     -> void
@@ -221,7 +221,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::broadcast(LocalType &local)
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::rows() const
     -> unsigned int
@@ -232,7 +232,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::rows() const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::cols() const
     -> unsigned int
@@ -243,7 +243,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::cols() const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::row(size_t i) const
     -> NonMPIVectorType
@@ -255,7 +255,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::row(size_t i) const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::col(size_t i) const
     -> MPIVectorType<LValue>
@@ -267,7 +267,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::col(size_t i) const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::diagonal() const
     -> MPIVectorType<LValue>
@@ -279,7 +279,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::diagonal() const
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::get_local()
     -> LocalType &
@@ -291,7 +291,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::get_local()
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::operator()(unsigned int i,
                                                        unsigned int j) const
@@ -318,7 +318,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::operator()(unsigned int i,
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::operator()(unsigned int i,
                                                        unsigned int j)
@@ -345,7 +345,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::operator()(unsigned int i,
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::multiply(const NonMPIVectorType &v) const
     -> NonMPIVectorType
@@ -360,7 +360,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::multiply(const NonMPIVectorType &v) 
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::transpose_multiply(const NonMPIVectorType &v) const
     -> NonMPIVectorType
@@ -377,9 +377,9 @@ auto MPIMatrix<LocalType, StorageTemplate>::transpose_multiply(const NonMPIVecto
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
-template <template <typename> typename VectorStorageTemplate>
+template <template <typename> class VectorStorageTemplate>
 auto MPIMatrix<LocalType, StorageTemplate>
     ::multiply(const MPIVectorType<VectorStorageTemplate> &v) const
     -> MPIVectorType<LValue>
@@ -391,9 +391,9 @@ auto MPIMatrix<LocalType, StorageTemplate>
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
-template <template <typename> typename VectorStorageTemplate>
+template <template <typename> class VectorStorageTemplate>
 auto MPIMatrix<LocalType, StorageTemplate>
     ::transpose_multiply(const MPIVectorType<VectorStorageTemplate> &v) const
     -> MPIVectorType<LValue>
@@ -407,7 +407,7 @@ auto MPIMatrix<LocalType, StorageTemplate>
 // template
 // <
 // typename LocalType,
-// template <typename> typename StorageTemplate
+// template <typename> class StorageTemplate
 // >
 // MPIMatrix<LocalType, StorageTemplate>::operator MPIMatrix<LocalType, ConstRef>() const
 // {
@@ -417,7 +417,7 @@ auto MPIMatrix<LocalType, StorageTemplate>
 // template
 // <
 // typename LocalType,
-// template <typename> typename StorageTemplate
+// template <typename> class StorageTemplate
 // >
 // MPIMatrix<LocalType, StorageTemplate>::operator LocalType()
 // {
@@ -440,7 +440,7 @@ auto MPIMatrix<LocalType, StorageTemplate>
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::broadcast_local_rows(int *rows) const
     -> void
@@ -452,7 +452,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::broadcast_local_rows(int *rows) cons
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::broadcast_local_block(double *vector,
                                                                   const double *block) const
@@ -469,7 +469,7 @@ auto MPIMatrix<LocalType, StorageTemplate>::broadcast_local_block(double *vector
 template
 <
 typename LocalType,
-template <typename> typename StorageTemplate
+template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::reduce_vector_sum(double *result_vector,
                                              double *local_vector) const
