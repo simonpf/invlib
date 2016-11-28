@@ -45,7 +45,7 @@ int main()
     using MatrixType = invlib::Matrix<EigenSparse>;
     using VectorType = invlib::Vector<EigenVector>;
 
-    using SolverType      = invlib::ConjugateGradient;
+    using SolverType      = invlib::ConjugateGradient<>;
     using MinimizerType   = invlib::GaussNewton<double, SolverType>;
     using PrecisionMatrix = invlib::PrecisionMatrix<MatrixType>;
     using MAPType         = invlib::MAP<LinearModel,

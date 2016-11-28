@@ -45,7 +45,7 @@ private:
 int main()
 {
 
-    using SolverType      = invlib::ConjugateGradient;
+    using SolverType      = invlib::ConjugateGradient<>;
     using MinimizerType   = invlib::GaussNewton<double, SolverType>;
     using PrecisionMatrix = invlib::PrecisionMatrix<MPIMatrixType>;
     using MAPType         = invlib::MAP<LinearModel,

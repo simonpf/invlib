@@ -48,14 +48,59 @@ public:
 //  Conjugate Gradient Solver //
 // -------------------------  //
 
+/*! \brief Default Settings for Conjugate Gradient Solvers
+ *
+ * The default settings for the CG solver initialize the start vector
+ * as the 0 vector.
+ *
+ * As convergence criterion the ratio of the residual norm and the
+ * norm of the RHS vector are compared to the tolerance setting
+ * of the ConjugateGradient object.
+ */
+class CGDefaultSettings
+{
+
+public:
+
+    CGDefaultSettings(double);
+
+    CGDefaultSettings(const CGDefaultSettings & )             = default;
+    CGDefaultSettings(      CGDefaultSettings &&)             = default;
+    CGDefaultSettings & operator=(const CGDefaultSettings & ) = default;
+    CGDefaultSettings & operator=(      CGDefaultSettings &&) = default;
+
+    /*! Returns the 0 vector as start vector for the CG method. */
+    template <typename VectorType>
+    VectorType start_vector(const VectorType &) const;
+
+    /*! Check whether the norm of the residual normalized by the RHS norm
+     * is smaller than tolerance */
+    template <typename VectorType>
+    bool converged(const VectorType &, const VectorType &) const;
+
+private:
+
+    double tolerance;
+
+};
+
 /*! \brief Conjugate gradient solver.
  *
  * The conjugate gradient (CG) solver uses an iterative method to solve the given
  * linear system. Its advantage is that the system does not have to be
- * explicitly computed to be solved.The convergence criterion used is the
- * Euclidean norm of the residual.
+ * explicitly computed to be solved.
+ *
+ * The start vector and stopping criterion are defined using a settings
+ * functor. The settings functor  must provide the member functions:
+ *
+ *  - VectorType start_vector(const VectorType &)
+ *  - bool converged(const VectorType &, const VectorType &)
+ *
+ * that return a start vector and the evaluated convergence criterion,
+ * respectively.
  *
  */
+template <typename CGSettings = CGDefaultSettings>
 class ConjugateGradient
 {
 
@@ -74,10 +119,8 @@ public:
      *
      * Takes an arbitrary algebraic expression representing a matrix
      * \f$A\f$ that supports multiplication from the right by a vector
-     * and solves the corresponding linear system \f$Ax = v\f$. The
-     * iteration is stopped when the norm of the residual
-     * \f$r = Ax - v \f$ falls below the given convergence tolerance.
-    *
+     * and solves the corresponding linear system \f$Ax = v\f$.
+     *
      * \tparam MatrixType The algebraic expression type of representing the
      * linear system.
      * \tparam The fundamental vector type. Note: must be the fundamental type.
@@ -94,8 +137,9 @@ public:
 
 private:
 
-    int    verbosity;
-    double tolerance;
+    int        verbosity;
+    double     tolerance;
+    CGSettings settings;
 
 };
 

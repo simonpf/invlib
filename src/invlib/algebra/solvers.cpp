@@ -14,20 +14,45 @@ auto Standard::solve(const MatrixType &A,const VectorType &v)
 //  Conjugate Gradient Solver //
 // -------------------------  //
 
-ConjugateGradient::ConjugateGradient(double tol, int verbosity_)
-: verbosity(verbosity_), tolerance(tol)
+CGDefaultSettings::CGDefaultSettings(double tolerance_)
+    : tolerance(tolerance_)
+{
+    // Nothing to do here.
+}
+
+template<typename VectorType>
+VectorType CGDefaultSettings::start_vector(const VectorType & v) const
+{
+    VectorType w = 0.0 * w;
+    return w;
+}
+
+template<typename VectorType>
+bool CGDefaultSettings::converged(const VectorType & r,
+                                  const VectorType & v) const
+{
+    return (r.norm() / v.norm()) < tolerance;
+}
+
+template<typename CGSettings>
+ConjugateGradient<CGSettings>::ConjugateGradient(double tol, int verbosity_)
+    : verbosity(verbosity_), tolerance(tol), settings(tol)
 {
     // Nothing to do here.
 }
 
 template
 <
+    typename CGSettings
+>
+template
+<
     typename VectorType,
     typename MatrixType,
     template <LogType> class Log
 >
-auto ConjugateGradient::solve(const MatrixType &A,
-        const VectorType &v)
+auto ConjugateGradient<CGSettings>::solve(const MatrixType &A,
+                                          const VectorType &v)
     -> VectorType
 {
     using RealType = typename VectorType::RealType;
@@ -37,7 +62,7 @@ auto ConjugateGradient::solve(const MatrixType &A,
     RealType tol, alpha, beta, rnorm, vnorm;
     VectorType x, r, p, xnew, rnew, pnew;
 
-    x = 0.0 * v;
+    x = settings.start_vector(v);
     r = A * x - v;
     p = -1.0 * r;
     vnorm = v.norm();
@@ -45,7 +70,7 @@ auto ConjugateGradient::solve(const MatrixType &A,
 
     log.init(tolerance, rnorm, vnorm);
     int i = 0;
-    while (rnorm / vnorm > tolerance)
+    while (!settings.converged(r, v))
     {
         alpha = dot(r, r) / dot(p, A * p);
         xnew  = x + alpha *     p;
