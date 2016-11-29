@@ -5,7 +5,7 @@
 #include "invlib/profiling/timer.h"
 #include "invlib/mkl/mkl_sparse.h"
 #include "invlib/interfaces/eigen.h"
-#include "utility.h"
+#include "benchmark_types.h"
 
 #define STR(arg) #arg
 #define STR_VALUE(arg) STR(arg)
@@ -48,14 +48,14 @@ private:
 };
 
 template<typename SparseType>
-struct MatsBenchmark
+struct Mats
 {
 
-    MatsBenchmark() = default;
-    MatsBenchmark(const MatsBenchmark & ) = delete;
-    MatsBenchmark(      MatsBenchmark &&)             = delete;
-    MatsBenchmark & operator=(const MatsBenchmark & ) = delete;
-    MatsBenchmark & operator=(      MatsBenchmark &&) = delete;
+    Mats() = default;
+    Mats(const Mats & ) = delete;
+    Mats(      Mats &&)             = delete;
+    Mats & operator=(const Mats & ) = delete;
+    Mats & operator=(      Mats &&) = delete;
 
     std::tuple<double, double, double> operator()()
     {
@@ -75,7 +75,6 @@ struct MatsBenchmark
                                             PrecisionMatrix>;
 
         // Load data.
-        std::cout << "Loading data from " << STR_VALUE(MATS_DATA) "/" << std::endl;
         MatrixType K(read_matrix_arts(STR_VALUE(MATS_DATA) "/K.xml"));
         MatrixType SaInv(read_matrix_arts(STR_VALUE(MATS_DATA) "/SaInv.xml"));
         MatrixType SeInv(read_matrix_arts(STR_VALUE(MATS_DATA) "/SeInv.xml"));
@@ -86,7 +85,7 @@ struct MatsBenchmark
         PrecisionMatrix Pe(SeInv);
 
         // Setup OEM.
-        SolverType                          cg(1e-6, 1);
+        SolverType                          cg(1e-6, 0);
         MinimizerType                       gn(1e-6, 1, cg);
         LinearModel<MatrixType, VectorType> F(K, xa);
         MAPType                             oem(F, xa, Pa, Pe);
@@ -95,12 +94,10 @@ struct MatsBenchmark
         VectorType x;
 
         auto t1 = steady_clock::now();
-        std::cout << "Starting OEM" << std::endl;
         oem.compute(x, y, gn, 0);
         auto t2 = steady_clock::now();
         auto oem_time = duration_cast<duration<double>>(t2 - t1);
 
-        std::cout << "Elapsed time for 1000 iterations: " << oem_time.count() << std::endl;
         double mv_time  = multiply_mv_time.count();
         double mtv_time = multiply_mtv_time.count();
 
@@ -112,6 +109,6 @@ template <typename T> void foo();
 
 int main()
 {
-    using TypeList = std::tuple<MklSparse<double, Representation::Hybrid>>;
-    Benchmark<MatsBenchmark, TypeList>().run();
+    using TypeList = typename ConcatTuple<MklSparseTypes, std::tuple<EigenSparse>>::Type;
+    Benchmark<Mats, TypeList>().run();
 }

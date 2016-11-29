@@ -1,6 +1,53 @@
 #ifndef BENCHMARKS_UTILITY_H
 #define BENCHMARKS_UTILITY_H
 
+// -------------------- //
+//  Tuple Concatenation //
+// -------------------- //
+
+template<typename ... Ts> struct ConcatTuple;
+
+template <typename ... Ts, typename ... Us>
+struct ConcatTuple<std::tuple<Ts ...>, std::tuple<Us ...>>
+{
+    using Type = std::tuple<Ts ..., Us ...>;
+};
+
+// --------------------------- //
+//  Vector to Tuple Converter  //
+// --------------------------- //
+
+template<typename t, size_t l, size_t start = 0>
+struct VectorToTuple
+{
+    VectorToTuple(const std::vector<t> & v)
+    {
+        value = std::tuple_cat(std::make_tuple(v[start]),
+                               VectorToTuple<t, l, start + 1>(v).value);
+    }
+
+    decltype(std::tuple_cat(std::make_tuple(static_cast<double>(1.0)),
+                            VectorToTuple<t, l, start + 1>::value)) value;
+};
+
+template<typename t, size_t l>
+struct VectorToTuple<t, l, l>
+{
+    VectorToTuple(const std::vector<t> & v)
+    {
+        value = std::make_tuple();
+    }
+
+    std::tuple<> value;
+};
+
+template <size_t l, typename T>
+auto vector_to_tuple(const std::vector<T> & v)
+    -> decltype(VectorToTuple<T, l>(v).value)
+{
+    return VectorToTuple<T, l>(v).value;
+}
+
 // ----------------- //
 //   Tuple Printer   //
 // ----------------- //
@@ -86,7 +133,7 @@ public:
         auto result = benchmark();
 
         // Print results.
-        std::cout << typeid(T).name() << " " << sep << std::endl;
+        std::cout << typeid(T).name() << " " << sep;
         TuplePrinter<decltype(result)>::print(result, sep);
         std::cout << std::endl;
 
