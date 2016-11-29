@@ -6,7 +6,7 @@
 #include <invlib/archetypes/matrix_archetype.h>
 
 constexpr double EPS = 1e-8;
-constexpr unsigned int ntests = 1;
+constexpr unsigned int ntests = 10;
 
 using Archetype = invlib::Matrix<invlib::MatrixArchetype<double>>;
 using matrix_types = boost::mpl::list<Archetype>;

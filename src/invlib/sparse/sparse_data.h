@@ -6,8 +6,8 @@
  *  convert between different representations.
  *
  */
-#ifndef SPARSE_SPARSE_BASE
-#define SPARSE_SPARSE_BASE
+#ifndef SPARSE_SPARSE_DATA
+#define SPARSE_SPARSE_DATA
 
 #include "invlib/archetypes/matrix_archetype.h"
 #include "invlib/archetypes/vector_archetype.h"
@@ -378,4 +378,4 @@ std::ostream & operator << (
 #include "sparse_data.cpp"
 
 }      // namespace invlib
-#endif // SPARSE_SPARSE_BASE
+#endif // SPARSE_SPARSE_DATA

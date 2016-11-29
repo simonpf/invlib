@@ -21,9 +21,10 @@ include(FindLAPACK)
 include(FindMPI)
 # CUDA
 include(FindCUDA)
-
 # Eigen
 include(cmake/FindEigen3.cmake)
+# MKL
+include(cmake/FindMKL.cmake)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 

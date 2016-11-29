@@ -5,8 +5,8 @@
  * vector types.
  *
  */
-#ifndef DENSE_VECTOR_BASE_H
-#define DENSE_VECTOR_BASE_H
+#ifndef DENSE_VECTOR_DATA_H
+#define DENSE_VECTOR_DATA_H
 
 #include <iostream>
 #include <memory>
@@ -131,4 +131,4 @@ std::ostream & operator<<(std::ostream &, const VectorData<Real>&);
 #include "vector_data.cpp"
 
 }       // namespace invlib
-#endif  // DENSE_VECTOR_BASE_H
+#endif  // DENSE_VECTOR_DATA_H

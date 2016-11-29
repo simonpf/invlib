@@ -39,14 +39,14 @@ void random_powers_test(unsigned int n)
     GradientDescent<RealType> GD{};
 
     VectorType x;
-    minimize(J, LM, x0, x, 1000, EPS);
-    BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
+    minimize(J, LM, x0, x, 10000, EPS);
+    BOOST_TEST((J.cost_function(x) < EPS), "LM J(x) = " << J.cost_function(x));
 
-    minimize(J, GN, x0, x, 1000, EPS);
-    BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
+    minimize(J, GN, x0, x, 10000, EPS);
+    BOOST_TEST((J.cost_function(x) < EPS), "GN J(x) = " << J.cost_function(x));
 
-    minimize(J, GD, x0, x, 1000, EPS);
-    BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
+    minimize(J, GD, x0, x, 100000, EPS);
+    BOOST_TEST((J.cost_function(x) < EPS), "GD J(x) = " << J.cost_function(x));
 }
 
 // Test non-linear optimization using the Sphere test function
@@ -75,14 +75,14 @@ void sphere_function_test(unsigned int n)
     GradientDescent<RealType> GD{};
 
     VectorType x;
-    minimize(J, LM, x0, x, 1000, EPS);
-    BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
+    minimize(J, LM, x0, x, 10000, EPS);
+    BOOST_TEST((J.cost_function(x) < EPS), "LM J(x) = " << J.cost_function(x));
 
-    minimize(J, GN, x0, x, 1000, EPS);
-    BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
+    minimize(J, GN, x0, x, 10000, EPS);
+    BOOST_TEST((J.cost_function(x) < EPS), "GN J(x) = " << J.cost_function(x));
 
-    minimize(J, GD, x0, x, 1000, EPS);
-    BOOST_TEST((J.cost_function(x) < EPS), "J(x) = " << J.cost_function(x));
+    minimize(J, GD, x0, x, 10000, EPS);
+    BOOST_TEST((J.cost_function(x) < EPS), "GD J(x) = " << J.cost_function(x));
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(random_powers, T, matrix_types)

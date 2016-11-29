@@ -6,8 +6,8 @@
 #include <string>
 #include <sstream>
 
-#include "pugixml.hpp"
-#include "pugixml.cpp"
+#include "pugixml/pugixml.hpp"
+#include "pugixml/pugixml.cpp"
 #include "endian.h"
 
 #include "invlib/sparse/sparse_data.h"
