@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "pugixml.hpp"
 #include "pugixml.cpp"
@@ -112,7 +113,7 @@ void write_matrix_arts(const std::string & filename,
         for (size_t i = 0; i < nnz; i++)
         {
             double elem = static_cast<double>(matrix.get_element_pointer()[i]);
-            buf.eight = htobe64(*reinterpret_cast<const uint64_t *>(&elem));
+            buf.eight = htole64(*reinterpret_cast<const uint64_t *>(&elem));
             file.write(buf.buf, 8);
         }
         file.close();
@@ -173,7 +174,7 @@ void write_vector_arts(const std::string & filename,
         for (size_t i = 0; i < nelem; i++)
         {
             double elem = static_cast<double>(elements[i]);
-            buf.eight = htobe64(*reinterpret_cast<const uint64_t *>(&elem));
+            buf.eight = htole64(*reinterpret_cast<const uint64_t *>(&elem));
             file.write(buf.buf, 8);
         }
         file.close();

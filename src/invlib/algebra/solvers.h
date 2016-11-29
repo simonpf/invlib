@@ -44,9 +44,9 @@ public:
 
 };
 
-// -------------------------  //
-//  Conjugate Gradient Solver //
-// -------------------------  //
+// -------------------------------- //
+//  Setting Functors for CG Solvers //
+// -------------------------------- //
 
 /*! \brief Default Settings for Conjugate Gradient Solvers
  *
@@ -83,6 +83,46 @@ private:
     double tolerance;
 
 };
+
+/*! \brief Step Limit for CG Solver.
+ *
+ * Performs a fixed number of steps of the conjugate gradient solver.
+ *
+ * \tparam maximum_steps The number of steps to be performed.
+ */
+template<size_t maximum_steps>
+class CGStepLimit
+{
+
+public:
+
+    CGStepLimit(double);
+
+    CGStepLimit(const CGStepLimit & )             = default;
+    CGStepLimit(      CGStepLimit &&)             = default;
+    CGStepLimit & operator=(const CGStepLimit & ) = default;
+    CGStepLimit & operator=(      CGStepLimit &&) = default;
+
+    /*! Returns the 0 vector as start vector for the CG method. */
+    template <typename VectorType>
+    VectorType start_vector(const VectorType &) const;
+
+    /*! Check whether the norm of the residual normalized by the RHS norm
+     * is smaller than tolerance */
+    template <typename VectorType>
+    bool converged(const VectorType &, const VectorType &);
+
+private:
+
+    size_t steps;
+
+};
+
+
+
+// -------------------------  //
+//  Conjugate Gradient Solver //
+// -------------------------  //
 
 /*! \brief Conjugate gradient solver.
  *

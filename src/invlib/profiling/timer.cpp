@@ -3,6 +3,13 @@
 // -------------------------- //
 
 template <typename Base>
+    template <typename>
+Timer<Base>::Timer() : Base()
+{
+    // Nothing to do here.
+}
+
+template <typename Base>
     template <typename T, typename>
 Timer<Base>::Timer(T &&t) : Base(std::forward<T>(t))
 {

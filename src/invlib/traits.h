@@ -134,9 +134,12 @@ template<typename T1, typename T2>
 using is_constructible = typename std::is_constructible<T1, T2>;
 
 template<typename T1>
+using is_move_constructible = typename std::is_move_constructible<T1>;
+
+template<typename T1>
 using is_default_constructible = typename std::is_default_constructible<T1>;
 
-template<typename T1, typename T2>
+template<typename T1>
 using is_copy_constructible = typename std::is_copy_constructible<T1>;
 
 template<typename T1, typename T2>

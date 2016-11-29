@@ -4,12 +4,14 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "pugixml.hpp"
 #include "pugixml.cpp"
 #include "endian.h"
 
 #include "invlib/sparse/sparse_data.h"
+#include "invlib/dense/vector_data.h"
 
 namespace invlib
 {
@@ -114,7 +116,7 @@ SparseMatrix<Real, Index> read_matrix_arts(const std::string & filename)
                 buf.buf[6] = stream.get();
                 buf.buf[7] = stream.get();
 
-                uint64_t host_endian = be64toh(buf.eight);
+                uint64_t host_endian = le64toh(buf.eight);
                 data = *reinterpret_cast<double *>(&host_endian);
                 elements[i] = static_cast<Real>(data);
             }
@@ -182,7 +184,7 @@ VectorData<Real> read_vector_arts(const std::string & filename)
                 buf.buf[6] = stream.get();
                 buf.buf[7] = stream.get();
 
-                uint64_t host_endian = be64toh(buf.eight);
+                uint64_t host_endian = le64toh(buf.eight);
                 data = *reinterpret_cast<double*>(&host_endian);
                 elements[i] = static_cast<Real>(data);
             }

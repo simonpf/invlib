@@ -19,6 +19,8 @@
 constexpr char vector_suffix[] = "vector";
 constexpr char matrix_suffix[] = "matrix";
 
+using namespace invlib;
+
 int main()
 {
     using VectorTracer = invlib::Tracer<VectorArchetype<double>, vector_suffix>;

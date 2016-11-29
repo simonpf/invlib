@@ -50,6 +50,10 @@ public:
         // Nothing to do here.
     }
 
+    // ----------------- //
+    //     Conversion    //
+    // ----------------- //
+
     EigenVector(const VectorData<double> & data)
     {
         BaseType::resize(data.rows());
@@ -57,6 +61,18 @@ public:
         {
             BaseType::operator()(i) = data.get_element_pointer()[i];
         }
+    }
+
+    operator VectorData<double>() const
+    {
+        auto elements  = std::shared_ptr<double *>(new (double *),
+                                                   ArrayDeleter<double *>());
+        *elements = new double[rows()];
+        for (size_t i = 0; i < rows(); i++)
+        {
+            (*elements)[i] = this->operator()(i);
+        }
+        return VectorData<double>(rows(), elements);
     }
 
     // ------------------- //
@@ -178,8 +194,8 @@ public:
         triplets.reserve(nnz);
         for (size_t i = 0; i < nnz; i++)
         {
-            triplets.emplace_back(data.get_column_index_pointer()[i],
-                                  data.get_row_index_pointer()[i],
+            triplets.emplace_back(data.get_row_index_pointer()[i],
+                                  data.get_column_index_pointer()[i],
                                   data.get_element_pointer()[i]);
         }
         BaseType::resize(data.rows(), data.cols());

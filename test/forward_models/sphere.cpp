@@ -58,8 +58,8 @@ void sphere_test(unsigned int n)
 
     // Test inversion using CG solver.
 
-    ConjugateGradient cg(1e-15);
-    GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
+    ConjugateGradient<> cg(1e-15);
+    GaussNewton<RealType, ConjugateGradient<>> GN_CG(cg);
     GN_CG.set_tolerance(1e-15); GN_CG.set_maximum_iterations(1000);
 
     std.compute(x_std, y, GN_CG);

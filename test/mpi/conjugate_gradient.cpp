@@ -38,7 +38,7 @@ void mpi_conjugate_gradient(unsigned int ntests)
         MPIVectorType v_mpi = random<MPIVectorType>(200);
         VectorType v        = v_mpi;
 
-        ConjugateGradient cg(1e-12, 0);
+        ConjugateGradient<> cg(1e-12, 0);
 
         VectorType     w = cg.solve<VectorType, MatrixType, MPILog>(M, v);
         VectorType w_mpi = cg.solve<MPIVectorType, MPIMatrixType, MPILog>(M_mpi,

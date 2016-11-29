@@ -28,7 +28,7 @@ void solver_test(unsigned int n)
     VectorType w; w.resize(n);
 
     Standard std{};
-    ConjugateGradient cg(1e-20);
+    ConjugateGradient<> cg(1e-20);
 
     w = A * std.solve(A, v);
     double error = maximum_error(v, w);

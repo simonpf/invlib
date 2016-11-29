@@ -54,10 +54,10 @@ void exact_minimization(unsigned int n)
 
     // Using CG solver.
 
-    ConjugateGradient cg(EPS);
-    LevenbergMarquardt<RealType, Identity, ConjugateGradient> LM_CG(I, cg);
+    ConjugateGradient<> cg(EPS);
+    LevenbergMarquardt<RealType, Identity, ConjugateGradient<>> LM_CG(I, cg);
     LM_CG.set_lambda(0.0);
-    GaussNewton<RealType, ConjugateGradient> GN_CG(cg);
+    GaussNewton<RealType, ConjugateGradient<>> GN_CG(cg);
 
     dx = LM_CG.step(x0, g, H, J);
     x = x0 + dx;

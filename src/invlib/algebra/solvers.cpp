@@ -10,9 +10,9 @@ auto Standard::solve(const MatrixType &A,const VectorType &v)
     return x;
 }
 
-// -------------------------  //
-//  Conjugate Gradient Solver //
-// -------------------------  //
+// -------------------------------- //
+//  Setting Functors for CG Solvers //
+// -------------------------------- //
 
 CGDefaultSettings::CGDefaultSettings(double tolerance_)
     : tolerance(tolerance_)
@@ -23,7 +23,7 @@ CGDefaultSettings::CGDefaultSettings(double tolerance_)
 template<typename VectorType>
 VectorType CGDefaultSettings::start_vector(const VectorType & v) const
 {
-    VectorType w = 0.0 * w;
+    VectorType w = 0.0 * v;
     return w;
 }
 
@@ -31,8 +31,36 @@ template<typename VectorType>
 bool CGDefaultSettings::converged(const VectorType & r,
                                   const VectorType & v) const
 {
-    return (r.norm() / v.norm()) < tolerance;
+    return ((r.norm() / v.norm()) < tolerance);
 }
+
+template<size_t maximum_steps>
+CGStepLimit<maximum_steps>::CGStepLimit(double /* unused */)
+    : steps(0)
+{
+    // Nothing to do here.
+}
+
+template<size_t maximum_steps>
+template<typename VectorType>
+VectorType CGStepLimit<maximum_steps>::start_vector(const VectorType & v) const
+{
+    VectorType w = 0.0 * v;
+    return w;
+}
+
+template<size_t maximum_steps>
+template<typename VectorType>
+bool CGStepLimit<maximum_steps>::converged(const VectorType & /*r*/,
+                                           const VectorType & /*v*/)
+{
+    steps++;
+    return (steps > maximum_steps);
+}
+
+// -------------------------  //
+//  Conjugate Gradient Solver //
+// -------------------------  //
 
 template<typename CGSettings>
 ConjugateGradient<CGSettings>::ConjugateGradient(double tol, int verbosity_)

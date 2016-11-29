@@ -2,6 +2,30 @@ template
 <
 typename Real
 >
+VectorData<Real>::VectorData(const VectorData &v)
+    : n(v.rows())
+{
+    elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
+    *elements = new Real[n];
+    std::copy(v.begin(), v.end(), *elements);
+}
+
+template
+<
+typename Real
+>
+VectorData<Real> & VectorData<Real>::operator=(const VectorData &v)
+{
+    n = v.rows();
+    elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
+    *elements = new Real[n];
+    std::copy(v.begin(), v.end(), *elements);
+}
+
+template
+<
+typename Real
+>
 VectorData<Real> VectorData<Real>::random(size_t n)
 {
     std::random_device rd;

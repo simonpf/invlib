@@ -85,10 +85,10 @@ void linear_test(unsigned int n)
     BOOST_TEST((e3 < EPS), "Error STD - MFORM = " << e3);
 
     // Test inversion using CG solver.
-    ConjugateGradient cg(1e-6);
-    GaussNewton<RealType, ConjugateGradient> gn_cg(cg);
+    ConjugateGradient<> cg(1e-6);
+    GaussNewton<RealType, ConjugateGradient<>> gn_cg(cg);
     gn_cg.set_tolerance(1e-6); gn_cg.set_maximum_iterations(1000);
-    LevenbergMarquardt<RealType, Id, ConjugateGradient> lm_cg(I, cg);
+    LevenbergMarquardt<RealType, Id, ConjugateGradient<>> lm_cg(I, cg);
     lm_cg.set_tolerance(1e-6); lm_cg.set_maximum_iterations(1000);
 
     std.compute(x_std_lm, y, lm_cg);

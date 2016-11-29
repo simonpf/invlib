@@ -188,7 +188,7 @@ public:
      * \return A Matrix \f$C = A^T\f$ containing the transpose of the matrix
      * \f$A\f$.
      */
-    MatrixType transpose();
+    MatrixType transpose() const;
 
     /*! Combined transpose and multiply by matrix.
      *

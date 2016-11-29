@@ -63,11 +63,11 @@ int main()
         nform(F, xa, Pa, Pe);
 
     // Test inversion using CG solver.
-    using GN = GaussNewton<RealType, ConjugateGradient>;
-    using LM = LevenbergMarquardt<RealType, Id, ConjugateGradient>;
+    using GN = GaussNewton<RealType, ConjugateGradient<>>;
+    using LM = LevenbergMarquardt<RealType, Id, ConjugateGradient<>>;
 
     Id I{};
-    ConjugateGradient cg(1e-9);
+    ConjugateGradient<> cg(1e-9);
     GN gn_cg(1e-3, 2, cg);
     gn_cg.set_tolerance(1e-9); gn_cg.set_maximum_iterations(2);
     LM lm_cg(I, cg);

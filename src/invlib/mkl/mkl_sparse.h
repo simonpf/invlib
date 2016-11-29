@@ -176,6 +176,9 @@ public:
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
 
+    size_t rows() const {return CSRBase::rows();}
+    size_t cols() const {return CSRBase::cols();}
+
 private:
 
     using CSRBase = SparseData<Real, int, Representation::CompressedRows>;

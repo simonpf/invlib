@@ -63,11 +63,13 @@ public:
     // ------------------------------- //
 
     VectorData()                                 = default;
-    /*! Performs a shallow copy of the vector data. */
-    VectorData(const VectorData & )              = default;
+
+    /*! Performs a deep copy of the vector data. */
+    VectorData(const VectorData & );
+    /*! Performs a deep copy of the vector data. */
+    VectorData & operator= (const VectorData & );
+
     VectorData(      VectorData &&)              = default;
-    /*! Performs a shallow copy of the vector data. */
-    VectorData & operator= (const VectorData & ) = default;
     VectorData & operator= (      VectorData &&) = default;
 
     /*! Create a VectorData object holding n elements from
@@ -87,8 +89,11 @@ public:
     const Real * get_element_pointer() const {return *elements;}
           Real * get_element_pointer()       {return *elements;}
 
-    Real * begin() {return *elements;}
-    Real * end()   {return *elements + n;}
+
+          Real * begin()       {return *elements;}
+    const Real * begin() const {return *elements;}
+          Real * end()         {return *elements + n;}
+    const Real * end()   const {return *elements + n;}
 
     /*! If the vector already holds a reference to a data array, this shared_ptr
      *  is destructed and a new array of the given size is allocated. */
