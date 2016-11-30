@@ -46,8 +46,6 @@ if(MKL_SDL)
 else()
     ######################### Interface layer #######################
     set(MKL_INTERFACE_LIBRARY_NAME mkl_intel${MKL_LIBRARY})
-    message(MKL ROOT: ${MKL_ROOT})
-    message(INTEL ROOT: ${INTEL_ROOT})
     find_library(MKL_INTERFACE_LIBRARY ${MKL_INTERFACE_LIBRARY_NAME}
         PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/ ${MKL_INTERFACE_LIBRARY})
 
@@ -73,7 +71,6 @@ else()
                     ${MKL_SCALAPACK_LIBRARY} ${MKL_RTL_LIBRARY})
     set(MKL_MINIMAL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
                     ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY})
-    message(MKL: ${MKL_LIBRARY})
 endif()
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${_MKL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})

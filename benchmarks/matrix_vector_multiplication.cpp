@@ -2,8 +2,6 @@
 
 #include "invlib/algebra.h"
 #include "invlib/profiling/timer.h"
-#include "invlib/mkl/mkl_sparse.h"
-#include "invlib/interfaces/eigen.h"
 #include "benchmark_types.h"
 
 using namespace invlib;

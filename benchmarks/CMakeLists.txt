@@ -12,17 +12,17 @@ set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(FindCUDA)
 if    (CUDA_FOUND)
   add_definitions(-DCUDA)
+  set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${CUDA_LIBRARIES}
+    ${CUDA_CUBLAS_LIBRARIES} ${CUDA_cusparse_LIBRARY} cuda_kernels)
 endif (CUDA_FOUND)
 
 # MLK Dependent Code
 include(${PROJECT_SOURCE_DIR}/cmake/FindMKL.cmake)
 if    (MKL_FOUND)
   add_definitions(-DMKL)
+  set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MKL_LIBRARIES}
+    pthread dl ${MKL_LIBRARIES})
 endif (MKL_FOUND)
-
-set(BACKEND_LIBRARIES
-  ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES} ${CUDA_cusparse_LIBRARY} cuda_kernels
-  ${MKL_LIBRARIES} pthread dl ${MKL_LIBRARIES})
 
 # Executables
 if(MATS_DATA)
@@ -31,5 +31,5 @@ if(MATS_DATA)
   target_link_libraries(mats ${BACKEND_LIBRARIES})
 endif(MATS_DATA)
 
-cuda_add_executable(matrix_vector_multiplication matrix_vector_multiplication.cpp)
+add_executable(matrix_vector_multiplication matrix_vector_multiplication.cpp)
 target_link_libraries(matrix_vector_multiplication ${BACKEND_LIBRARIES})
