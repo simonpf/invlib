@@ -131,6 +131,50 @@ private:
     CudaDeleter<Real *> real_deleter{};
 };
 
+template<typename Real>
+class CudaSparse<Real, Representation::Hybrid>
+{
+public:
+
+    // -------------- //
+    //  Type Aliases  //
+    // -------------- //
+
+    using RealType   = Real;
+    using VectorType = CudaVector<RealType>;
+    using MatrixType = CudaSparse;
+    using ResultType = CudaSparse;
+
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
+
+    CudaSparse(const SparseData<Real, int, Representation::Coordinates> & base,
+               CudaDevice & = Cuda::default_device);
+    CudaSparse(const CudaSparse & )             = delete;
+    CudaSparse(      CudaSparse &&)             = delete;
+    CudaSparse & operator=(const CudaSparse & ) = delete;
+    CudaSparse & operator=(      CudaSparse &&) = delete;
+
+    VectorType multiply(const VectorType &) const;
+    VectorType transpose_multiply(const VectorType &) const;
+
+private:
+
+    static cusparseMatDescr default_matrix_descriptor;
+
+    size_t m, n, nnz;
+
+    CudaDevice & device;
+
+    std::shared_ptr<int *>  column_indices;
+    std::shared_ptr<int *>  row_starts;
+    std::shared_ptr<Real *> elements;
+
+    CudaDeleter<int *>  int_deleter{};
+    CudaDeleter<Real *> real_deleter{};
+};
+
 #include "cuda_sparse.cpp"
 
 }      // namespace invlib

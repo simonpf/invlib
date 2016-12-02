@@ -40,14 +40,14 @@ struct MatrixVectorMultiplication
 
             // Matrix Vector Multiplication
             auto t1 = steady_clock::now();
-            VectorDataType w  = A * A * A * A * A * v;
+            VectorDataType w  = static_cast<VectorType>(A * A * A * A * A * v);
             auto t2 = steady_clock::now();
             mv_time += duration_cast<duration<double>>(t2 - t1);
 
             // Transposed Matrix Vector Multiplication
             auto At = transp(A);
             t1 = steady_clock::now();
-            VectorDataType wt  = At * At * At * At * At * v;
+            VectorDataType wt  = static_cast<VectorType>(At * At * At * At * At * v);
             t2 = steady_clock::now();
             mtv_time += duration_cast<duration<double>>(t2 - t1);
             }
@@ -61,5 +61,5 @@ struct MatrixVectorMultiplication
 
 int main()
 {
-    Benchmark<MatrixVectorMultiplication, MklSparseTypes>().run();
+    Benchmark<MatrixVectorMultiplication, SparseTypes>().run();
 }
