@@ -67,6 +67,9 @@ else()
     find_library(MKL_SCALAPACK_LIBRARY mkl_scalapack${MKL_LIBRARY}
       PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
+    find_library(MKL_BLACS_LIBRARY mkl_blacs${MKL_LIBRARY}
+      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      ENV LIBRARY_PATH)
 
     ############################ RTL layer ##########################
     find_library(MKL_RTL_LIBRARY iomp5
@@ -75,7 +78,7 @@ else()
 
     set(MKL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
                     ${MKL_CORE_LIBRARY} ${MKL_FFT_LIBRARY}
-                    ${MKL_SCALAPACK_LIBRARY} ${MKL_RTL_LIBRARY})
+                    ${MKL_SCALAPACK_LIBRARY} ${MKL_BLACS_LIBRARY} ${MKL_RTL_LIBRARY})
     set(MKL_MINIMAL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
                     ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY})
 endif()
