@@ -34,8 +34,8 @@ void backend_test()
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis_m(1, 100);
-    std::uniform_int_distribution<> dis_n(1, 100);
+    std::uniform_int_distribution<> dis_m(1, 10);
+    std::uniform_int_distribution<> dis_n(1, 10);
 
     size_t m = dis_m(gen);
     size_t n = dis_n(gen);
@@ -123,6 +123,10 @@ void backend_test()
 
     VectorData<RealType> c_base(c);
     VectorData<RealType> c_ref_base(c_ref);
+    error = maximum_error(c_base, c_ref_base);
+
+    BOOST_TEST((error < 1e-8), "Error: matrix vector product, maximum difference = "
+               << error);
 
     // Transposed Matrix Vector Product.
 
@@ -133,14 +137,15 @@ void backend_test()
     c_ref_base = a_ref;
 
     error = maximum_error(c_base, c_ref_base);
-    BOOST_TEST((error < 1e-8), "Error: transposed matrix vector product, maximum difference = "
-               << error);
+    BOOST_TEST((error < 1e-8), "Error: transposed matrix vector product,"
+                               " maximum difference = " << error);
 }
 
 #ifdef CUDA
 using CudaSparseCR = CudaSparse<double, Representation::CompressedRows>;
 using CudaSparseCC = CudaSparse<double, Representation::CompressedColumns>;
-using cuda_types   = boost::mpl::list<CudaSparseCR, CudaSparseCC>;
+using CudaSparseHY = CudaSparse<double, Representation::Hybrid>;
+using cuda_types   = boost::mpl::list<CudaSparseCR, CudaSparseCC, CudaSparseHY>;
 #else
 using cuda_types   = boost::mpl::list<>;
 #endif
@@ -162,7 +167,7 @@ using matrix_types = typename boost::mpl::insert_range<
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(backend, T, matrix_types)
 {
-    size_t ntests = 10;
+    size_t ntests = 1000;
     for (unsigned int i = 0; i < ntests; i++)
     {
         backend_test<T>();

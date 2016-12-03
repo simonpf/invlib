@@ -71,7 +71,7 @@ public:
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
 
-private:
+protected:
 
     static cusparseMatDescr default_matrix_descriptor;
 
@@ -115,7 +115,7 @@ public:
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
 
-private:
+protected:
 
     static cusparseMatDescr default_matrix_descriptor;
 
@@ -133,6 +133,8 @@ private:
 
 template<typename Real>
 class CudaSparse<Real, Representation::Hybrid>
+    : protected CudaSparse<Real, Representation::CompressedRows>,
+      protected CudaSparse<Real, Representation::CompressedColumns>
 {
 public:
 
@@ -161,18 +163,27 @@ public:
 
 private:
 
-    static cusparseMatDescr default_matrix_descriptor;
+    using CSRBase = CudaSparse<Real, Representation::CompressedRows>;
+    using CSCBase = CudaSparse<Real, Representation::CompressedColumns>;
 
-    size_t m, n, nnz;
+    // --------------//
+    // Base Members  //
+    // ------------- //
 
-    CudaDevice & device;
+    using CSRBase::m;
+    using CSRBase::n;
+    using CSRBase::nnz;
 
-    std::shared_ptr<int *>  column_indices;
-    std::shared_ptr<int *>  row_starts;
-    std::shared_ptr<Real *> elements;
+    using CSRBase::default_matrix_descriptor;
+    using CSRBase::device;
+    using CSRBase::int_deleter;
+    using CSCBase::real_deleter;
 
-    CudaDeleter<int *>  int_deleter{};
-    CudaDeleter<Real *> real_deleter{};
+    using CSRBase::column_indices;
+    using CSRBase::row_starts;
+
+    using CSCBase::column_starts;
+    using CSCBase::row_indices;
 };
 
 #include "cuda_sparse.cpp"

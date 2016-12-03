@@ -13,7 +13,7 @@ size_t CudaAllocator::find_vector(size_t bytes)
     size_t i = 0;
     for (i = 0; i < sizes.size(); i++)
     {
-        if ((bytes < sizes[i]) && available[i])
+        if ((bytes <= sizes[i]) && available[i])
         {
             available[i] = false;
             break;
@@ -34,6 +34,7 @@ void * CudaAllocator::request(size_t bytes)
         available.push_back(false);
         HANDLE_CUDA_ERROR(cudaMalloc(&pointers.back(), bytes));
     }
+
     return pointers[index];
 }
 

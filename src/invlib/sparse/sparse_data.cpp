@@ -13,7 +13,7 @@ auto SparseData<Real, Index, Representation::Coordinates>::random(
     std::uniform_real_distribution<> real_dis(-10,10);
     std::uniform_int_distribution<> m_dis(0, m-1);
     std::uniform_int_distribution<> n_dis(0, n-1);
-    std::uniform_int_distribution<> nelements_dis(std::min(m, n), std::max(m , n));
+    std::uniform_int_distribution<> nelements_dis(10, 12);//std::min(m, n), std::min(m , n) * std::min(m,n));
 
     std::vector<Index> rows;
     std::vector<Index> columns;
@@ -294,7 +294,7 @@ operator SparseData<Real, Index, Representation::CompressedRows>() const
     for (Index i = 0; i < m; i++)
     {
         (*row_starts)[i] = j;
-        while (i == (*row_indices)[j])
+        while ((j < nnz) && i == (*row_indices)[j])
         {
             j++;
         }

@@ -65,9 +65,6 @@ auto CudaSparse<Real, Representation::CompressedColumns>::transpose_multiply(
     const VectorType & v) const
     -> VectorType
 {
-    cusparseMatDescr_t descr;
-    cusparseCreateMatDescr(& descr);
-
     VectorType w{};
     w.resize(n);
     cusparse::smv<Real, Representation::CompressedColumns>(
@@ -133,8 +130,6 @@ auto CudaSparse<Real, Representation::CompressedRows>::multiply(
 
     cusparseMatDescr_t descr;
     cusparseCreateMatDescr(& descr);
-    cudaDeviceSynchronize();
-
     cusparse::smv<Real, Representation::CompressedRows>(
         device.get_cusparse_handle(),
         CUSPARSE_OPERATION_NON_TRANSPOSE,
@@ -159,6 +154,52 @@ auto CudaSparse<Real, Representation::CompressedRows>::transpose_multiply(
         m, n, nnz, 1.0,
         reinterpret_cast<const cusparseMatDescr_t>(&default_matrix_descriptor),
         *elements, *row_starts, *column_indices,
+        v.get_element_pointer(), 0.0,
+        w.get_element_pointer());
+    return w;
+}
+
+template<typename Real>
+CudaSparse<Real, Representation::Hybrid>::CudaSparse(
+    const SparseData<Real, int, Representation::Coordinates> & base,
+    CudaDevice & device_)
+    : CSCBase(base), CSRBase(base)
+{
+    // Nothing to do here.
+}
+
+template<typename Real>
+auto CudaSparse<Real, Representation::Hybrid>::multiply(
+    const VectorType & v) const
+    -> VectorType
+{
+    VectorType w{};
+    w.resize(m);
+
+    cusparse::smv<Real, Representation::CompressedRows>(
+        device.get_cusparse_handle(),
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        m, n, nnz, 1.0,
+        reinterpret_cast<cusparseMatDescr_t>(&default_matrix_descriptor),
+        *CSRBase::elements, *row_starts, *column_indices,
+        v.get_element_pointer(), 0.0,
+        w.get_element_pointer());
+    return w;
+}
+
+template<typename Real>
+auto CudaSparse<Real, Representation::Hybrid>::transpose_multiply(
+    const VectorType & v) const
+    -> VectorType
+{
+    VectorType w{};
+    w.resize(n);
+    cusparse::smv<Real, Representation::CompressedRows>(
+        device.get_cusparse_handle(),
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        n, m, nnz, 1.0,
+        reinterpret_cast<const cusparseMatDescr_t>(&default_matrix_descriptor),
+        *CSCBase::elements, *column_starts, *row_indices,
         v.get_element_pointer(), 0.0,
         w.get_element_pointer());
     return w;
