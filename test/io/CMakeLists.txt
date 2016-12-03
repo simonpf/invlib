@@ -4,7 +4,7 @@ include_directories(SYSTEM "${Boost_INCLUDE_DIRS}"
                            "${EIGEN3_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/"
-                    "${PROJECT_SOURCE_DIR}/ext/pugixml")
+                    "${PROJECT_SOURCE_DIR}/ext/")
 
 link_directories(${Boost_LIBRARIES})
 
