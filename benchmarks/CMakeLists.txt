@@ -22,6 +22,9 @@ if    (MKL_FOUND)
   add_definitions(-DMKL)
   set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MKL_LIBRARIES}
     pthread dl ${MKL_LIBRARIES})
+  if    (MPI_FOUND)
+    set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MPI_LIBRARIES})
+  endif (MPI_FOUND)
 endif (MKL_FOUND)
 
 # Executables
