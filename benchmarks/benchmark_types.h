@@ -18,7 +18,8 @@ namespace invlib {
 #ifdef CUDA
 using CudaSparseCR    = CudaSparse<double, Representation::CompressedRows>;
 using CudaSparseCC    = CudaSparse<double, Representation::CompressedColumns>;
-using CudaSparseTypes = std::tuple<CudaSparseCR, CudaSparseCC>;
+using CudaSparseHY    = CudaSparse<double, Representation::CompressedColumns>;
+using CudaSparseTypes = std::tuple<CudaSparseCR, CudaSparseCC, CudaSparseHY>;
 #else
 using CudaSparseTypes = std::tuple<>;
 #endif // CUDA
