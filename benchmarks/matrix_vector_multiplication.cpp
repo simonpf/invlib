@@ -10,7 +10,7 @@ template <typename SparseType>
 struct MatrixVectorMultiplication
 {
     auto operator()()
-        -> decltype(vector_to_tuple<100>(std::vector<double>()))
+        -> decltype(vector_to_tuple<40>(std::vector<double>()))
     {
 
         using MatrixType = Matrix<Timer<SparseType>>;
