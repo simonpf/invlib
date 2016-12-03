@@ -13,7 +13,7 @@ auto SparseData<Real, Index, Representation::Coordinates>::random(
     std::uniform_real_distribution<> real_dis(-10,10);
     std::uniform_int_distribution<> m_dis(0, m-1);
     std::uniform_int_distribution<> n_dis(0, n-1);
-    std::uniform_int_distribution<> nelements_dis(10, 12);//std::min(m, n), std::min(m , n) * std::min(m,n));
+    std::uniform_int_distribution<> nelements_dis(std::min(m, n), std::max(m , n));
 
     std::vector<Index> rows;
     std::vector<Index> columns;
