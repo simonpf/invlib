@@ -59,6 +59,34 @@ bool CGStepLimit<maximum_steps>::converged(const VectorType & /*r*/,
     return (steps > maximum_steps);
 }
 
+template<typename VectorType, size_t maximum_steps>
+CGContinued<VectorType, maximum_steps>::CGContinued(double /* unused */)
+    : steps(0)
+{
+    // Nothing to do here.
+}
+
+template<typename VectorType, size_t maximum_steps>
+VectorType & CGContinued<VectorType, maximum_steps>::start_vector(const VectorType & w)
+{
+    if (steps == 0)
+    {
+        v = w;
+        v.scale(0.0);
+    }
+
+    steps = 0;
+    return v;
+}
+
+template<typename VectorType, size_t maximum_steps>
+bool CGContinued<VectorType, maximum_steps>::converged(const VectorType & /*r*/,
+                                           const VectorType & /*v*/)
+{
+    steps++;
+    return (steps > maximum_steps);
+}
+
 // -------------------------  //
 //  Conjugate Gradient Solver //
 // -------------------------  //
@@ -89,9 +117,9 @@ auto ConjugateGradient<CGSettings>::solve(const MatrixType &A,
     Log<LogType::SOL_CG> log(verbosity);
 
     RealType tol, alpha, beta, rnorm, vnorm;
-    VectorType x, r, p, xnew, rnew, pnew;
+    VectorType r, p, xnew, rnew, pnew;
 
-    x = settings.start_vector(v);
+    auto x = settings.start_vector(v);
     r = A * x - v;
     p = -1.0 * r;
     vnorm = v.norm();

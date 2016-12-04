@@ -118,6 +118,40 @@ private:
 
 };
 
+/*! \brief Step Limit for CG Solver.
+ *
+ * Performs a fixed number of steps of the conjugate gradient solver.
+ *
+ * \tparam maximum_steps The number of steps to be performed.
+ */
+template<typename VectorType, size_t maximum_steps>
+class CGContinued
+{
+
+public:
+
+    CGContinued(double);
+
+    CGContinued(const CGContinued & )             = default;
+    CGContinued(      CGContinued &&)             = default;
+    CGContinued & operator=(const CGContinued & ) = default;
+    CGContinued & operator=(      CGContinued &&) = default;
+
+    /*! Returns the 0 vector as start vector for the CG method. */
+    VectorType & start_vector(const VectorType &);
+
+    /*! Check whether the norm of the residual normalized by the RHS norm
+     * is smaller than tolerance */
+    bool converged(const VectorType &, const VectorType &);
+
+private:
+
+    size_t     steps;
+    VectorType v;
+
+};
+
+
 
 
 // -------------------------  //
