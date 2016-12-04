@@ -7,7 +7,11 @@ VectorData<Real>::VectorData(const VectorData &v)
 {
     elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
     *elements = new Real[n];
-    std::copy(v.begin(), v.end(), *elements);
+
+    if (n > 0)
+    {
+        std::copy(v.begin(), v.end(), *elements);
+    }
 }
 
 template
