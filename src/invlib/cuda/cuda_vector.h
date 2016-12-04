@@ -23,7 +23,14 @@ namespace invlib {
 // -------------------- //
 
 template <typename RealType> class CudaVector;
-template <typename RealType> class CudaMatrix;
+template <typename Real> class CudaMatrix
+{
+public:
+    using RealType   = Real;
+    using VectorType = CudaVector<RealType>;
+    using MatrixType = CudaMatrix<RealType>;
+    using ResultType = CudaVector<RealType>;
+};
 template <typename RealType, Representation rep>  class CudaSparse;
 
 template <typename RealType>
@@ -67,9 +74,9 @@ public:
     // -------------- //
 
     using RealType   = Real;
-    using VectorType = CudaVector;
+    using VectorType = CudaVector<RealType>;
     using MatrixType = CudaMatrix<RealType>;
-    using ResultType = CudaVector;
+    using ResultType = CudaVector<RealType>;
 
     // ------------------------------- //
     //  Constructors and Destructors   //

@@ -64,6 +64,9 @@ public:
     CudaSparse & operator=(const CudaSparse & ) = delete;
     CudaSparse & operator=(      CudaSparse &&) = delete;
 
+    size_t rows() const {return m;}
+    size_t cols() const {return n;}
+
     // -----------//
     // Arithmetic //
     // ---------- //
@@ -112,6 +115,13 @@ public:
     CudaSparse & operator=(const CudaSparse & ) = delete;
     CudaSparse & operator=(      CudaSparse &&) = delete;
 
+    size_t rows() const {return m;}
+    size_t cols() const {return n;}
+
+    // -----------//
+    // Arithmetic //
+    // ---------- //
+
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
 
@@ -157,6 +167,13 @@ public:
     CudaSparse(      CudaSparse &&)             = delete;
     CudaSparse & operator=(const CudaSparse & ) = delete;
     CudaSparse & operator=(      CudaSparse &&) = delete;
+
+    size_t rows() const {return m;}
+    size_t cols() const {return n;}
+
+    // -----------//
+    // Arithmetic //
+    // ---------- //
 
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;

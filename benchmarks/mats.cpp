@@ -110,5 +110,5 @@ template <typename T> void foo();
 int main()
 {
     using TypeList = typename ConcatTuple<MklSparseTypes, std::tuple<EigenSparse>>::Type;
-    Benchmark<Mats, TypeList>().run();
+    Benchmark<Mats, SparseTypes>().run();
 }
