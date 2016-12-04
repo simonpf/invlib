@@ -243,6 +243,15 @@ public:
         return w;
     }
 
+    VectorType transpose_multiply_block(
+        const VectorType &v,
+        size_t block_start,
+        size_t block_length) const
+    {
+        VectorType w = this->transpose() * v.block(block_start, 0, block_length, 1);
+        return w;
+    }
+
 };
 
 }      // namespace invlib
