@@ -84,11 +84,11 @@ public:
 
     /*! Performs a deep copy of the CudaVector object. */
     CudaVector(const CudaVector &);
+    /*! Performs a deep copy of the CudaVector object. */
+    CudaVector & operator=(const CudaVector &);
 
     /*! Performs a shallow copy of the CudaVector object. */
     CudaVector(CudaVector &&)                   = default;
-    /*! Performs a shallow copy of the CudaVector object. */
-    CudaVector & operator=(const CudaVector & ) = default;
     /*! Performs a shallow copy of the CudaVector object. */
     CudaVector & operator=(      CudaVector &&) = default;
 

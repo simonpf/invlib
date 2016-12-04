@@ -28,6 +28,29 @@ CudaVector<Real>::CudaVector(const CudaVector & v)
 }
 
 template <typename Real>
+auto CudaVector<Real>::operator=(const CudaVector & v)
+    -> CudaVector &
+{
+    n         = v.n;
+    device    = v.device;
+    allocator = &device->get_allocator();
+    deleter   = CudaVectorDeleter(&device->get_allocator());
+
+    if (n > 0)
+    {
+    elements  = std::shared_ptr<Real *>(new (Real *), deleter);
+    *elements = static_cast<Real *>(allocator->request(n * sizeof(Real)));
+
+    const Real * vector_elements = v.get_element_pointer();
+    cudaError_t error = cudaMemcpy(reinterpret_cast<      void *>(*elements),
+                                   reinterpret_cast<const void *>(vector_elements),
+                                   n * sizeof(Real),
+                                   cudaMemcpyDeviceToDevice);
+    HANDLE_CUDA_ERROR(error);
+    }
+}
+
+template <typename Real>
 CudaVector<Real>::CudaVector(const VectorData<Real> & vector,
                              CudaDevice & device_)
     : n(vector.rows()), device(&device_), allocator(&device->get_allocator()),
