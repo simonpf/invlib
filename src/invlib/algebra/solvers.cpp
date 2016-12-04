@@ -43,7 +43,7 @@ CGStepLimit<maximum_steps>::CGStepLimit(double /* unused */)
 
 template<size_t maximum_steps>
 template<typename VectorType>
-VectorType CGStepLimit<maximum_steps>::start_vector(const VectorType & v) const
+VectorType CGStepLimit<maximum_steps>::start_vector(const VectorType & v)
 {
     steps = 0;
     VectorType w = 0.0 * v;

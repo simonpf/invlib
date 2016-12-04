@@ -105,7 +105,7 @@ public:
 
     /*! Returns the 0 vector as start vector for the CG method. */
     template <typename VectorType>
-    VectorType start_vector(const VectorType &) const;
+    VectorType start_vector(const VectorType &);
 
     /*! Check whether the norm of the residual normalized by the RHS norm
      * is smaller than tolerance */
