@@ -228,6 +228,8 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STAN
     bool converged = false;
     iterations     = 0;
 
+    log.step(iterations, cost, cost_x, cost_y, NAN, M);
+
     while ((iterations < M.get_maximum_iterations()) && !converged)
     {
 
