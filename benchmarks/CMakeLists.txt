@@ -3,8 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/benchmarks/"
-                    "${PROJECT_SOURCE_DIR}/ext"
-                    /opt/intel/mkl/include)
+                    "${PROJECT_SOURCE_DIR}/ext")
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -16,10 +15,11 @@ if    (CUDA_FOUND)
     ${CUDA_CUBLAS_LIBRARIES} ${CUDA_cusparse_LIBRARY} cuda_kernels)
 endif (CUDA_FOUND)
 
-# MLK Dependent Code
+# MKL Dependent Code
 include(${PROJECT_SOURCE_DIR}/cmake/FindMKL.cmake)
 if    (MKL_FOUND)
   add_definitions(-DMKL)
+  include_directories(${MKL_INCLUDE_DIR})
   set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MKL_LIBRARIES}
     pthread dl ${MKL_LIBRARIES})
   if    (MPI_FOUND)
