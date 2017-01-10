@@ -64,12 +64,16 @@ int main(int argc, const char ** argv)
         path = argv[1];
     }
 
+    std::cout << "Loading data from " << path + "/." << std::endl;
+
     // Load data.
     MatrixType K(read_matrix_arts(path + "/K.xml"));
     MatrixType SaInv(read_matrix_arts(path + "/SaInv.xml"));
     MatrixType SeInv(read_matrix_arts(path + "/SeInv.xml"));
     VectorType xa(read_vector_arts(path + "/xa.xml"));
     VectorType  y(read_vector_arts(path + "/y.xml"));
+
+    std::cout << "Starting OEM:" << std::endl;
 
     PrecisionMatrix Pa(SaInv);
     PrecisionMatrix Pe(SeInv);
@@ -83,7 +87,7 @@ int main(int argc, const char ** argv)
     // Run OEM.
     VectorType x;
 
-    oem.compute(x, y, gn, 0);
+    oem.compute(x, y, gn, 2);
 
     write_vector_arts("x.xml", x, Format::Binary);
 
