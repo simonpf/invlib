@@ -150,13 +150,12 @@ void write_vector_arts(const std::string & filename,
     ss << nelem;
     xml_vector.append_attribute("nelem") = ss.str().c_str();
 
-    const double * elements = vector.get_element_pointer();
     if (format == Format::ASCII)
     {
         ss.str("");
         for (size_t i = 0; i < nelem; i++)
         {
-            ss << elements[i] << " ";
+            ss << vector.get_element_pointer()[i] << " ";
         }
         auto nodechild = xml_vector.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
@@ -173,7 +172,7 @@ void write_vector_arts(const std::string & filename,
 
         for (size_t i = 0; i < nelem; i++)
         {
-            double elem = static_cast<double>(elements[i]);
+            double elem = static_cast<double>(vector.get_element_pointer()[i]);
             buf.eight = htole64(*reinterpret_cast<const uint64_t *>(&elem));
             file.write(buf.buf, 8);
         }

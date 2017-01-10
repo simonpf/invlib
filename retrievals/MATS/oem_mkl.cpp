@@ -47,11 +47,11 @@ private:
 int main(int argc, const char ** argv)
 {
     // Define types.
-    using MatrixType = Matrix<Timer<MklSparse<double, Representation::Hybrid>>>;
-    using VectorType = Vector<Timer<BlasVector<double>>>;
+    using MatrixType = Matrix<Timer<MklSparse<float, Representation::Hybrid>>>;
+    using VectorType = Vector<Timer<BlasVector<float>>>;
 
     using SolverType      = invlib::ConjugateGradient<CGStepLimit<1000>>;
-    using MinimizerType   = invlib::GaussNewton<double, SolverType>;
+    using MinimizerType   = invlib::GaussNewton<float, SolverType>;
     using PrecisionMatrix = invlib::PrecisionMatrix<MatrixType>;
     using MAPType         = invlib::MAP<LinearModel<MatrixType, VectorType>,
                                         MatrixType,
@@ -67,11 +67,11 @@ int main(int argc, const char ** argv)
     std::cout << "Loading data from " << path + "/." << std::endl;
 
     // Load data.
-    MatrixType K(read_matrix_arts(path + "/K.xml"));
-    MatrixType SaInv(read_matrix_arts(path + "/SaInv.xml"));
-    MatrixType SeInv(read_matrix_arts(path + "/SeInv.xml"));
-    VectorType xa(read_vector_arts(path + "/xa.xml"));
-    VectorType  y(read_vector_arts(path + "/y.xml"));
+    MatrixType K(read_matrix_arts<float>(path + "/K.xml"));
+    MatrixType SaInv(read_matrix_arts<float>(path + "/SaInv.xml"));
+    MatrixType SeInv(read_matrix_arts<float>(path + "/SeInv.xml"));
+    VectorType xa(read_vector_arts<float>(path + "/xa.xml"));
+    VectorType  y(read_vector_arts<float>(path + "/y.xml"));
 
     std::cout << "Starting OEM:" << std::endl;
 

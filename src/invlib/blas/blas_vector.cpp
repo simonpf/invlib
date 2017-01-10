@@ -79,7 +79,7 @@ typename Real
 >
 Real dot(const BlasVector<Real > & a, const BlasVector<Real> & b)
 {
-    return blas::dot<double>(
+    return blas::dot<Real>(
         static_cast<int>(a.rows()), a.get_element_pointer(), 1,
         b.get_element_pointer(), 1
         );
