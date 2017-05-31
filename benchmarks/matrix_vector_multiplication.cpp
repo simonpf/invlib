@@ -2,6 +2,8 @@
 
 #include "invlib/algebra.h"
 #include "invlib/profiling/timer.h"
+#include "invlib/dense/vector_data.h"
+
 #include "benchmark_types.h"
 
 using namespace invlib;

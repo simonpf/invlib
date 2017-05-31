@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 2.6)
-project (invlib)
 
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/")
@@ -21,4 +20,5 @@ if (Boost_FOUND)
   target_link_libraries(transformation ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
   add_executable(diagonal diagonal.cpp)
   target_link_libraries(transformation ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
 endif (Boost_FOUND)

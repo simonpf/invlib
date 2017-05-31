@@ -14,9 +14,9 @@ set (CMAKE_CXX_STANDARD 11)
 # Boost
 find_package(Boost 1.60.0)
 # BLAS
-include(FindBLAS)
+find_package(BLAS)
 # LAPACK
-include(FindLAPACK)
+find_package(LAPACK)
 # MPI
 include(FindMPI)
 # CUDA

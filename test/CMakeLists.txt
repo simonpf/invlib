@@ -22,6 +22,6 @@ if (Boost_FOUND)
                 "/home/simon/src/arts/build/src")
 
   add_executable(run_all run_all.cpp)
-  target_link_libraries(run_all ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+#  target_link_libraries(run_all ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 endif (Boost_FOUND)
