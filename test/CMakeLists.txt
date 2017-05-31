@@ -9,15 +9,19 @@ add_subdirectory(optimization)
 add_subdirectory(profiling)
 add_subdirectory(sparse)
 
-include_directories(SYSTEM "${Boost_INCLUDE_DIRS}")
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/"
                     "${PROJECT_SOURCE_DIR}/ext/")
 
-link_directories(${Boost_LIBRARIES}
-                "/home/simon/src/arts/build/src")
 
 if (Boost_FOUND)
+
+  include_directories(SYSTEM "${Boost_INCLUDE_DIRS}")
+
+  link_directories(${Boost_LIBRARIES}
+                "/home/simon/src/arts/build/src")
+
   add_executable(run_all run_all.cpp)
   target_link_libraries(run_all ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
 endif (Boost_FOUND)

@@ -34,11 +34,6 @@ if (NOT EIGEN3_FOUND)
                    setting EIGEN3_INCLUDE_DIR to the path containing Eigen3.")
 endif (NOT EIGEN3_FOUND)
 
-
-include_directories ("${PROJECT_SOURCE_DIR}/src/"
-                     "${PROJECT_SOURCE_DIR}/test/"
-                     "${Boost_INCLUDE_DIRS}")
-
 # Build tests.
 add_subdirectory(src)
 add_subdirectory(test)
