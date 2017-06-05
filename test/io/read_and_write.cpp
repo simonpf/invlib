@@ -15,8 +15,8 @@ void read_and_write_test()
     std::uniform_int_distribution<> dis_m(1, 1000);
     std::uniform_int_distribution<> dis_n(1, 1000);
 
-    size_t m = dis_m(gen);
-    size_t n = dis_n(gen);
+    size_t m = 4; dis_m(gen);
+    size_t n = 4; dis_n(gen);
 
     // Generate random sparse matrix.
 
@@ -33,7 +33,7 @@ void read_and_write_test()
     invlib::write_matrix_arts("test_sparse_ascii.xml", A, Format::ASCII);
     B = invlib::read_matrix_arts("test_sparse_ascii.xml");
 
-    // TODO: Fix precision of arts ASCII writer.
+
     BOOST_TEST(A == B, "Error writing and reading Arts ASCII sparse matrix format.");
 
     using Vector = VectorData<double>;
@@ -49,7 +49,6 @@ void read_and_write_test()
     invlib::write_vector_arts("test_vector_ascii.xml", v, Format::ASCII);
     w = invlib::read_vector_arts("test_vector_ascii.xml");
 
-    // TODO: Fix precision of arts ASCII writer.
     BOOST_TEST(v == w, "Error writing and reading Arts ASCII vector format.");
 }
 

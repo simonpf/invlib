@@ -82,7 +82,7 @@ void write_matrix_arts(const std::string & filename,
         ss.str("");
         for (size_t i = 0; i < nnz; i++)
         {
-            ss << matrix.get_element_pointer()[i] << " ";
+            ss << std::setprecision(20) << matrix.get_element_pointer()[i] << " ";
         }
         nodechild = xml_data.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
@@ -155,7 +155,7 @@ void write_vector_arts(const std::string & filename,
         ss.str("");
         for (size_t i = 0; i < nelem; i++)
         {
-            ss << vector.get_element_pointer()[i] << " ";
+            ss << std::setprecision(20) << vector.get_element_pointer()[i] << " ";
         }
         auto nodechild = xml_vector.append_child(pugi::node_pcdata);
         nodechild.set_value(ss.str().c_str());
