@@ -1,8 +1,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "math.h"
-
+#include <cmath>
 #include <tuple>
 #include <string>
 #include <iostream>
@@ -53,7 +52,7 @@ class StandardLog
 
 public:
 
-    StandardLog(unsigned int v) : verbosity(v) {}
+    StandardLog(unsigned int v = 0) : verbosity(v) {}
 
     template <typename... Params>
     void init(Params... params) {}
@@ -232,7 +231,7 @@ void StandardLog<LogType::MAP>::step(Params... params)
         std::cout<< std::setw(15) << std::get<1>(tuple);
         std::cout<< std::setw(15) << std::get<2>(tuple);
         std::cout<< std::setw(15) << std::get<3>(tuple);
-        if (isnan(std::get<4>(tuple)))
+        if (std::isnan(std::get<4>(tuple)))
         {
             std::cout << std::setw(15) << " ";
         } else {
