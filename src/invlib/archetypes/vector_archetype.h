@@ -211,7 +211,7 @@ public:
 
 private:
 
-    unsigned int n;
+    unsigned int n = 0;
     std::unique_ptr<RealType[]> data;
 
 };

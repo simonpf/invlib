@@ -216,7 +216,11 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STAN
     auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
-    x = xa;
+
+    if (x.rows() != n) {
+        x = xa;
+    }
+
     FMVectorType yi; yi.resize(m);
     JacobianType K = Jacobian(x, yi);
     VectorType dx;
@@ -315,7 +319,9 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFOR
     auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
-    x = xa;
+    if (x.rows() != n) {
+        x = xa;
+    }
     FMVectorType yi; yi.resize(m);
     JacobianType K = Jacobian(x, yi);
 
@@ -430,7 +436,9 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFOR
     auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
-    x = xa;
+    if (x.rows() != n) {
+        x = xa;
+    }
     FMVectorType yi; yi.resize(m);
     JacobianType K = Jacobian(x, yi);
     VectorType dx, yold;

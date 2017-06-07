@@ -14,9 +14,9 @@ set (CMAKE_CXX_STANDARD 11)
 # Boost
 find_package(Boost 1.60.0)
 # BLAS
-include(FindBLAS)
+find_package(BLAS)
 # LAPACK
-include(FindLAPACK)
+find_package(LAPACK)
 # MPI
 include(FindMPI)
 # CUDA
@@ -34,14 +34,10 @@ if (NOT EIGEN3_FOUND)
                    setting EIGEN3_INCLUDE_DIR to the path containing Eigen3.")
 endif (NOT EIGEN3_FOUND)
 
-
-include_directories ("${PROJECT_SOURCE_DIR}/src/"
-                     "${PROJECT_SOURCE_DIR}/test/"
-                     "${Boost_INCLUDE_DIRS}")
-
 # Build tests.
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(examples)
 add_subdirectory(benchmarks)
+add_subdirectory(retrievals)
 
