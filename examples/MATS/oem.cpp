@@ -1,13 +1,12 @@
+#include "invlib/interfaces/eigen.h"
+#include "invlib/algebra.h"
+#include "invlib/io.h"
 #include "invlib/map.h"
-#include "eigen.h"
-#include "invlib/algebra/precision_matrix.h"
-#include "invlib/algebra/solvers.h"
 #include "invlib/optimization/gauss_newton.h"
 
-#include "eigen_io.h"
 
-using MatrixType = invlib::Matrix<EigenSparse>;
-using VectorType = invlib::Vector<EigenVector>;
+using MatrixType = invlib::Matrix<invlib::EigenSparse>;
+using VectorType = invlib::Vector<invlib::EigenVector>;
 
 class LinearModel
 {
@@ -42,9 +41,6 @@ private:
 int main()
 {
 
-    using MatrixType = invlib::Matrix<EigenSparse>;
-    using VectorType = invlib::Vector<EigenVector>;
-
     using SolverType      = invlib::ConjugateGradient<>;
     using MinimizerType   = invlib::GaussNewton<double, SolverType>;
     using PrecisionMatrix = invlib::PrecisionMatrix<MatrixType>;
@@ -54,14 +50,14 @@ int main()
                                         PrecisionMatrix>;
 
     // Load data.
-    MatrixType K     = read_sparse_matrix("data/K.sparse");
-    MatrixType SaInv = read_sparse_matrix("data/SaInv.sparse");
-    MatrixType SeInv = read_sparse_matrix("data/SeInv.sparse");
+    MatrixType K     = invlib::read_matrix_arts("STR_VALUE(MATS_DATA)/K.xml");
+    MatrixType SaInv = invlib::read_matrix_arts("STR_VALUE(MATS_DATA)/SaInv.xml");
+    MatrixType SeInv = invlib::read_matrix_arts("STR_VALUE(MATS_DATA)/SeInv.xml");
     PrecisionMatrix Pa(SaInv);
     PrecisionMatrix Pe(SeInv);
 
-    VectorType y     = read_vector("data/y.vec");
-    VectorType xa    = read_vector("data/xa.vec");
+    VectorType y     = invlib::read_vector_arts("STR_VALUE(MATS_DATA)/y.vec");
+    VectorType xa    = invlib::read_vector_arts("STR_VALUE(MATS_DATA)/xa.vec");
 
     // Setup OEM.
     SolverType    cg(1e-6, 1);
@@ -73,7 +69,7 @@ int main()
     VectorType x;
     oem.compute(x, y, gn, 0);
 
-    write_vector(x, "x.vec");
+    invlib::write_vector_arts("x.xml", x, invlib::Format::ASCII);
 
     return 0.0;
 }

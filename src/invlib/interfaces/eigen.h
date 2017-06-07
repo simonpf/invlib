@@ -5,6 +5,8 @@
 #include <utility>
 
 #include "invlib/traits.h"
+#include "invlib/dense/vector_data.h"
+#include "invlib/sparse/sparse_data.h"
 
 namespace invlib {
 

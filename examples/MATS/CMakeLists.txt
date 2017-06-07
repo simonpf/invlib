@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 2.6)
-project (invlib)
 
 if (EIGEN3_INCLUDE_DIR)
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
@@ -7,6 +6,7 @@ endif (EIGEN3_INCLUDE_DIR)
 
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/"
+                    "${PROJECT_SOURCE_DIR}/ext/"
                     "${MPI_INCLUDE_PATH}")
 
 # Executables

@@ -25,10 +25,10 @@ using CudaSparseTypes = std::tuple<>;
 #endif // CUDA
 
 #ifdef MKL
-using MklSparseCO    = MklSparse<double, Representation::Coordinates>;
-using MklSparseCR    = MklSparse<double, Representation::CompressedRows>;
-using MklSparseCC    = MklSparse<double, Representation::CompressedColumns>;
-using MklSparseHY    = MklSparse<double, Representation::Hybrid>;
+using MklSparseCO    = MklSparse<float, Representation::Coordinates>;
+using MklSparseCR    = MklSparse<float, Representation::CompressedRows>;
+using MklSparseCC    = MklSparse<float, Representation::CompressedColumns>;
+using MklSparseHY    = MklSparse<float, Representation::Hybrid>;
 using MklSparseTypes = std::tuple<MklSparseCO, MklSparseCR, MklSparseCC, MklSparseHY>;
 #else
 using MklSparseTypes = std::tuple<>;

@@ -75,11 +75,11 @@ struct Mats
                                             PrecisionMatrix>;
 
         // Load data.
-        MatrixType K(read_matrix_arts(STR_VALUE(MATS_DATA) "/K.xml"));
-        MatrixType SaInv(read_matrix_arts(STR_VALUE(MATS_DATA) "/SaInv.xml"));
-        MatrixType SeInv(read_matrix_arts(STR_VALUE(MATS_DATA) "/SeInv.xml"));
-        VectorType xa(read_vector_arts(STR_VALUE(MATS_DATA) "/xa.xml"));
-        VectorType y(read_vector_arts(STR_VALUE(MATS_DATA) "/y.xml"));
+        MatrixType K(read_matrix_arts<float>(STR_VALUE(MATS_DATA) "/K.xml"));
+        MatrixType SaInv(read_matrix_arts<float>(STR_VALUE(MATS_DATA) "/SaInv.xml"));
+        MatrixType SeInv(read_matrix_arts<float>(STR_VALUE(MATS_DATA) "/SeInv.xml"));
+        VectorType xa(read_vector_arts<float>(STR_VALUE(MATS_DATA) "/xa.xml"));
+        VectorType y(read_vector_arts<float>(STR_VALUE(MATS_DATA) "/y.xml"));
 
         PrecisionMatrix Pa(SaInv);
         PrecisionMatrix Pe(SeInv);
@@ -94,7 +94,7 @@ struct Mats
         VectorType x;
 
         auto t1 = steady_clock::now();
-        oem.compute(x, y, gn, 0);
+        oem.compute(x, y, gn, 2);
         auto t2 = steady_clock::now();
         auto oem_time = duration_cast<duration<double>>(t2 - t1);
 
@@ -110,5 +110,5 @@ template <typename T> void foo();
 int main()
 {
     using TypeList = typename ConcatTuple<MklSparseTypes, std::tuple<EigenSparse>>::Type;
-    Benchmark<Mats, SparseTypes>().run();
+    Benchmark<Mats, MklSparseTypes>().run();
 }

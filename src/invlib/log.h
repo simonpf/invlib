@@ -185,7 +185,7 @@ void StandardLog<LogType::MAP>::init(Params... params)
         std::cout << center("MAP Computation") << std::endl;
 
         // Print formulation.
-        int formulation = static_cast<int>(std::get<0>(tuple));
+        int formulation = static_cast<int>(std::get<6>(tuple));
         switch (formulation)
         {
         case 0:
@@ -202,7 +202,7 @@ void StandardLog<LogType::MAP>::init(Params... params)
 
         // Print optimization method.
         using OptimizationType =
-            typename std::tuple_element<1, decltype(tuple)>::type;
+            typename std::tuple_element<5, decltype(tuple)>::type;
         std::cout << "Method:      " << OptimizerLog<OptimizationType>::name;
         std::cout << std::endl;
 

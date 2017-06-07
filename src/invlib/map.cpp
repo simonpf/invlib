@@ -158,7 +158,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
     -> MatrixType
 {
     VectorType y; y.resize(m);
-    auto &&K = Jacobian(x, y);
+    JacobianType K = Jacobian(x, y);
     MatrixType tmp = transp(K) * inv(Se);
     MatrixType G = inv(tmp * K + inv(Sa)) * tmp;
     return G;
@@ -201,17 +201,17 @@ typename SaType,
 typename SeType,
 typename VectorType
 >
-template<typename Minimizer, template <LogType> class Log>
+template<typename Minimizer, template <LogType> class Log, typename ... LogParams>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
 ::compute(VectorType       &x,
           const VectorType &y,
           Minimizer M,
-          int verbosity)
+          LogParams ... log_params)
     -> int
 {
 
-    Log<LogType::MAP> log(verbosity);
-    log.init(Formulation::STANDARD, M);
+    Log<LogType::MAP> log(log_params ...);
+    log.init(F, xa, Sa, Se, y, M, Formulation::STANDARD);
 
     auto t1 = std::chrono::steady_clock::now();
 
@@ -300,17 +300,18 @@ typename SaType,
 typename SeType,
 typename VectorType
 >
-template<typename Minimizer, template <LogType> class Log>
+template<typename Minimizer, template <LogType> class Log, typename ... LogParams>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
 ::compute(VectorType       &x,
           const VectorType &y,
           Minimizer M,
-          int verbosity)
+          LogParams ... log_params)
     -> int
 {
 
-    Log<LogType::MAP> log(verbosity);
-    log.init(Formulation::STANDARD, M);
+    Log<LogType::MAP> log(log_params ...);
+    log.init(F, xa, Sa, Se, y, M, Formulation::NFORM);
+
     auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
@@ -417,15 +418,15 @@ typename SaType,
 typename SeType,
 typename VectorType
 >
-template<typename Minimizer, template <LogType> class Log>
+template<typename Minimizer, template <LogType> class Log, typename ... LogParams>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 ::compute(VectorType       &x,
           const VectorType &y,
           Minimizer M,
-          int verbosity)
+          LogParams ... log_params)
     -> int
 {
-    Log<LogType::MAP> log(verbosity);
+    Log<LogType::MAP> log(log_params ...);
     auto t1 = std::chrono::steady_clock::now();
 
     y_ptr = &y;
