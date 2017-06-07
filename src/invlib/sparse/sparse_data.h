@@ -9,6 +9,7 @@
 #ifndef SPARSE_SPARSE_DATA
 #define SPARSE_SPARSE_DATA
 
+#include "invlib/invlib.h"
 #include "invlib/archetypes/matrix_archetype.h"
 #include "invlib/archetypes/vector_archetype.h"
 #include "invlib/utility/array_deleter.h"
@@ -207,7 +208,7 @@ template
 typename Real,
 typename Index
 >
-    class SparseData<Real, Index, Representation::CompressedColumns> : Invlib
+class SparseData<Real, Index, Representation::CompressedColumns> : Invlib
 {
 public:
 
