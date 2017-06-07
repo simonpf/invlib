@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 
 include_directories("${PROJECT_SOURCE_DIR}/src/"
-                    "${PROJECT_SOURCE_DIR}/test/")
+                    "${PROJECT_SOURCE_DIR}/test/"
+                    "${PROJECT_SOURCE_DIR}/ext/")
 
 if (EIGEN3_FOUND)
   include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})

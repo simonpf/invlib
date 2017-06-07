@@ -79,7 +79,7 @@ template
 typename Real,
 typename Index
 >
-class SparseData<Real, Index, Representation::Coordinates>
+class SparseData<Real, Index, Representation::Coordinates> : Invlib
 {
 public:
 
@@ -207,7 +207,7 @@ template
 typename Real,
 typename Index
 >
-class SparseData<Real, Index, Representation::CompressedColumns>
+    class SparseData<Real, Index, Representation::CompressedColumns> : Invlib
 {
 public:
 
@@ -306,7 +306,7 @@ template
 typename Real,
 typename Index
 >
-class SparseData<Real, Index, Representation::CompressedRows>
+class SparseData<Real, Index, Representation::CompressedRows> : Invlib
 {
 public:
 

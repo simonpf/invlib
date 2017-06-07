@@ -12,6 +12,7 @@
 #include <memory>
 #include <random>
 
+#include "invlib/invlib.h"
 #include "invlib/archetypes/vector_archetype.h"
 #include "invlib/utility/functions.h"
 #include "invlib/utility/array_deleter.h"
@@ -41,7 +42,7 @@ template
 <
 typename Real
 >
-class VectorData
+class VectorData : public Invlib
 {
 
 public:

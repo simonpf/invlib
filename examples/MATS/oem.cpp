@@ -1,8 +1,11 @@
+#include <type_traits>
+
 #include "invlib/interfaces/eigen.h"
 #include "invlib/algebra.h"
 #include "invlib/io.h"
 #include "invlib/map.h"
 #include "invlib/optimization/gauss_newton.h"
+#include "invlib/traits.h"
 
 
 using MatrixType = invlib::Matrix<invlib::EigenSparse>;
@@ -38,6 +41,8 @@ private:
 
 };
 
+template<typename T> void foo(T);
+
 int main()
 {
 
@@ -69,7 +74,7 @@ int main()
     VectorType x;
     oem.compute(x, y, gn, 0);
 
-    invlib::write_vector_arts("x.xml", x, invlib::Format::ASCII);
+    invlib::write_vector_arts("x.xml", (invlib::VectorData<double>) x, invlib::Format::ASCII);
 
     return 0.0;
 }
