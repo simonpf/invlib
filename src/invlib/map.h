@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <exception>
 
 using std::chrono::steady_clock;
 using std::chrono::duration;
@@ -48,17 +49,6 @@ namespace invlib
  */
 enum class Formulation {STANDARD = 0, NFORM = 1, MFORM = 2};
 
-/*!
- * Exception class representing falure of the forward model evaluation.
- */
-struct ForwardModelEvaluationException
-{
-    std::string message()
-    {
-        return "Could not evaluate forward model";
-    }
-};
-
 /**
  * \brief MAP base class
  *
@@ -91,11 +81,11 @@ struct ForwardModelEvaluationException
  */
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType = typename MatrixType::VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType = typename MatrixType::VectorType
 >
 class MAPBase
 {
@@ -128,6 +118,9 @@ public:
                                                         ForwardModel &,
                                                         const VectorType &,
                                                         VectorType &)>;
+
+    /*! Measurement vector type that can be assigned to. */
+    using MeasurementVectorType = CopyWrapper<FMVectorType>;
 
     /*! Jacobian type that can be assigned to. */
     using JacobianType = CopyWrapper<FMJacobianType>;
@@ -211,7 +204,7 @@ public:
     /*! Exception safe wrapper for the evaluate function of the forward
      * model.
      */
-    FMVectorType evaluate(const VectorType &x);
+    MeasurementVectorType evaluate(const VectorType &x);
 
     /*! Exception safe wrapper for the Jaobian computation function of the
      * forward model.
@@ -250,12 +243,12 @@ protected:
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType     = MatrixType,
-typename SeType     = MatrixType,
-typename VectorType = typename MatrixType::VectorType,
-Formulation Form    = Formulation::STANDARD
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType     = MatrixType,
+    typename SeType     = MatrixType,
+    typename VectorType = typename MatrixType::VectorType,
+    Formulation Form    = Formulation::STANDARD
 >
 class MAP;
 
@@ -275,11 +268,11 @@ class MAP;
  */
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 class MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
     : public MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
@@ -294,7 +287,7 @@ public:
     /*! The Jacobian Type */
     using typename Base::JacobianType;
     /*! The vector type as returned by the forward model. */
-    using typename Base::FMVectorType;
+    using typename Base::MeasurementVectorType;
 
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
@@ -360,11 +353,11 @@ public:
  */
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 class MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
     : public MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
@@ -379,7 +372,7 @@ public:
     /*! The Jacobian Type */
     using typename Base::JacobianType;
     /*! The vector type as returned by the forward model. */
-    using typename Base::FMVectorType;
+    using typename Base::MeasurementVectorType;
 
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;
@@ -462,7 +455,7 @@ public:
     /*! The assignable Jacobian type. */
     using typename Base::JacobianType;
     /*! The vector type as returned by the forward model. */
-    using typename Base::FMVectorType;
+    using typename Base::MeasurementVectorType;
 
     /*! Make Base memeber directly available. */
     using Base::m; using Base::n;

@@ -101,7 +101,7 @@ typename VectorType
 >
 auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::evaluate(const VectorType& x)
-    -> FMVectorType
+    -> MeasurementVectorType
 {
     try
     {
@@ -114,7 +114,7 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
     }
     catch(...)
     {
-        throw ForwardModelEvaluationException{};
+        std::throw_with_nested(std::runtime_error("Forward Model Evaluation Error"));
     }
 }
 
@@ -141,24 +141,24 @@ auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
     }
     catch(...)
     {
-        throw ForwardModelEvaluationException{};
+        std::throw_with_nested(std::runtime_error("Forward Model Evaluation Error"));
     }
 }
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 auto MAPBase<ForwardModel, MatrixType, SaType, SeType, VectorType>
 ::gain_matrix(const VectorType &x)
     -> MatrixType
 {
     VectorType y; y.resize(m);
-    JacobianType K = Jacobian(x, y);
+    auto && K = Jacobian(x, y);
     MatrixType tmp = transp(K) * inv(Se);
     MatrixType G = inv(tmp * K + inv(Sa)) * tmp;
     return G;
@@ -177,11 +177,11 @@ auto inline operator *(std::reference_wrapper<ReferenceType> & A, const OtherTyp
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
 ::MAP( ForwardModel &F_,
@@ -195,11 +195,11 @@ MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 template<typename Minimizer, template <LogType> class Log, typename ... LogParams>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STANDARD>
@@ -221,7 +221,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STAN
         x = xa;
     }
 
-    FMVectorType yi; yi.resize(m);
+    MeasurementVectorType yi; yi.resize(m);
     JacobianType K = Jacobian(x, yi);
     VectorType dx;
 
@@ -280,11 +280,11 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::STAN
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
 ::MAP( ForwardModel &F_,
@@ -298,11 +298,11 @@ MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 template<typename Minimizer, template <LogType> class Log, typename ... LogParams>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFORM>
@@ -322,7 +322,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFOR
     if (x.rows() != n) {
         x = xa;
     }
-    FMVectorType yi; yi.resize(m);
+    MeasurementVectorType yi; yi.resize(m);
     JacobianType K = Jacobian(x, yi);
 
     VectorType dx;
@@ -381,11 +381,11 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::NFOR
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 ::MAP( ForwardModel &F_,
@@ -399,11 +399,11 @@ MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
 ::gain_matrix(const VectorType &x)
@@ -418,11 +418,11 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFOR
 
 template
 <
-typename ForwardModel,
-typename MatrixType,
-typename SaType,
-typename SeType,
-typename VectorType
+    typename ForwardModel,
+    typename MatrixType,
+    typename SaType,
+    typename SeType,
+    typename VectorType
 >
 template<typename Minimizer, template <LogType> class Log, typename ... LogParams>
 auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFORM>
@@ -439,7 +439,7 @@ auto MAP<ForwardModel, MatrixType, SaType, SeType, VectorType, Formulation::MFOR
     if (x.rows() != n) {
         x = xa;
     }
-    FMVectorType yi; yi.resize(m);
+    MeasurementVectorType yi; yi.resize(m);
     JacobianType K = Jacobian(x, yi);
     VectorType dx, yold;
 
