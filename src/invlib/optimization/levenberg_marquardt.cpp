@@ -262,17 +262,6 @@ auto LevenbergMarquardt<RealType, DampingMatrix, Solver>
     {
         // Compute step.
         auto C = B + lambda * D;
-
-        try {
-            dx = -1.0 * s.solve(C, g);
-        } catch(...) {
-            std::throw_with_nested(
-                std::runtime_error(
-                    "Linear System Solution Error in Levenberg-Marquardt Method."
-                    )
-                );
-        }
-
         dx = -1.0 * s.solve(C, g);
         VectorType xnew = x + dx;
 
