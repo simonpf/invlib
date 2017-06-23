@@ -115,14 +115,15 @@ bool VectorData<Real>::operator== (const VectorData & w) const
 }
 
 template <typename Real>
-std::ostream & operator<<(std::ostream &, const VectorData<Real> & vector)
+std::ostream & operator<<(std::ostream & s, const VectorData<Real> & vector)
 {
-    std::cout << "Dense Vector Data:" << std::endl;
-    std::cout << "[";
+    s << "Dense Vector Data:" << std::endl;
+    s << "[";
     for (size_t i = 0; i < vector.n - 1; i++)
     {
-        std::cout << (*vector.elements)[i] << " ";
+        s << (*vector.elements)[i] << " ";
     }
-    std::cout << (*vector.elements)[vector.n - 1] << "]";
-    std::cout << std::endl;
+    s << (*vector.elements)[vector.n - 1] << "]";
+    s << std::endl;
+    return s;
 }
