@@ -207,8 +207,10 @@ public:
 
     Vector step( const Vector &x ) const
     {
-        Vector J(); J.resize(n_);
-        Matrix H(); H.resize(n_, n_);
+        Vector J{};
+        J.resize(n_);
+        Matrix H{};
+        H.resize(n_, n_);
 
 
         for (unsigned int i = 0; i < n_; i++)

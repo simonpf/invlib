@@ -205,9 +205,9 @@ typename T::RealType maximum_error(T &A, T &B )
     using RealType = typename T::RealType;
     RealType max_err = 0.0;
 
-    for( auto&& a = A.begin(), b = B.begin();
-         a != A.end(), b != B.end();
-         ++a, ++b )
+    auto a_end = A.end();
+    auto b_end = B.end();
+    for( auto&& a = A.begin(), b = B.begin(); (a != a_end) && (b != b_end); ++a, ++b)
     {
         RealType err = abs(*a - *b);
         err = (*b == 0.0) ? err : err / abs(*b);
