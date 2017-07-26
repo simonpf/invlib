@@ -303,3 +303,89 @@ auto ArtsMatrixReference<ArtsType>::transpose_multiply(
     ::mult(C, transpose(A.get()), B);
     return C;
 }
+
+//---------------------------//
+//   Arts Covariance Matrix  //
+//---------------------------//
+
+auto ArtsCovarianceMatrixWrapper::rows() const
+    -> Index
+{
+    return covmat_.nrows();
+}
+
+auto ArtsCovarianceMatrixWrapper::cols() const
+    -> Index
+{
+    return covmat_.ncols();
+}
+
+auto ArtsCovarianceMatrixWrapper::multiply(
+    const ArtsVector &v) const
+    -> ArtsVector
+{
+    ArtsVector w; w.resize(covmat_.nrows());
+    if (is_inverse_) {
+        ::mult_inv(w, covmat_, v);
+    } else {
+        ::mult(w, covmat_, v);
+    }
+    return w;
+}
+
+auto ArtsCovarianceMatrixWrapper::multiply(
+    const ArtsMatrix &B) const
+    -> ArtsMatrix
+{
+    ArtsMatrix C; C.resize(covmat_.nrows(), B.ncols());
+    if (is_inverse_) {
+        ::mult_inv(C, covmat_, B);
+    } else {
+        ::mult(C, covmat_, B);
+    }
+    return C;
+}
+
+auto ArtsCovarianceMatrixWrapper::transpose_multiply(
+    const ArtsVector &v) const
+    -> ArtsVector
+{
+    ArtsVector w; w.resize(covmat_.ncols());
+    if (is_inverse_) {
+        ::mult_inv(w, covmat_, v);
+    } else {
+        ::mult(w, covmat_, v);
+    }
+    return w;
+}
+
+auto ArtsCovarianceMatrixWrapper::transpose_multiply(
+    const ArtsMatrix & B) const
+    -> ArtsMatrix
+{
+    ArtsMatrix C; C.resize(covmat_.ncols(), B.ncols());
+    if (is_inverse_) {
+        ::mult_inv(C, covmat_, B);
+    } else {
+        ::mult(C, covmat_, B);
+    }
+    return C;
+}
+
+auto ArtsCovarianceMatrixWrapper::solve(const ArtsVector &v)
+    -> ArtsVector
+{
+    ArtsVector w{}; w.resize(covmat_.nrows());
+    if (is_inverse_) {
+        ::mult_inv(w, covmat_, v);
+    } else {
+        ::mult(w, covmat_, v);
+    }
+    return w;
+}
+
+auto ArtsCovarianceMatrixWrapper::invert()
+    -> ArtsCovarianceMatrixWrapper
+{
+    return ArtsCovarianceMatrixWrapper(covmat_, !is_inverse_);
+}

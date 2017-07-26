@@ -11,6 +11,7 @@
 #include "matpackI.h"
 #include "matpackII.h"
 #include "lin_alg.h"
+#include "covariance_matrix.h"
 
 #include "invlib/traits.h"
 
@@ -204,6 +205,61 @@ public:
 private:
 
     std::reference_wrapper<ArtsType> A;
+
+};
+
+// ------------------------//
+//  Arts Covariance Matrix //
+// ----------------------- //
+
+/** \brief Wrapper for ARTS CovarianceMatrix class.
+ */
+class ArtsCovarianceMatrixWrapper {
+public:
+
+    using RealType = Numeric;
+    using VectorType = ArtsVector;
+    using MatrixType = ArtsMatrix;
+    using ResultType = ArtsMatrix;
+
+    // ------------------------------- //
+    //  Constructors and Destructors   //
+    // ------------------------------- //
+
+    ArtsCovarianceMatrixWrapper(const CovarianceMatrix & covmat, bool is_inverse = false)
+        : is_inverse_(is_inverse), covmat_(covmat)
+    {
+// Nothing to do here.
+    }
+    ArtsCovarianceMatrixWrapper(const ArtsCovarianceMatrixWrapper &)  = delete;
+    ArtsCovarianceMatrixWrapper(      ArtsCovarianceMatrixWrapper &&) = default;
+    ArtsCovarianceMatrixWrapper & operator=(const ArtsCovarianceMatrixWrapper &)  = delete;
+    ArtsCovarianceMatrixWrapper & operator=(      ArtsCovarianceMatrixWrapper &&) = delete;
+    ~ArtsCovarianceMatrixWrapper() = default;
+
+    // ----------------- //
+    //   Manipulations   //
+    // ----------------- //
+
+    Index rows() const;
+    Index cols() const;
+
+    // ------------ //
+    //  Arithmetic  //
+    // ------------ //
+
+    ArtsVector multiply(const ArtsVector &v) const;
+    ArtsVector transpose_multiply(const ArtsVector &v) const;
+    ArtsMatrix multiply(const ArtsMatrix &B) const;
+    ArtsMatrix transpose_multiply(const ArtsMatrix &v) const;
+
+    ArtsVector solve(const ArtsVector &v);
+    ArtsCovarianceMatrixWrapper invert();
+
+private:
+
+    bool is_inverse_;
+    const CovarianceMatrix & covmat_;
 
 };
 
