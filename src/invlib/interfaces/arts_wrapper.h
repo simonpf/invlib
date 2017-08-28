@@ -75,6 +75,8 @@ Numeric dot(const ArtsVector& v, const ArtsVector& w);
 //  Arts Matrix  //
 // ------------- //
 
+class ArtsCovarianceMatrixWrapper;
+
 /** \brief Arts dense matrix interace wrapper.
  *
  * Simple wrapper class providing an interface to the ARTS matrix class.
@@ -121,8 +123,9 @@ public:
     //  Arithmetic  //
     // ------------ //
 
-    void accumulate(const ArtsMatrix& B);
-    void subtract(const ArtsMatrix& B);
+    void accumulate(const ArtsMatrix &B);
+    void accumulate(const ArtsCovarianceMatrixWrapper &B);
+    void subtract(const ArtsMatrix &B);
 
     ArtsMatrix multiply(const ArtsMatrix &B) const;
     ArtsVector multiply(const ArtsVector &v) const;
@@ -202,6 +205,8 @@ public:
     ArtsMatrix multiply(const ArtsMatrix &B) const;
     ArtsMatrix transpose_multiply(const ArtsMatrix &v) const;
 
+    ConstMatrixView transpose() const;
+
 private:
 
     std::reference_wrapper<ArtsType> A;
@@ -211,6 +216,7 @@ private:
 // ------------------------//
 //  Arts Covariance Matrix //
 // ----------------------- //
+
 
 /** \brief Wrapper for ARTS CovarianceMatrix class.
  */
@@ -229,13 +235,16 @@ public:
     ArtsCovarianceMatrixWrapper(const CovarianceMatrix & covmat, bool is_inverse = false)
         : is_inverse_(is_inverse), covmat_(covmat)
     {
-// Nothing to do here.
+    // Nothing to do here.
     }
-    ArtsCovarianceMatrixWrapper(const ArtsCovarianceMatrixWrapper &)  = delete;
+    ArtsCovarianceMatrixWrapper(const ArtsCovarianceMatrixWrapper &)  = default;
     ArtsCovarianceMatrixWrapper(      ArtsCovarianceMatrixWrapper &&) = default;
     ArtsCovarianceMatrixWrapper & operator=(const ArtsCovarianceMatrixWrapper &)  = delete;
     ArtsCovarianceMatrixWrapper & operator=(      ArtsCovarianceMatrixWrapper &&) = delete;
     ~ArtsCovarianceMatrixWrapper() = default;
+
+    operator const CovarianceMatrix & () const {return covmat_;}
+    operator ArtsMatrix() const {return static_cast<ArtsMatrix>(covmat_);}
 
     // ----------------- //
     //   Manipulations   //
@@ -243,6 +252,9 @@ public:
 
     Index rows() const;
     Index cols() const;
+
+    bool is_inverse() const {return is_inverse_;}
+    const CovarianceMatrix & get_covmat() const {return covmat_;}
 
     // ------------ //
     //  Arithmetic  //
@@ -253,15 +265,21 @@ public:
     ArtsMatrix multiply(const ArtsMatrix &B) const;
     ArtsMatrix transpose_multiply(const ArtsMatrix &v) const;
 
-    ArtsVector solve(const ArtsVector &v);
-    ArtsCovarianceMatrixWrapper invert();
-
 private:
 
     bool is_inverse_;
     const CovarianceMatrix & covmat_;
 
 };
+
+namespace invlib {
+    template<template<typename> class T>
+    T<ArtsCovarianceMatrixWrapper> inv(const T<ArtsCovarianceMatrixWrapper> &wrapper)
+    {
+        return ArtsCovarianceMatrixWrapper(wrapper.get_covmat(), !wrapper.is_inverse());
+    }
+}
+
 
 #include "arts_wrapper.cpp"
 

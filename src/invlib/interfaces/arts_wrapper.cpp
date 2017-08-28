@@ -146,9 +146,18 @@ auto ArtsMatrix::data_pointer()
     return this->mdata;
 }
 
-void ArtsMatrix::accumulate(const ArtsMatrix & B)
+void ArtsMatrix::accumulate(const MatrixType & B)
 {
     this->operator+=(B);
+}
+
+void ArtsMatrix::accumulate(const ArtsCovarianceMatrixWrapper & B)
+{
+    if (B.is_inverse()) {
+        ::add_inv(*this, B);
+    } else {
+        ::operator+=(*this, B);
+    }
 }
 
 void ArtsMatrix::subtract(const ArtsMatrix& B)
@@ -214,6 +223,7 @@ auto ArtsMatrix::invert() const
     ::inv(B, *this);
     return B;
 }
+
 void ArtsMatrix::scale(Numeric c)
 {
     this->operator*=(c);
@@ -280,7 +290,7 @@ auto ArtsMatrixReference<ArtsType>::transpose_multiply(
     -> ArtsVector
 {
     ArtsVector w; w.resize(A.get().ncols());
-    ::mult(w, transpose(A.get()), v);
+    ::mult(w, ::transpose(A.get()), v);
     return w;
 }
 
@@ -300,8 +310,15 @@ auto ArtsMatrixReference<ArtsType>::transpose_multiply(
     -> ArtsMatrix
 {
     ArtsMatrix C; C.resize(A.get().ncols(), B.ncols());
-    ::mult(C, transpose(A.get()), B);
+    ::mult(C, ::transpose(A.get()), B);
     return C;
+}
+
+template<typename ArtsType>
+auto ArtsMatrixReference<ArtsType>::transpose() const
+    -> ConstMatrixView
+{
+    return ::transpose(A.get());
 }
 
 //---------------------------//
@@ -370,22 +387,4 @@ auto ArtsCovarianceMatrixWrapper::transpose_multiply(
         ::mult(C, covmat_, B);
     }
     return C;
-}
-
-auto ArtsCovarianceMatrixWrapper::solve(const ArtsVector &v)
-    -> ArtsVector
-{
-    ArtsVector w{}; w.resize(covmat_.nrows());
-    if (is_inverse_) {
-        ::mult_inv(w, covmat_, v);
-    } else {
-        ::mult(w, covmat_, v);
-    }
-    return w;
-}
-
-auto ArtsCovarianceMatrixWrapper::invert()
-    -> ArtsCovarianceMatrixWrapper
-{
-    return ArtsCovarianceMatrixWrapper(covmat_, !is_inverse_);
 }
