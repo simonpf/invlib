@@ -129,7 +129,7 @@ public:
                     const MatrixType &B,
                     CostFunction     &J);
 
-    bool stop_interation() const {return stop;}
+    bool stop_iteration() const {return stop;}
 
 private:
 

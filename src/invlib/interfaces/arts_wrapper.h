@@ -127,6 +127,7 @@ public:
     void accumulate(const ArtsCovarianceMatrixWrapper &B);
     void subtract(const ArtsMatrix &B);
 
+    ArtsMatrix multiply(const ArtsCovarianceMatrixWrapper & B);
     ArtsMatrix multiply(const ArtsMatrix &B) const;
     ArtsVector multiply(const ArtsVector &v) const;
 
@@ -244,7 +245,13 @@ public:
     ~ArtsCovarianceMatrixWrapper() = default;
 
     operator const CovarianceMatrix & () const {return covmat_;}
-    operator ArtsMatrix() const {return static_cast<ArtsMatrix>(covmat_);}
+    operator ArtsMatrix() const {
+        if (is_inverse_) {
+            return covmat_.get_inverse();
+        } else {
+            return static_cast<ArtsMatrix>(covmat_);
+        }
+    }
 
     // ----------------- //
     //   Manipulations   //
