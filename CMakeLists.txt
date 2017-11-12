@@ -25,6 +25,9 @@ include(FindCUDA)
 include(cmake/FindEigen3.cmake)
 # MKL
 include(cmake/FindMKL.cmake)
+if ((NOT MKL_SCALAPACK_LIBRARY) OR (NOT MKL_BLACS_LIBRARY))
+  set(MKL_FOUND FALSE)
+endif()
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
