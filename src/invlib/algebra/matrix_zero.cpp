@@ -33,3 +33,8 @@ auto MatrixZero::operator*(const T1 &A) const
     return Product<T1>(*this, A);
 }
 
+MatrixZero inv(const MatrixZero &)
+{
+    return MatrixZero{};
+}
+

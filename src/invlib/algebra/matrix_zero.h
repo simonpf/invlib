@@ -65,6 +65,13 @@ public:
 
 };
 
+ /*! Inverse of inverse matrix, here defined as zero matrix, so that
+  * terms involving the inverse of a zero matrix are simply ignored.
+  *
+  * \return A zero matrix object.
+  */
+MatrixZero inv(const MatrixZero &A);
+
 #include "matrix_zero.cpp"
 
 }      // namespace invlib
