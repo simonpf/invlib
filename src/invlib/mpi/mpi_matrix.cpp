@@ -385,7 +385,7 @@ auto MPIMatrix<LocalType, StorageTemplate>
     ::multiply(const MPIVectorType<VectorStorageTemplate> &v) const
     -> MPIVectorType<LValue>
 {
-    MPIVectorType<LValue> w = remove_reference_wrapper(local).multiply(v);
+    MPIVectorType<LValue> w = remove_reference_wrapper(local).multiply(v.get_local());
     return w;
 }
 

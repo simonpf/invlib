@@ -27,8 +27,8 @@ namespace invlib
  * as a prototype for all other data types that implement specific arithmetic
  * backends.
  *
- * The data is held in a contiguous array of heap memroy allocated using
- * malloc. The memory is manages by using a shared_ptr to hold the reference
+ * The data is held in a contiguous array of heap memory allocated using
+ * malloc. The memory is managed using a shared_ptr holding the reference
  * to the array. Copying of vectors simply copies the shared_ptr meaning that
  * the copy remains associated to the original.
  *

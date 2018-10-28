@@ -188,6 +188,11 @@ public:
     auto transpose_multiply(const MPIVectorType<VectorStorageType> &v) const
         -> MPIVectorType<LValue>;
 
+operator LocalType () const {
+    return local;
+}
+
+
 private:
 
     void broadcast_local_rows(int proc_rows[]) const;

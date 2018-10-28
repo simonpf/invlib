@@ -1,5 +1,5 @@
 #include "invlib/map.h"
-#include "eigen_mpi.h"
+#include "invlib/interfaces/eigen.h"
 #include "invlib/algebra/precision_matrix.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/optimization/gauss_newton.h"
@@ -7,6 +7,8 @@
 
 #include "eigen_io.h"
 
+using invlib::EigenSparse;
+using invlib::EigenVector;
 using MatrixType = invlib::Matrix<EigenSparse>;
 using VectorType = invlib::Vector<EigenVector>;
 using MPIMatrixType = invlib::Matrix<invlib::MPIMatrix<EigenSparse, invlib::LValue>>;
@@ -29,6 +31,7 @@ public:
 
     const MPIMatrixType & Jacobian(const MPIVectorType &x, MPIVectorType &y)
     {
+        //foo(K * (x - xa));
         y = K * (x - xa);
         return K;
     }

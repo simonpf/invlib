@@ -15,16 +15,17 @@ if    (CUDA_FOUND)
 endif (CUDA_FOUND)
 
 # MKL Dependent Code
-include(${PROJECT_SOURCE_DIR}/cmake/FindMKL.cmake)
+include(FindMKL)
 if    (MKL_FOUND)
   add_definitions(-DMKL)
   include_directories(${MKL_INCLUDE_DIR})
   set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MKL_LIBRARIES}
     pthread dl ${MKL_LIBRARIES})
-  if    (MPI_FOUND)
-    set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MPI_LIBRARIES})
-  endif (MPI_FOUND)
 endif (MKL_FOUND)
+
+if    (MPI_FOUND)
+  set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MPI_LIBRARIES})
+endif (MPI_FOUND)
 
 # Executables
 if (EIGEN3_FOUND)

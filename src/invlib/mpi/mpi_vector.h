@@ -45,12 +45,13 @@ public:
 
     MPIVector();
 
-    template
-    <
-    typename T,
-    typename = enable_if<is_constructible<StorageType, T>>
-    >
-    MPIVector(T &&local_vector);
+
+template
+<
+typename T,
+typename = enable_if<is_constructible<StorageType, T>>
+>
+MPIVector(T &&local_vector);
 
     static MPIVector<LocalType, LValue> split(const LocalType &);
 

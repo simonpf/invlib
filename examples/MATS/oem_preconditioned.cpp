@@ -1,11 +1,13 @@
 #include "invlib/map.h"
-#include "eigen.h"
+#include "invlib/interfaces/eigen.h"
 #include "invlib/algebra/precision_matrix.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/optimization/gauss_newton.h"
 
 #include "eigen_io.h"
 
+using invlib::EigenSparse;
+using invlib::EigenVector;
 using MatrixType = invlib::Matrix<EigenSparse>;
 using VectorType = invlib::Vector<EigenVector>;
 

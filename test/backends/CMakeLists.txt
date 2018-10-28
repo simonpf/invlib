@@ -1,8 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 
 include_directories("${PROJECT_SOURCE_DIR}/src/"
-                    "${PROJECT_SOURCE_DIR}/test/"
-                    /opt/intel/mkl/include)
+                    "${PROJECT_SOURCE_DIR}/test/")
 
 
 include(FindCUDA)

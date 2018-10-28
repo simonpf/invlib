@@ -2,7 +2,7 @@
  * @file invlib.h
  * @author Simon Pfreundschuh
  * @date 2017-06-22
- * @brief Invlib dummy class to distinguis external code.
+ * @brief Invlib dummy class to distinguish external code.
  *
  */
 

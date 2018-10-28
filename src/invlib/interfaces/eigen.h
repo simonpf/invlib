@@ -41,13 +41,9 @@ public:
     EigenVector()                    = default;
     EigenVector(const EigenVector &) = default;
 
-    template
-    <
-    typename T,
-    typename = disable_if<is_invlib_expression<T>>
-    >
-    EigenVector(T &&t)
-        : EigenVectorBase(std::forward<T>(t))
+    template <typename T>
+        EigenVector(T &&t)
+        : EigenVectorBase(static_cast<EigenVector>(t))
     {
         // Nothing to do here.
     }
@@ -176,11 +172,10 @@ public:
 
     template
     <
-    typename T,
-    typename = invlib::disable_if<is_invlib_expression<T>>
+    typename T
     >
     EigenSparse(T &&t)
-        : EigenSparseBase(std::forward<T>(t))
+        : EigenSparseBase(static_cast<EigenSparse>(t))
     {
         // Nothing to do here.
     }

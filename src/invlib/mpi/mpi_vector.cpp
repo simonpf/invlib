@@ -30,33 +30,90 @@ MPIVector<LocalType, StorageType>::MPIVector()
     m = 0;
 }
 
+// template
+// <
+//     typename LocalType,
+//     template <typename> class StorageType
+// >
+// template<typename T>
+// MPIVector<LocalType, StorageType>::MPIVector(const typename T::ResultType & local_vector)
+//     : local(local_vector), local_rows(local.rows())
+// {
+//     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+//     int *proc_rows = new int[nprocs];
+//     broadcast_local_rows(proc_rows);
+
+//     unsigned int index = 0;
+//     row_indices.reserve(nprocs);
+//     row_ranges.reserve(nprocs);
+
+//     for (unsigned int i = 0; i < nprocs; i++)
+//     {
+//         row_indices.push_back(index);
+//         row_ranges.push_back(proc_rows[i]);
+//         index += proc_rows[i];
+//     }
+
+//     m = index;
+// }
+
+// template
+// <
+//     typename LocalType,
+//     template <typename> class StorageType
+//     >
+// MPIVector<LocalType, StorageType>::MPIVector(StorageType local_vector)
+//     : local(local_vector), local_rows(local.rows())
+// {
+//     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+//     int *proc_rows = new int[nprocs];
+//     broadcast_local_rows(proc_rows);
+
+//     unsigned int index = 0;
+//     row_indices.reserve(nprocs);
+//     row_ranges.reserve(nprocs);
+
+//     for (unsigned int i = 0; i < nprocs; i++)
+//     {
+//         row_indices.push_back(index);
+//         row_ranges.push_back(proc_rows[i]);
+//         index += proc_rows[i];
+//     }
+
+//     m = index;
+// }
+
 template
 <
 typename LocalType,
 template <typename> class StorageType
 >
-    template<typename T, typename>
+   template<typename T, typename>
 MPIVector<LocalType, StorageType>::MPIVector(T && local_vector)
-    : local(local_vector), local_rows(local_vector.rows())
+    : local(local_vector), local_rows(local.rows())
 {
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
-    int *proc_rows = new int[nprocs];
-    broadcast_local_rows(proc_rows);
+   int *proc_rows = new int[nprocs];
+   broadcast_local_rows(proc_rows);
 
-    unsigned int index = 0;
-    row_indices.reserve(nprocs);
-    row_ranges.reserve(nprocs);
+   unsigned int index = 0;
+   row_indices.reserve(nprocs);
+   row_ranges.reserve(nprocs);
 
-    for (unsigned int i = 0; i < nprocs; i++)
-    {
-        row_indices.push_back(index);
-        row_ranges.push_back(proc_rows[i]);
-        index += proc_rows[i];
-    }
+   for (unsigned int i = 0; i < nprocs; i++)
+   {
+       row_indices.push_back(index);
+       row_ranges.push_back(proc_rows[i]);
+       index += proc_rows[i];
+   }
 
-    m = index;
+   m = index;
 }
 
 template
@@ -229,9 +286,9 @@ template <typename> class StorageType
 >
 MPIVector<LocalType, StorageType>::operator LocalType() const
 {
-    LocalType v; v.resize(m);
-    broadcast_local_block(v.data_pointer(), local.data_pointer());
-    return v;
+   LocalType v; v.resize(m);
+   broadcast_local_block(v.data_pointer(), local.data_pointer());
+   return v;
 }
 
 template

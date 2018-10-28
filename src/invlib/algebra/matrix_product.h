@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <utility>
+#include <invlib/invlib.h>
 #include <invlib/traits.h>
 
 namespace invlib
