@@ -1,0 +1,15 @@
+language: cpp
+
+compile:
+  - gcc
+  - clang
+
+script:
+  - git clone https://github.com/eigenteam/eigen-git-mirror eigen
+  - EIGENDIR=$(pwc)/eigen
+  - apt-get install libboost-dev
+  - mkdir build
+  - cd build
+  - cmake -DEIGEN3_INCLUDE_PATH=${EIGENDIR} ../invlib
+
+
