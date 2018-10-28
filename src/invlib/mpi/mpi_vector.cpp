@@ -286,9 +286,10 @@ template <typename> class StorageType
 >
 MPIVector<LocalType, StorageType>::operator LocalType() const
 {
-   LocalType v; v.resize(m);
-   broadcast_local_block(v.data_pointer(), local.data_pointer());
-   return v;
+    //LocalType v; v.resize(m);
+    //broadcast_local_block(v.data_pointer(), local.data_pointer());
+    //return v;
+    return local;
 }
 
 template

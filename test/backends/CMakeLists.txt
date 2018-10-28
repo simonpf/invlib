@@ -4,14 +4,14 @@ include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/")
 
 
-include(FindCUDA)
-include(FindMKL)
 
 if (CUDA_FOUND)
+  include(FindCUDA)
   add_definitions(-DCUDA)
 endif(CUDA_FOUND)
 
 if (MKL_FOUND)
+  include(FindMKL)
   add_definitions(-DMKL)
 endif(MKL_FOUND)
 

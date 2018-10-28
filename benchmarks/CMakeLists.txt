@@ -7,16 +7,16 @@ include_directories("${PROJECT_SOURCE_DIR}/src/"
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Cuda Dependent Code
-include(FindCUDA)
 if    (CUDA_FOUND)
+  include(FindCUDA)
   add_definitions(-DCUDA)
   set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${CUDA_LIBRARIES}
     ${CUDA_CUBLAS_LIBRARIES} ${CUDA_cusparse_LIBRARY} cuda_kernels)
 endif (CUDA_FOUND)
 
 # MKL Dependent Code
-include(FindMKL)
 if    (MKL_FOUND)
+  include(FindMKL)
   add_definitions(-DMKL)
   include_directories(${MKL_INCLUDE_DIR})
   set(BACKEND_LIBRARIES ${BACKEND_LIBRARIES} ${MKL_LIBRARIES}

@@ -21,6 +21,11 @@ find_package(LAPACK)
 include(FindMPI)
 # CUDA
 include(FindCUDA)
+if (NOT WITH_CUDA)
+  message(WARNING "CUDA SUcKS.")
+  set(CUDA_FOUND "FALSE" CACHE STRING "docs...")
+endif (NOT WITH_CUDA)
+
 # Eigen
 include(cmake/FindEigen3.cmake)
 # MKL
