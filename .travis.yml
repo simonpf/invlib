@@ -13,6 +13,6 @@ script:
   - EIGENDIR=$(pwd)/eigen
   - mkdir build
   - cd build
-  - cmake -DEIGEN3_INCLUDE_PATH=${EIGENDIR} ../invlib
+  - cmake -DEIGEN3_INCLUDE_PATH=${EIGENDIR} ..
 
 

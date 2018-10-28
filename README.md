@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/simonpf/invlib.svg?branch=master)](https://travis-ci.com/simonpf/invlib)
 # invlib
 
 invlib is a C++ template library that provides a generic implementation of maximum
