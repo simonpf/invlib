@@ -64,13 +64,12 @@ int main()
         w_mpi   = SM * v;
         w_v_mpi = SM * v_mpi;
 
-
         double err = maximum_error(w, w_mpi);
         DVector temp = w_v_mpi.broadcast();
 
         err = std::max(err, maximum_error(w, temp));
         if (err > max_err)
-            max_err = err;
+           max_err = err;
     }
 
     if (rank == 0)
@@ -91,10 +90,13 @@ int main()
         MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
         MPI_Bcast(&n ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
 
-        DVector v; v.resize(m);
-        fill(v, 1.0);
+        DVector v;  v.resize(m);
+        SVector vv; vv.resize(m);
+        fill(v,  1.0);
+        fill(vv, 1.0);
 
-        DVector w{};
+        DVector w, w_{};
+        SVector ww{};
         DVector w_mpi{};
 
         auto M = random<DMatrix>(m, n);
@@ -102,10 +104,16 @@ int main()
 
         SMatrix SM = SMatrix::split_matrix(M);
 
-        w     = transp(M) * v;
-        w_mpi = transp(SM) * v;
+        w  = transp(M)  * v;
+        w_ = transp(SM) * v;
+        ww = transp(SM) * vv;
 
-        double err = maximum_error(w, w_mpi);
+        double err = maximum_error(w, w_);
+        if (err > max_err)
+            max_err = err;
+
+        DVector ww_ = ww.broadcast();
+        err = maximum_error(w, ww_);
         if (err > max_err)
             max_err = err;
     }
@@ -184,9 +192,7 @@ int main()
 
         DMatrix M_4 = transp(M_1) * M_2 * M_1;
         DVector diag_1 = M_4.diagonal();
-        std::cout << "diag: " << m << " / " << n << std::endl;
         DVector diag_2 = (transp(SM_1) * SM_2 * SM_1).diagonal();
-        std::cout << "done." << std::endl;
 
         auto err = maximum_error<DVector>(diag_1, diag_2);
         if (err > max_err)

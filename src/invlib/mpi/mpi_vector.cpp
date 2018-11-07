@@ -30,63 +30,6 @@ MPIVector<LocalType, StorageType>::MPIVector()
     m = 0;
 }
 
-// template
-// <
-//     typename LocalType,
-//     template <typename> class StorageType
-// >
-// template<typename T>
-// MPIVector<LocalType, StorageType>::MPIVector(const typename T::ResultType & local_vector)
-//     : local(local_vector), local_rows(local.rows())
-// {
-//     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-
-//     int *proc_rows = new int[nprocs];
-//     broadcast_local_rows(proc_rows);
-
-//     unsigned int index = 0;
-//     row_indices.reserve(nprocs);
-//     row_ranges.reserve(nprocs);
-
-//     for (unsigned int i = 0; i < nprocs; i++)
-//     {
-//         row_indices.push_back(index);
-//         row_ranges.push_back(proc_rows[i]);
-//         index += proc_rows[i];
-//     }
-
-//     m = index;
-// }
-
-// template
-// <
-//     typename LocalType,
-//     template <typename> class StorageType
-//     >
-// MPIVector<LocalType, StorageType>::MPIVector(StorageType local_vector)
-//     : local(local_vector), local_rows(local.rows())
-// {
-//     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-
-//     int *proc_rows = new int[nprocs];
-//     broadcast_local_rows(proc_rows);
-
-//     unsigned int index = 0;
-//     row_indices.reserve(nprocs);
-//     row_ranges.reserve(nprocs);
-
-//     for (unsigned int i = 0; i < nprocs; i++)
-//     {
-//         row_indices.push_back(index);
-//         row_ranges.push_back(proc_rows[i]);
-//         index += proc_rows[i];
-//     }
-
-//     m = index;
-// }
-
 template
 <
 typename LocalType,
@@ -94,7 +37,7 @@ template <typename> class StorageType
 >
    template<typename T, typename>
 MPIVector<LocalType, StorageType>::MPIVector(T && local_vector)
-    : local(local_vector), local_rows(local.rows())
+    : local(local_vector), local_rows(local_vector.rows())
 {
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -152,13 +95,10 @@ auto MPIVector<LocalType, StorageType>::resize(unsigned int i)
     unsigned int remainder = total_rows % nprocs;
     unsigned int local_start = local_rows * rank;
 
-    if (rank < remainder)
-    {
+    if (rank < remainder) {
         local_rows += 1;
         local_start += rank;
-    }
-    else
-    {
+    } else {
         local_start += remainder;
     }
 
@@ -169,12 +109,12 @@ auto MPIVector<LocalType, StorageType>::resize(unsigned int i)
     row_indices.reserve(nprocs);
     row_ranges.reserve(nprocs);
 
-    for (unsigned int k = 0; k < nprocs; k++)
-    {
+    for (unsigned int k = 0; k < nprocs; ++k) {
         row_indices[k] = index;
         row_ranges[k]  = proc_rows[k];
         index += proc_rows[k];
     }
+
 
     local.resize(local_rows);
 }
@@ -275,6 +215,7 @@ auto MPIVector<LocalType, StorageTemplate>::broadcast() const
 {
     LocalType v; v.resize(m);
     broadcast_local_block(v.data_pointer(), local.data_pointer());
+    MPI_Barrier(MPI_COMM_WORLD);
     return v;
 }
 
@@ -286,10 +227,9 @@ template <typename> class StorageType
 >
 MPIVector<LocalType, StorageType>::operator LocalType() const
 {
-    //LocalType v; v.resize(m);
-    //broadcast_local_block(v.data_pointer(), local.data_pointer());
-    //return v;
-    return local;
+    LocalType v; v.resize(m);
+    broadcast_local_block(v.data_pointer(), local.data_pointer());
+    return v;
 }
 
 template

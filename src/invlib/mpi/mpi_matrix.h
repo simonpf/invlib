@@ -109,7 +109,7 @@ public:
     MPIMatrix(const MPIMatrix &) = default;
     MPIMatrix(MPIMatrix &&)      = default;
 
-    MPIMatrix & operator=(const MPIMatrix &) = default;
+    MPIMatrix & operator=(const MPIMatrix &);
     MPIMatrix & operator=(MPIMatrix &&) = default;
 
     /*!
@@ -187,11 +187,6 @@ public:
     template <template <typename> class VectorStorageType>
     auto transpose_multiply(const MPIVectorType<VectorStorageType> &v) const
         -> MPIVectorType<LValue>;
-
-operator LocalType () const {
-    return local;
-}
-
 
 private:
 

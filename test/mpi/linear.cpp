@@ -50,10 +50,12 @@ int main()
     PrecisionMatrixType Pe(SeInv);
     PrecisionMatrixType Pa(SaInv);
 
-    VectorType xa = random<MPIVectorType>(n);
-    VectorType y  = random<MPIVectorType>(n);
 
     Model F(n,n);
+    VectorType xa = random<MPIVectorType>(n);
+
+    VectorType y = random<MPIVectorType>(n).broadcast();
+    y = F.evaluate(y);
 
     MAP<Model, MatrixType, PrecisionMatrixType, PrecisionMatrixType,
         VectorType, Formulation::STANDARD>

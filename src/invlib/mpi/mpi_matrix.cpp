@@ -30,37 +30,39 @@ MPIMatrix<LocalType, StorageTemplate>::MPIMatrix()
     n = 0;
 }
 
-// template
-// <
-// typename LocalType,
-// template <typename> class StorageTemplate
-// >
-// auto MPIMatrix<LocalType, StorageTemplate>::operator=(const MPIMatrix &A)
-//     -> MPIMatrix &
-// {
-//     local = A.local;
-//     local_rows = A.local_rows;
+template
+<
+typename LocalType,
+template <typename> class StorageTemplate
+>
+auto MPIMatrix<LocalType, StorageTemplate>::operator=(const MPIMatrix &A)
+    -> MPIMatrix &
+{
+    local = A.local;
+    local_rows = A.local_rows;
 
-//     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
-//     int *proc_rows = new int[nprocs];
-//     broadcast_local_rows(proc_rows);
+    int *proc_rows = new int[nprocs];
+    broadcast_local_rows(proc_rows);
 
-//     unsigned int index = 0;
-//     row_indices.reserve(nprocs);
-//     row_ranges.reserve(nprocs);
+    unsigned int index = 0;
+    row_indices.clear();
+    row_indices.reserve(nprocs);
+    row_ranges.clear();
+    row_ranges.reserve(nprocs);
 
-//     for (unsigned int i = 0; i < nprocs; i++)
-//     {
-//         row_indices.push_back(index);
-//         row_ranges.push_back(proc_rows[i]);
-//         index += proc_rows[i];
-//     }
+    for (unsigned int i = 0; i < nprocs; i++)
+    {
+        row_indices.push_back(index);
+        row_ranges.push_back(proc_rows[i]);
+        index += proc_rows[i];
+    }
 
-//     m = index;
-//     n = local.cols();
-// }
+    m = index;
+    n = local.cols();
+}
 
 template
 <
@@ -70,7 +72,7 @@ template <typename> class StorageTemplate
 template<typename T, typename, typename>
 MPIMatrix<LocalType, StorageTemplate>::MPIMatrix(T &&local_matrix)
     : local(std::forward<T>(local_matrix)),
-      local_rows(remove_reference_wrapper(local).rows())
+      local_rows(remove_reference_wrapper(local_matrix).rows())
 {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -369,8 +371,9 @@ auto MPIMatrix<LocalType, StorageTemplate>::transpose_multiply(const NonMPIVecto
     NonMPIVectorType w_local{};   w_local.resize(n);
     NonMPIVectorType w{};   w.resize(n);
 
-    w_local =
-        remove_reference_wrapper(local).transpose_multiply_block(v, row_indices[rank], row_ranges[rank]);
+    w_local = remove_reference_wrapper(local).transpose_multiply_block(v,
+                                                                       row_indices[rank],
+                                                                       row_ranges[rank]);
     reduce_vector_sum(w.data_pointer(), w_local.data_pointer());
     return w;
 }
@@ -385,7 +388,8 @@ auto MPIMatrix<LocalType, StorageTemplate>
     ::multiply(const MPIVectorType<VectorStorageTemplate> &v) const
     -> MPIVectorType<LValue>
 {
-    MPIVectorType<LValue> w = remove_reference_wrapper(local).multiply(v.get_local());
+    auto vv = v.broadcast();
+    MPIVectorType<LValue> w = remove_reference_wrapper(local).multiply(vv);
     return w;
 }
 
@@ -446,8 +450,11 @@ template <typename> class StorageTemplate
 auto MPIMatrix<LocalType, StorageTemplate>::broadcast_local_rows(int *rows) const
     -> void
 {
-    int sendbuf = local_rows;
-    MPI_Allgather(&sendbuf, 1, MPI_INTEGER, rows, 1, MPI_INTEGER, MPI_COMM_WORLD);
+    rows[rank] = local_rows;
+    for (unsigned int i = 0; i < nprocs; i++)
+    {
+        MPI_Bcast(rows + i, 1, MPI_INTEGER, i, MPI_COMM_WORLD);
+    }
 }
 
 template
@@ -473,7 +480,7 @@ typename LocalType,
 template <typename> class StorageTemplate
 >
 auto MPIMatrix<LocalType, StorageTemplate>::reduce_vector_sum(double *result_vector,
-                                             double *local_vector) const
+                                                              double *local_vector) const
     -> void
 {
     memset(result_vector, 0, n * sizeof(double));
