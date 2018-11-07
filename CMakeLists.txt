@@ -22,7 +22,6 @@ include(FindMPI)
 # CUDA
 include(FindCUDA)
 if (NOT WITH_CUDA)
-  message(WARNING "CUDA SUcKS.")
   set(CUDA_FOUND "FALSE" CACHE STRING "docs...")
 endif (NOT WITH_CUDA)
 
@@ -30,6 +29,8 @@ endif (NOT WITH_CUDA)
 include(cmake/FindEigen3.cmake)
 # MKL
 include(cmake/FindMKL.cmake)
+# Python
+find_package(Python COMPONENTS Development Interpreter)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
