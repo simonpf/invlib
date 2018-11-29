@@ -25,3 +25,11 @@ if (Boost_FOUND)
 #  target_link_libraries(run_all ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 endif (Boost_FOUND)
+
+set(INVLIB_PYTHONPATH ${PROJECT_BINARY_DIR}/src/invlib/interfaces/python)
+file(GLOB_RECURSE FILES python "*.py")
+foreach(file ${FILES})
+  file(RELATIVE_PATH file_rel ${CMAKE_CURRENT_SOURCE_DIR} ${file})
+  configure_file("${file_rel}"
+                  "${file_rel}")
+endforeach(file)

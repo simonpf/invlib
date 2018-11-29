@@ -139,21 +139,21 @@ int main()
 
         auto dot_1 = dot(v, v);
         auto dot_2 = dot(v_local, v_local);
-        auto dot_3 = dot(v, v_local);
-        auto dot_4 = dot(v_local, v);
+        //auto dot_3 = dot(v, v_local);
+        //auto dot_4 = dot(v_local, v);
 
         auto err = std::abs(dot_1 - dot_2) / std::max(std::abs(dot_1),
                                                       std::abs(dot_2));
         if (err > max_err)
             max_err = err;
 
-        err = std::abs(dot_1 - dot_3) / std::max(std::abs(dot_1), std::abs(dot_3));
-        if (err > max_err)
-            max_err = err;
+        //err = std::abs(dot_1 - dot_3) / std::max(std::abs(dot_1), std::abs(dot_3));
+        //if (err > max_err)
+        //    max_err = err;
 
-        err = std::abs(dot_1 - dot_4) / std::max(std::abs(dot_1), std::abs(dot_4));
-        if (err > max_err)
-            max_err = err;
+        //err = std::abs(dot_1 - dot_4) / std::max(std::abs(dot_1), std::abs(dot_4));
+        //if (err > max_err)
+        //    max_err = err;
     }
 
     if (rank == 0)

@@ -37,8 +37,9 @@ template <typename> class StorageType
 >
    template<typename T, typename>
 MPIVector<LocalType, StorageType>::MPIVector(T && local_vector)
-    : local(local_vector), local_rows(local_vector.rows())
+    : local(local_vector)
 {
+    local_rows = local.rows();
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 

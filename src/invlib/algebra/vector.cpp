@@ -2,20 +2,6 @@
 //  Vector Class  //
 // -------------- //
 
-// template <typename Base>
-// Vector<Base>::Vector(Base &&v)
-//     : Base(std::forward<Base>(v))
-// {
-//     // Nothing to do here.
-// }
-
-// template <typename Base>
-// Vector<Base>::Vector(const Base &v)
-//     : Base(v)
-// {
-//     // Nothing to do here.
-// }
-
 template <typename Base>
 auto Vector<Base>::begin()
     -> ElementIterator
@@ -70,18 +56,16 @@ struct HasBaseType
     template<typename U>
     static const U & typeFunc(...);
 
-    static constexpr bool result = sizeof(func<T>(0)) == 0;
+    static constexpr bool result = sizeof(func<T>(0)) == 1;
     using BaseType = decltype(typeFunc<T>(0));
 };
-
-// template<typename T>
-// using DotType = std::conditional<HasBaseType<T>::result, typename T::BaseType, T>;
 
 template
 <
 typename T1,
 typename T2,
-typename VectorType
+typename VectorType,
+typename T3
 >
 auto dot(const T1 &v, const T2 &w)
     -> typename VectorType::RealType

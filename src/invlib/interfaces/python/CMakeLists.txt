@@ -12,6 +12,7 @@ if (Python_FOUND)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   add_library (invlib SHARED invlib.cpp)
+  target_link_libraries(invlib ${BLAS_LIBRARIES})
 
   #
   # Copy python source files.

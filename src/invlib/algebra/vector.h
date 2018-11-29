@@ -192,6 +192,27 @@ public:
     using type = T;
 };
 
+/*! Type trait to identify invlib vectors.
+ *
+ * This trait contains the static constexpr member value, that is true
+ * if the given type is wrapped into an invlib::Vector
+ */
+template <typename T>
+struct is_invlib_vector {
+
+    template<typename U>
+    struct Array {
+        using data = char[1];
+    };
+
+    template<typename U>
+    struct Array<Vector<U>> {
+        using data = char[2];
+    };
+
+    static constexpr bool value = sizeof(typename Array<T>::data) == 2;
+};
+
 /*! Dot product of two vectors.
  *
  * The dot product is computed by callling the dot(T1 t) member function
@@ -204,7 +225,8 @@ template
 <
 typename T1,
 typename T2,
-typename VectorType = typename T1::VectorType
+typename VectorType = typename T1::VectorType,
+typename T3 = enable_if_either<is_invlib_vector<T1>, is_invlib_vector<T2>>
 >
 auto dot(const T1 &v,const T2 &w)
     -> typename VectorType::RealType;

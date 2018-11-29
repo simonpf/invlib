@@ -422,14 +422,12 @@ auto MatrixArchetype<Real>::transpose_multiply_block(const VectorType &v,
     VectorType w;
     w.resize(n);
 
-    for (unsigned int i = 0; i < n; i++)
-    {
-	Real sum = 0.0;
-	for (unsigned int j = 0; j < m; j++)
-	{
-	    sum += (*this)(j, i) * v(block_start + j);
-	}
-	w(i) = sum;
+    for (unsigned int i = 0; i < n; ++i) {
+        Real sum = 0.0;
+        for (unsigned int j = 0; j < m; ++j) {
+            sum += (*this)(j, i) * v(block_start + j);
+        }
+        w(i) = sum;
     }
     return w;
 }

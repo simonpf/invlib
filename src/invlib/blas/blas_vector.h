@@ -17,19 +17,12 @@ namespace invlib {
 // Forward Declarations //
 // -------------------- //
 
-template <typename RealType> class BlasVector;
+template <typename SType, template <typename> typename VData> class BlasVector;
+template <typename SType, template <typename> typename MData> class BlasMatrix;
 
-template <typename Real> class BlasMatrix
-{
-public:
-    using RealType   = Real;
-    using VectorType = BlasVector<Real>;
-    using MatrixType = BlasMatrix;
-    using ResultType = BlasVector<Real>;
-};
-
-template <typename RealType>
-RealType dot(const BlasVector<RealType>&, const BlasVector<RealType>&);
+template <typename SType, template <typename> typename VData>
+    SType dot(const BlasVector<SType, VData>&,
+              const BlasVector<SType, VData>&);
 
 // -------------------  //
 //   Blas Vector Class  //
@@ -42,14 +35,15 @@ RealType dot(const BlasVector<RealType>&, const BlasVector<RealType>&);
  * arithmetic. In addition to that the vector type provides functions for scaling
  * and addition of a constant, which are necessary for use with the CG solver.
  *
- * \tparam Real Floating point type used for the representation of
+ * \tparam SType Floating point type used for the representation of
  * the vector elements.
  */
 template
 <
-typename Real
+    typename SType,
+    template <typename> typename VData = VectorData
 >
-class BlasVector : public VectorData<Real>
+class BlasVector : public VData<SType>
 {
 public:
 
@@ -57,9 +51,9 @@ public:
     //  Type Aliases  //
     // -------------- //
 
-    using RealType   = Real;
+    using RealType   = SType;
     using VectorType = BlasVector;
-    using MatrixType = BlasMatrix<RealType>;
+    using MatrixType = BlasMatrix<SType, VData<SType>::template MData>;
     using ResultType = BlasVector;
 
     // ------------------------------- //
@@ -74,34 +68,53 @@ public:
     BlasVector & operator=(const BlasVector & ) = default;
     BlasVector & operator=(      BlasVector &&) = default;
 
-    /** Constructs a BlasVector object from a given VectorData object. Only
-     * performs a shallow copy meaning that the VectorData object and the
-     * BlasVector share the same vector data. */
-    BlasVector(const VectorData<Real> & v);
-    /** Constructs a BlasVector object from a given VectorData object. */
-    BlasVector(VectorData<Real> && v);
+    /*! Construct BlasVector object from given VData object.
+     *
+     * Simply forwards the copy constructor call to that of the super class.
+     * Its behavior thus depends on the VData class.
+     */
+    BlasVector(const VData<SType> & v);
+
+    /*! Construct BlasVector object from given VData object.
+    *
+    * Forwards the move constructor call to that of the super class.
+    * Its behavior thus depends on the VData class.
+    */
+    BlasVector(VData<SType> &&v);
+
+    // ------------ //
+    //  Data access //
+    // ------------ //
+
+    SType * get_element_pointer() {
+        return elements;
+    }
+
+    const SType * get_element_pointer() const {
+        return elements;
+    }
 
     // ------------ //
     //  Arithmetic  //
     // ------------ //
 
     void accumulate(const BlasVector &v);
-    void accumulate(RealType c);
+    void accumulate(SType c);
     void subtract(const BlasVector &v);
-    void scale(RealType c);
+    void scale(SType c);
 
-    RealType norm() const;
+    SType norm() const;
 
-    friend RealType dot<>(const BlasVector&, const BlasVector&);
+    friend SType dot<>(const BlasVector&, const BlasVector&);
 
-private:
+protected:
 
     // ------------------- //
     //  Base Class Members //
     // ------------------- //
 
-    using VectorData<Real>::elements;
-    using VectorData<Real>::n;
+    using VData<SType>::elements;
+    using VData<SType>::n;
 
 };
 
