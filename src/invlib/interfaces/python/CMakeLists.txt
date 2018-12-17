@@ -25,7 +25,7 @@ if (Python_FOUND)
   foreach(file ${FILES})
     file(RELATIVE_PATH file_rel ${CMAKE_CURRENT_SOURCE_DIR} ${file})
     configure_file("${file_rel}"
-                   "${file_rel}")
+                   "${PYTHON_OUTPUT_DIR}")
   endforeach(file)
 
 endif (Python_FOUND)
