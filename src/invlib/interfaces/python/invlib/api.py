@@ -52,6 +52,7 @@ def buffer_from_memory(ptr, dtype, size):
     f.restype = ctypes.py_object
     s = strides[dtype]
     buffer    = f(ptr, s * size)
+
 #
 # Vectors
 #
@@ -143,3 +144,38 @@ invlib.matrix_vector_multiply_transpose_double.restype  = c.c_void_p
 
 invlib.matrix_vector_multiply_transpose_float.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_vector_multiply_transpose_float.restype  = c.c_void_p
+
+#
+# MKL Sparse
+#
+
+invlib.create_sparse_mkl_csr_float.argtypes = [c.c_int, c.c_int, c.c_int,
+                                               c.c_void_p,
+                                               c.c_void_p,
+                                               c.c_void_p]
+invlib.create_sparse_mkl_csr_float.restype  = c.c_void_p
+
+invlib.create_sparse_mkl_csr_double.argtypes = [c.c_int, c.c_int, c.c_int,
+                                                c.c_void_p,
+                                                c.c_void_p,
+                                                c.c_void_p]
+invlib.create_sparse_mkl_csr_double.restype  = c.c_void_p
+
+invlib.create_sparse_mkl_csr_float.argtypes = [c.c_int, c.c_int, c.c_int,
+                                               c.c_void_p,
+                                               c.c_void_p,
+                                               c.c_void_p]
+invlib.create_sparse_mkl_csr_float.restype  = c.c_void_p
+
+invlib.sparse_mkl_csr_multiply_float.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csr_multiply_float.restype = c.c_void_p
+invlib.sparse_mkl_csr_multiply_double.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csr_multiply_double.restype = c.c_void_p
+
+invlib.sparse_mkl_csr_transpose_multiply_float.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csr_transpose_multiply_float.restype = c.c_void_p
+invlib.sparse_mkl_csr_transpose_multiply_double.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csr_transpose_multiply_double.restype = c.c_void_p
+
+invlib.map_linear_double.argtypes = [c.c_void_p] * 5
+invlib.map_linear_double.restype  = c.c_void_p

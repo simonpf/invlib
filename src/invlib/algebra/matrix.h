@@ -84,8 +84,6 @@ public:
     using BaseType   = Base;
     /*! The basic scalar type. */
     using RealType   = typename Base::RealType;
-    /*! The basic vector type  */
-    using VectorType = Vector<typename Base::VectorType>;
     /*! The basic matrix type. */
     using MatrixType = Matrix;
     /*!

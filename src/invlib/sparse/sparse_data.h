@@ -259,6 +259,8 @@ public:
 
 protected:
 
+    Index * get_indices() {return * row_indices;}
+    Index * get_starts()  {return * column_starts;}
     const Index * get_indices()   const {return * row_indices;}
     const Index * get_starts()    const {return * column_starts;}
 
@@ -328,9 +330,9 @@ public:
 
     SparseData() = delete;
     SparseData(Index m, Index n, Index nnz,
-                    const std::shared_ptr<Index *> & row_starts,
-                    const std::shared_ptr<Index *> & column_indices,
-                    const std::shared_ptr<Real *>   & elements);
+               const std::shared_ptr<Index *> & row_starts,
+               const std::shared_ptr<Index *> & column_indices,
+               const std::shared_ptr<Real *>   & elements);
 
     SparseData(const SparseData & )             = default;
     SparseData(      SparseData &&)             = default;
@@ -359,6 +361,8 @@ public:
 
 protected:
 
+    Index * get_indices() {return * column_indices;}
+    Index * get_starts()  {return * row_starts;}
     const Index * get_indices()   const {return * column_indices;}
     const Index * get_starts()    const {return * row_starts;}
 

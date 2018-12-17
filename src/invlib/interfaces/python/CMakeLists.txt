@@ -12,7 +12,9 @@ if (Python_FOUND)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   add_library (invlib SHARED invlib.cpp)
-  target_link_libraries(invlib ${BLAS_LIBRARIES})
+  include_directories(${MKL_INCLUDE_DIR})
+  MESSAGE(WARNING ${MKL_MINIMAL_LIBRARY})
+  target_link_libraries(invlib ${BLAS_LIBRARIES} ${MKL_MINIMAL_LIBRARY})
 
   #
   # Copy python source files.

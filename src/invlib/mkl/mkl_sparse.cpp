@@ -49,36 +49,33 @@ Representation rep
 MklSparse<Real, rep>::MklSparse(const SparseData<Real, int, rep> & matrix)
     : SparseData<Real, int, rep>(matrix)
 {
-    // Nothing to do here.
+    mkl_matrix = mkl::sparse_create<Real, rep>(m, n, get_starts(), get_indices(), *elements);
 }
 
-template
-<
-typename Real,
-Representation rep
->
-auto MklSparse<Real, rep>::multiply(const VectorType & v) const
-    -> VectorType
+template <typename Real, Representation rep>
+template <typename T, typename TT>
+auto MklSparse<Real, rep>::multiply(const T & v) const
+    -> TT
 {
-    VectorType w; w.resize(m);
-    mkl::smv<Real, rep>('N', m, n, nnz, 1.0,
-                    *elements, get_indices(), get_starts(), get_starts() + 1,
-                   v.get_element_pointer(), 0.0, w.get_element_pointer());
+    const auto & v_ = static_cast<TT>(v);
+    TT w; w.resize(m);
+    mkl::mv<Real, rep>(SPARSE_OPERATION_NON_TRANSPOSE,
+                       static_cast<Real>(1.0), mkl_matrix, v_.get_element_pointer(),
+                       static_cast<Real>(0.0), w.get_element_pointer());
     return w;
 }
 
-template
-<
-typename Real,
-Representation rep
->
-auto MklSparse<Real, rep>::transpose_multiply(const VectorType & v) const
-    -> VectorType
+template <typename Real, Representation rep>
+template <typename T>
+auto MklSparse<Real, rep>::transpose_multiply(const T & v) const
+    -> typename T::ResultType
 {
-    VectorType w; w.resize(n);
-    mkl::smv<Real, rep>('T', m, n, nnz, 1.0,
-                        *elements, get_indices(), get_starts(), get_starts() + 1,
-                        v.get_element_pointer(), 0.0, w.get_element_pointer());
+    using ResultType = typename T::ResultType;
+    const auto & v_ = static_cast<ResultType>(v);
+    ResultType w; w.resize(n);
+    mkl::mv<Real, rep>(SPARSE_OPERATION_TRANSPOSE,
+                       static_cast<Real>(1.0), mkl_matrix, v_.get_element_pointer(),
+                       static_cast<Real>(0.0), w.get_element_pointer());
     return w;
 }
 

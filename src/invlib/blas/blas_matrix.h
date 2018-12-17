@@ -16,7 +16,10 @@ namespace invlib {
 // Forward Declarations //
 // -------------------- //
 
-template <typename SType, template <typename> typename VData> class BlasVector;
+template <typename SType, template <typename> typename VData> class lasVector;
+
+template <typename Real>
+class MatrixData;
 
 // -------------------  //
 //   Blas Matrix Class  //
@@ -37,7 +40,7 @@ template <typename SType, template <typename> typename VData> class BlasVector;
 template
 <
     typename SType,
-    template <typename> typename MData
+    template <typename> typename MData = MatrixData
 >
 class BlasMatrix : public MData<SType>
 {

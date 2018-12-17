@@ -31,7 +31,7 @@ namespace invlib
 template<typename Real, Representation rep> class MklSparse;
 
 template<typename Real> class MklSparse<Real, Representation::Coordinates>
-    : public SparseData<Real, int, Representation::Coordinates>
+    : public SparseData<Real, MKL_INT, Representation::Coordinates>
 {
 
 public:
@@ -49,7 +49,7 @@ public:
     //  Constructors and Destructors   //
     // ------------------------------- //
 
-    MklSparse(const SparseData<Real, int, Representation::Coordinates> &);
+    MklSparse(const SparseData<Real, MKL_INT, Representation::Coordinates> &);
 
     MklSparse()                               = delete;
     MklSparse(const MklSparse & )             = delete;
@@ -70,13 +70,13 @@ private:
     // Base Members  //
     // ------------- //
 
-    using SparseData<Real, int, Representation::Coordinates>::nnz;
-    using SparseData<Real, int, Representation::Coordinates>::m;
-    using SparseData<Real, int, Representation::Coordinates>::n;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::nnz;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::m;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::n;
 
-    using SparseData<Real, int, Representation::Coordinates>::row_indices;
-    using SparseData<Real, int, Representation::Coordinates>::column_indices;
-    using SparseData<Real, int, Representation::Coordinates>::elements;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::row_indices;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::column_indices;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::elements;
 
 };
 
@@ -86,7 +86,7 @@ typename Real,
 Representation rep
 >
 class MklSparse
-    : public SparseData<Real, int, rep>
+    : public SparseData<Real, MKL_INT, rep>
 {
 
 public:
@@ -96,15 +96,15 @@ public:
     // -------------- //
 
     using RealType   = Real;
-    using VectorType = BlasVector<RealType>;
-    using MatrixType = BlasMatrix<RealType>;
-    using ResultType = BlasMatrix<RealType>;
+    using VectorType = void*;
+    using MatrixType = MklSparse;
+    using ResultType = MklSparse;
 
     // ------------------------------- //
     //  Constructors and Destructors   //
     // ------------------------------- //
 
-    MklSparse(const SparseData<Real, int, rep> &);
+    MklSparse(const SparseData<Real, MKL_INT, rep> &);
 
     MklSparse()                               = delete;
     MklSparse(const MklSparse & )             = delete;
@@ -116,34 +116,33 @@ public:
     // Arithmetic //
     // ---------- //
 
-    VectorType multiply(const VectorType &) const;
-    VectorType transpose_multiply(const VectorType &) const;
+    template < typename T, typename TT = typename T::ResultType >
+    TT multiply(const T &) const;
+
+    template <typename T>
+    auto transpose_multiply(const T &) const -> typename T::ResultType;
 
 private:
 
-    // --------------//
-    // Base Members  //
-    // ------------- //
-
-    using SparseData<Real, int, rep>::nnz;
-    using SparseData<Real, int, rep>::m;
-    using SparseData<Real, int, rep>::n;
-    using SparseData<Real, int, rep>::elements;
-
-    using SparseData<Real, int, rep>::get_indices;
-    using SparseData<Real, int, rep>::get_starts;
+    sparse_matrix_t mkl_matrix;
 
     // --------------//
     // Base Members  //
     // ------------- //
 
-    std::shared_ptr<int *> ends;
+    using SparseData<Real, MKL_INT, rep>::nnz;
+    using SparseData<Real, MKL_INT, rep>::m;
+    using SparseData<Real, MKL_INT, rep>::n;
+    using SparseData<Real, MKL_INT, rep>::elements;
+
+    using SparseData<Real, MKL_INT, rep>::get_indices;
+    using SparseData<Real, MKL_INT, rep>::get_starts;
 
 };
 
 template<typename Real> class MklSparse<Real, Representation::Hybrid>
-    : protected SparseData<Real, int, Representation::CompressedRows>,
-      protected SparseData<Real, int, Representation::CompressedColumns>
+    : protected SparseData<Real, MKL_INT, Representation::CompressedRows>,
+      protected SparseData<Real, MKL_INT, Representation::CompressedColumns>
 {
 
 public:
@@ -161,7 +160,7 @@ public:
     //  Constructors and Destructors   //
     // ------------------------------- //
 
-    MklSparse(const SparseData<Real, int, Representation::Coordinates> &);
+    MklSparse(const SparseData<Real, MKL_INT, Representation::Coordinates> &);
 
     MklSparse()                               = delete;
     MklSparse(const MklSparse & )             = delete;
@@ -181,8 +180,8 @@ public:
 
 private:
 
-    using CSRBase = SparseData<Real, int, Representation::CompressedRows>;
-    using CSCBase = SparseData<Real, int, Representation::CompressedColumns>;
+    using CSRBase = SparseData<Real, MKL_INT, Representation::CompressedRows>;
+    using CSCBase = SparseData<Real, MKL_INT, Representation::CompressedColumns>;
 
     // --------------//
     // Base Members  //

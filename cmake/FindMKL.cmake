@@ -70,6 +70,9 @@ else()
     find_library(MKL_BLACS_LIBRARY mkl_blacs${MKL_LIBRARY}
       PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
+    find_library(MKL_AVX_LIBRARY mkl_avx
+      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      ENV LIBRARY_PATH)
 
     ############################ RTL layer ##########################
     find_library(MKL_RTL_LIBRARY iomp5
@@ -78,9 +81,9 @@ else()
 
     set(MKL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
                     ${MKL_CORE_LIBRARY} ${MKL_FFT_LIBRARY}
-                    ${MKL_SCALAPACK_LIBRARY}  ${MKL_RTL_LIBRARY})
+                    ${MKL_SCALAPACK_LIBRARY}  ${MKL_RTL_LIBRARY} ${MKL_AVX_LIBRARY})
     set(MKL_MINIMAL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
-                    ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY})
+                    ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY} ${MKL_AVX_LIBRARY})
 endif()
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${_MKL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -91,7 +94,7 @@ find_package_handle_standard_args(MKL DEFAULT_MSG
 if(MKL_FOUND)
     set(MKL_INCLUDE_DIRS ${MKL_INCLUDE_DIR})
     set(MKL_LIBRARIES ${MKL_LIBRARY})
-    set(MKL_MINIMAL_LIBRARIES ${MKL_LIBRARY})
+    set(MKL_MINIMAL_LIBRARIES ${MKL_MINIMAL_LIBRARY})
 endif()
 
 if ((NOT MKL_SCALAPACK_LIBRARY) OR (NOT MKL_BLACS_LIBRARY))

@@ -182,7 +182,6 @@ private:
  * of the given algebraic expression.
  *
  */
-template <typename T> void foo();
 template <typename T1>
 MatrixTranspose<T1> transp(T1 &&A)
 {
