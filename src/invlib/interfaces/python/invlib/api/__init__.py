@@ -4,8 +4,8 @@ import os
 import numpy  as np
 import ctypes as c
 
-import invlib.api.float  as sp
-import invlib.api.double as dp
+from . import float  as sp
+from . import double as dp
 
 def resolve_precision(fname, dtype):
     """

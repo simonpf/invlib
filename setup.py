@@ -32,7 +32,7 @@ class build_ext(build_ext_orig):
         config = 'Debug' if self.debug else 'Release'
         cmake_args = [
             '-DCMAKE_BUILD_TYPE=' + config,
-            '-DPYTHON_OUTPUT_DIR=' + os.path.join(str(cwd), "invlib")
+            '-DPYTHON_OUTPUT_DIR=' + os.path.join(str(cwd), ".")
         ]
 
         # example of build args

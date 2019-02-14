@@ -31,28 +31,30 @@ if (Python_FOUND)
 
   foreach(file ${FILES})
     file(RELATIVE_PATH file_rel ${CMAKE_CURRENT_SOURCE_DIR} ${file})
+    message(${file_rel})
 
     if (PYTHON_OUTPUT_DIR)
       configure_file("${file_rel}"
-                   "${PYTHON_OUTPUT_DIR}")
+                   "${PYTHON_OUTPUT_DIR}/${file_rel}")
+      message("${PYTHON_OUTPUT_DIR}/${file_rel}")
     else (PYTHON_OUTPUT_DIR)
       configure_file("${file_rel}"
                      "${file_rel}")
     endif (PYTHON_OUTPUT_DIR)
   endforeach(file)
 
-  set(FLOATTYPE float)
+  set(FLOATTYPE float32)
   if (PYTHON_OUTPUT_DIR)
     configure_file(invlib/api/template "${PYTHON_OUTPUT_DIR}/invlib/api/float.py")
   else (PYTHON_OUTPUT_DIR)
-    configure_file(invlib/api/template invlib/api/float.py)
+    configure_file(invlib/api/template api/float.py)
   endif (PYTHON_OUTPUT_DIR)
 
-  set(FLOATTYPE double)
+  set(FLOATTYPE float64)
   if (PYTHON_OUTPUT_DIR)
     configure_file(invlib/api/template "${PYTHON_OUTPUT_DIR}/invlib/api/double.py")
   else (PYTHON_OUTPUT_DIR)
-    configure_file(invlib/api/template invlib/api/double.py)
+    configure_file(invlib/api/template api/double.py)
   endif (PYTHON_OUTPUT_DIR)
 
 endif (Python_FOUND)

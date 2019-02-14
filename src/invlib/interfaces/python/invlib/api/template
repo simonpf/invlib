@@ -3,7 +3,7 @@ import os
 import numpy  as np
 import ctypes as c
 
-scalar_type = @FLOATTYPE@
+scalar_type = np.@FLOATTYPE@
 path        = "@LIBINVLIB_PATH@"
 
 if scalar_type == np.float32:
