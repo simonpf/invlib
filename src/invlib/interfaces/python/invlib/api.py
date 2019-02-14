@@ -6,9 +6,6 @@ import ctypes as c
 precision_types = {np.float32 : 1,
                    np.float64 : 2}
 
-path   = "@LIBINVLIB_PATH@"
-invlib = c.CDLL(os.path.join(path, "libinvlib.so"))
-
 def resolve_precision(fname, dtype):
     """
     invlib supports single and double precision arithmetic. The arithmetic
@@ -34,24 +31,6 @@ def resolve_precision(fname, dtype):
     else:
         raise ValueError("Only numpy.float32 and numpy.float64 types are "\
                          " supported by invlib.")
-
-strides = {np.dtype('float32') : 4,
-           np.dtype('float64') : 8}
-
-c_types = {np.dtype('float32') : c.c_float,
-           np.dtype('float64') : c.c_double}
-
-def get_stride(dtype):
-    return strides[dtype]
-
-def get_c_type(dtype):
-    return c_types[dtype]
-
-def buffer_from_memory(ptr, dtype, size):
-    f = c.pythonapi.PyBuffer_FromMemory
-    f.restype = ctypes.py_object
-    s = strides[dtype]
-    buffer    = f(ptr, s * size)
 
 #
 # Vectors
@@ -177,5 +156,41 @@ invlib.sparse_mkl_csr_transpose_multiply_float.restype = c.c_void_p
 invlib.sparse_mkl_csr_transpose_multiply_double.argtypes = [c.c_void_p, c.c_void_p,]
 invlib.sparse_mkl_csr_transpose_multiply_double.restype = c.c_void_p
 
+# CSC format
+
+invlib.create_sparse_mkl_csc_float.argtypes = [c.c_int, c.c_int, c.c_int,
+                                               c.c_void_p,
+                                               c.c_void_p,
+                                               c.c_void_p]
+invlib.create_sparse_mkl_csc_float.restype  = c.c_void_p
+
+invlib.create_sparse_mkl_csc_double.argtypes = [c.c_int, c.c_int, c.c_int,
+                                                c.c_void_p,
+                                                c.c_void_p,
+                                                c.c_void_p]
+invlib.create_sparse_mkl_csc_double.restype  = c.c_void_p
+
+invlib.create_sparse_mkl_csc_float.argtypes = [c.c_int, c.c_int, c.c_int,
+                                               c.c_void_p,
+                                               c.c_void_p,
+                                               c.c_void_p]
+invlib.create_sparse_mkl_csc_float.restype  = c.c_void_p
+
+invlib.sparse_mkl_csc_multiply_float.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csc_multiply_float.restype = c.c_void_p
+invlib.sparse_mkl_csc_multiply_double.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csc_multiply_double.restype = c.c_void_p
+
+invlib.sparse_mkl_csc_transpose_multiply_float.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csc_transpose_multiply_float.restype = c.c_void_p
+invlib.sparse_mkl_csc_transpose_multiply_double.argtypes = [c.c_void_p, c.c_void_p,]
+invlib.sparse_mkl_csc_transpose_multiply_double.restype = c.c_void_p
+
 invlib.map_linear_double.argtypes = [c.c_void_p] * 5
 invlib.map_linear_double.restype  = c.c_void_p
+
+invlib.forward_model_linear_double.argtypes = [c.c_void_p, c.c_void_p]
+invlib.forward_model_linear_double.restype  = c.c_void_p
+
+invlib.covmat_multiply_double.argtypes = [c.c_void_p, c.c_void_p]
+invlib.covmat_multiply_double.restype  = c.c_void_p

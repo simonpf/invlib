@@ -40,12 +40,6 @@ if (NOT EIGEN3_FOUND)
                    setting EIGEN3_INCLUDE_DIR to the path containing Eigen3.")
 endif (NOT EIGEN3_FOUND)
 
-if    (NOT PYTHON_OUTPUT_DIR)
-   set (PYTHON_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
-       CACHE FILEPATH "Folder to which to copy Python modules.")
-endif (NOT PYTHON_OUTPUT_DIR)
-message(WARNING ${PYTHON_OUTPUT_DIR})
-
 # Build tests.
 add_subdirectory(src)
 add_subdirectory(test)

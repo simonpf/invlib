@@ -72,6 +72,51 @@ sparse_matrix_t sparse_create<double, Representation::CompressedRows>(
     return A;
 }
 
+template<>
+sparse_matrix_t sparse_create<float, Representation::CompressedColumns>(
+    MKL_INT m,
+    MKL_INT n,
+    MKL_INT * cols_start,
+    MKL_INT * row_indx,
+    float * values)
+{
+    sparse_matrix_t A;
+    sparse_status_t s = mkl_sparse_s_create_csc(&A,
+                                                index_base,
+                                                m, n,
+                                                cols_start, cols_start + 1,
+                                                row_indx,
+                                                values);
+
+    if (!(s == SPARSE_STATUS_SUCCESS)) {
+        throw std::runtime_error("Error constructing sparse MKL matrix.");
+    }
+
+    return A;
+}
+
+template<>
+    sparse_matrix_t sparse_create<double, Representation::CompressedColumns>(
+        MKL_INT m,
+        MKL_INT n,
+        MKL_INT * cols_start,
+        MKL_INT * row_indx,
+        double * values)
+{
+    sparse_matrix_t A;
+    sparse_status_t s = mkl_sparse_d_create_csc(&A,
+                                                index_base,
+                                                m, n,
+                                                cols_start, cols_start + 1,
+                                                row_indx,
+                                                values);
+
+    if (!(s == SPARSE_STATUS_SUCCESS)) {
+        throw std::runtime_error("Error constructing sparse MKL matrix.");
+    }
+
+    return A;
+}
 //--------------------------------//
 //  Matrix Vector Multiplication  //
 //--------------------------------//
@@ -105,6 +150,30 @@ template<>
         const double * x,
         const double beta,
               double * y)
+{
+    mkl_sparse_d_mv(operation, alpha, A, matrix_descriptor, x, beta, y);
+}
+
+template<>
+    void mv<float, Representation::CompressedColumns>(
+        const sparse_operation_t operation,
+        const float alpha,
+        const sparse_matrix_t A,
+        const float * x,
+        const float beta,
+        float * y)
+{
+    mkl_sparse_s_mv(operation, alpha, A, matrix_descriptor, x, beta, y);
+}
+
+template<>
+    void mv<double, Representation::CompressedColumns>(
+        const sparse_operation_t operation,
+        const double alpha,
+        const sparse_matrix_t A,
+        const double * x,
+        const double beta,
+        double * y)
 {
     mkl_sparse_d_mv(operation, alpha, A, matrix_descriptor, x, beta, y);
 }

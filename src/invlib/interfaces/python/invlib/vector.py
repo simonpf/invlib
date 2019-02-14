@@ -41,6 +41,7 @@ class Vector(np.ndarray):
         obj = super(Vector, self).__new__(Vector, shape, dtype, arr.data, 0, strides, 'C')
 
         self.invlib_ptr = invlib_ptr
+        print("data_pointer", self.invlib_ptr)
         return obj
 
     def __array_finalize__(self, obj):

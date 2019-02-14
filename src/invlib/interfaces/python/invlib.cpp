@@ -16,6 +16,8 @@ using PythonVector = invlib::Vector<invlib::PythonVector<ScalarType>>;
 template<typename ScalarType>
 using PythonMatrix = invlib::Matrix<invlib::PythonMatrix<ScalarType>>;
 
+using ScalarType = @FLOATTYPE@;
+
 extern "C" {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,125 +28,66 @@ extern "C" {
     // Vector creation & destruction
     //
 
-    void* create_vector_float(void *data,
-                              size_t n,
-                              bool copy)
+    void* create_vector(void *data,
+                        size_t n,
+                        bool copy)
     {
-        auto v = new PythonVector<float>(
-            invlib::PythonVector<float>(reinterpret_cast<float*>(data), n, copy)
+        auto v = new PythonVector<ScalarType>(
+            invlib::PythonVector<ScalarType>(reinterpret_cast<ScalarType*>(data), n, copy)
             );
         return v;
     }
 
-    void* create_vector_double(void *data,
-                              size_t n,
-                              bool copy)
+    void destroy_vector(void *v)
     {
-        auto v = new PythonVector<double>(
-            invlib::PythonVector<double>(reinterpret_cast<double*>(data), n, copy)
-            );
-        return v;
+        delete reinterpret_cast<PythonVector<ScalarType>*>(v);
     }
 
-    void destroy_vector_float(void *v)
-    {
-        delete reinterpret_cast<PythonVector<float>*>(v);
+    void * vector_get_data_pointer(void *v) {
+        return reinterpret_cast<PythonVector<ScalarType>*>(v)->get_element_pointer();
     }
 
-    void destroy_vector_double(void *v)
-    {
-        delete reinterpret_cast<PythonVector<double>*>(v);
-    }
-
-    void * vector_get_data_pointer_float(void *v) {
-        return reinterpret_cast<PythonVector<float>*>(v)->get_element_pointer();
-    }
-
-    void * vector_get_data_pointer_double(void *v) {
-        return reinterpret_cast<PythonVector<double>*>(v)->get_element_pointer();
-    }
-
-    size_t vector_rows_float(void *v) {
-        return reinterpret_cast<PythonVector<float>*>(v)->rows();
-    }
-
-    size_t vector_rows_double(void *v) {
-        return reinterpret_cast<PythonVector<double>*>(v)->rows();
+    size_t vector_rows(void *v) {
+        return reinterpret_cast<PythonVector<ScalarType>*>(v)->rows();
     }
 
     //
     // Vector arithmetic
     //
 
-    float vector_dot_float(void *a,
+    ScalarType vector_dot(void *a,
+                          void *b)
+    {
+        auto & a_ = *reinterpret_cast<PythonVector<ScalarType>*>(a);
+        auto & b_ = *reinterpret_cast<PythonVector<ScalarType>*>(b);
+
+        return dot(a_, b_);
+    }
+
+    void * vector_add(void *a,
+                      void *b)
+    {
+        auto & a_ = *reinterpret_cast<PythonVector<ScalarType>*>(a);
+        auto & b_ = *reinterpret_cast<PythonVector<ScalarType>*>(b);
+        auto   c_ = new PythonVector<ScalarType>(a_ + b_);
+
+        return c_;
+    }
+
+    void * vector_subtract(void *a,
                            void *b)
     {
-        auto & a_ = *reinterpret_cast<PythonVector<float>*>(a);
-        auto & b_ = *reinterpret_cast<PythonVector<float>*>(b);
-
-        return dot(a_, b_);
-    }
-
-    double vector_dot_double(void *a,
-                             void *b)
-    {
-        auto & a_ = *reinterpret_cast<PythonVector<double>*>(a);
-        auto & b_ = *reinterpret_cast<PythonVector<double>*>(b);
-
-        return dot(a_, b_);
-    }
-
-    void * vector_add_float(void *a,
-                            void *b)
-    {
-        auto & a_ = *reinterpret_cast<PythonVector<float>*>(a);
-        auto & b_ = *reinterpret_cast<PythonVector<float>*>(b);
-        auto   c_ = new PythonVector<float>(a_ + b_);
-
+        auto & a_ = *reinterpret_cast<PythonVector<ScalarType>*>(a);
+        auto & b_ = *reinterpret_cast<PythonVector<ScalarType>*>(b);
+        auto   c_ = new PythonVector<ScalarType>(a_ - b_);
+ 
         return c_;
     }
 
-    void * vector_add_double(void *a,
-                             void *b)
+    void vector_scale(void *a,
+                      ScalarType c)
     {
-        auto & a_ = *reinterpret_cast<PythonVector<double>*>(a);
-        auto & b_ = *reinterpret_cast<PythonVector<double>*>(b);
-        auto c_ = new PythonVector<double>(a_ + b_);
-
-        return c_;
-    }
-
-    void * vector_subtract_float(void *a,
-                                 void *b)
-    {
-        auto & a_ = *reinterpret_cast<PythonVector<float>*>(a);
-        auto & b_ = *reinterpret_cast<PythonVector<float>*>(b);
-        auto   c_ = new PythonVector<float>(a_ - b_);
-
-        return c_;
-    }
-
-    void * vector_subtract_double(void *a,
-                                  void *b)
-    {
-        auto & a_ = *reinterpret_cast<PythonVector<double>*>(a);
-        auto & b_ = *reinterpret_cast<PythonVector<double>*>(b);
-        auto   c_ = new PythonVector<double>(a_ - b_);
-
-        return c_;
-    }
-
-    void vector_scale_float(void *a,
-                            float c)
-    {
-        auto & a_ = *reinterpret_cast<PythonVector<float>*>(a);
-        a_.scale(c);
-    }
-
-    void vector_scale_double(void *a,
-                             double c)
-    {
-        auto & a_ = *reinterpret_cast<PythonVector<double>*>(a);
+        auto & a_ = *reinterpret_cast<PythonVector<ScalarType>*>(a);
         a_.scale(c);
     }
 
@@ -156,123 +99,65 @@ extern "C" {
     // Matrix creation and destruction
     //
 
-    void* create_matrix_float(void *data,
-                              size_t m,
-                              size_t n,
-                              bool copy)
+    void* create_matrix(void *data,
+                        size_t m,
+                        size_t n,
+                        bool copy)
     {
-        auto A = new PythonMatrix<float>(
-            invlib::PythonMatrix<float>(reinterpret_cast<float*>(data), m, n, copy)
+        auto A = new PythonMatrix<ScalarType>(
+            invlib::PythonMatrix<ScalarType>(reinterpret_cast<ScalarType*>(data), m, n, copy)
             );
         return A;
     }
 
-    void* create_matrix_double(void *data,
-                               size_t m,
-                               size_t n,
-                               bool copy)
+    void destroy_matrix(void * A)
     {
-        auto A = new PythonMatrix<double>(
-            invlib::PythonMatrix<double>(reinterpret_cast<double*>(data), m, n, copy)
-            );
-        return A;
+        delete reinterpret_cast<PythonMatrix<ScalarType> *>(A);
     }
 
-    void destroy_matrix_float(void * A)
-    {
-        delete reinterpret_cast<PythonMatrix<float> *>(A);
-    }
-
-    void destroy_matrix_double(void *A)
-    {
-        delete reinterpret_cast<PythonMatrix<double>*>(A);
-    }
-
-    size_t matrix_rows_float(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix<float>*>(A);
+    size_t matrix_rows(void *A) {
+        auto & A_ = *reinterpret_cast<PythonMatrix<ScalarType>*>(A);
         return A_.rows();
     }
 
-    size_t matrix_rows_double(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix<double>*>(A);
-        return A_.rows();
-    }
-
-    size_t matrix_cols_float(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix<float>*>(A);
+    size_t matrix_cols(void *A) {
+        auto & A_ = *reinterpret_cast<PythonMatrix<ScalarType>*>(A);
         return A_.cols();
     }
 
-    size_t matrix_cols_double(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix<double>*>(A);
-        return A_.cols();
-    }
-
-    void * matrix_get_data_pointer_float(void *v) {
-        return reinterpret_cast<PythonMatrix<float>*>(v)->get_element_pointer();
-    }
-
-    void * matrix_get_data_pointer_double(void *v) {
-        return reinterpret_cast<PythonMatrix<double>*>(v)->get_element_pointer();
+    void * matrix_get_data_pointer(void *v) {
+        return reinterpret_cast<PythonMatrix<ScalarType>*>(v)->get_element_pointer();
     }
 
     //
     // Arithmetic
     //
 
-    void* matrix_vector_multiply_float(void *A,
-                                       void *u)
+    void* matrix_vector_multiply(void *A,
+                                 void *u)
     {
-        auto & A_ = *reinterpret_cast<PythonMatrix<float>*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<float>*>(u);
-        auto   v_ = new PythonVector<float>(A_ * u_);
+        auto & A_ = *reinterpret_cast<PythonMatrix<ScalarType>*>(A);
+        auto & u_ = *reinterpret_cast<PythonVector<ScalarType>*>(u);
+        auto   v_ = new PythonVector<ScalarType>(A_ * u_);
 
         return v_;
     }
 
-    void* matrix_vector_multiply_double(void *A,
-                                        void *u)
+    void* matrix_vector_multiply_transpose(void *A,
+                                           void *u)
     {
-        auto & A_ = *reinterpret_cast<PythonMatrix<double>*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<double>*>(u);
-        auto   v_ = new PythonVector<double>(A_ * u_);
-
+        auto & A_ = *reinterpret_cast<PythonMatrix<ScalarType>*>(A);
+        auto & u_ = *reinterpret_cast<PythonVector<ScalarType>*>(u);
+        auto   v_ = new PythonVector<ScalarType>(transp(A_) * u_);
         return v_;
     }
 
-    void* matrix_vector_multiply_transpose_float(void *A,
-                                                 void *u)
+    void* matrix_matrix_multiply(void *A,
+                                 void *B)
     {
-        auto & A_ = *reinterpret_cast<PythonMatrix<float>*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<float>*>(u);
-        auto   v_ = new PythonVector<float>(transp(A_) * u_);
-        return v_;
-    }
-
-    void* matrix_vector_multiply_transpose_double(void *A,
-                                                  void *u)
-    {
-        auto & A_ = *reinterpret_cast<PythonMatrix<double>*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<double>*>(u);
-        auto   v_ = new PythonVector<double>(transp(A_) * u_);
-        return v_;
-    }
-
-    void* matrix_matrix_multiply_float(void *A,
-                                       void *B)
-    {
-        auto & A_ = *reinterpret_cast<PythonMatrix<float>*>(A);
-        auto & B_ = *reinterpret_cast<PythonMatrix<float>*>(B);
-        auto   C_ = new PythonMatrix<float>(A_ * B_);
-        return C_;
-    }
-
-    void* matrix_matrix_multiply_double(void *A,
-                                        void *B)
-    {
-        auto & A_ = *reinterpret_cast<PythonMatrix<double>*>(A);
-        auto & B_ = *reinterpret_cast<PythonMatrix<double>*>(B);
-        auto   C_ = new PythonMatrix<double>(A_ * B_);
+        auto & A_ = *reinterpret_cast<PythonMatrix<ScalarType>*>(A);
+        auto & B_ = *reinterpret_cast<PythonMatrix<ScalarType>*>(B);
+        auto   C_ = new PythonMatrix<ScalarType>(A_ * B_);
         return C_;
     }
 
@@ -280,149 +165,193 @@ extern "C" {
 // Sparse MKL matrices
 ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // CSR Format
+    ////////////////////////////////////////////////////////////////////////////////
+
     using invlib::Representation;
 
-    using SparseDataCsrFloat = invlib::SparseData<float,
-                                                  MKL_INT,
-                                                  Representation::CompressedRows>;
-    using MklCsrFloat = invlib::Matrix<invlib::MklSparse<float,
-                                                         Representation::CompressedRows>>;
+    using SparseDataCsr = invlib::SparseData<ScalarType,
+                                             MKL_INT,
+                                             Representation::CompressedRows>;
+    using MklCsr = invlib::Matrix<invlib::MklSparse<ScalarType,
+                                                    Representation::CompressedRows>>;
 
-    void* create_sparse_mkl_csr_float(MKL_INT    m,
-                                      MKL_INT    n,
-                                      MKL_INT    nnz,
-                                      MKL_INT   *row_starts,
-                                      MKL_INT   *column_indices,
-                                      float *elements)
+    void* create_sparse_mkl_csr(MKL_INT    m,
+                                MKL_INT    n,
+                                MKL_INT    nnz,
+                                MKL_INT   *row_starts,
+                                MKL_INT   *column_indices,
+                                ScalarType *elements,
+                                bool copy)
     {
         // We need to copy the data from the Python pointers as MKL requires
         // an extra array pointing to the end of every column.
 
         // row starts
-        auto row_starts_     = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
-                                                          invlib::ArrayDeleter<MKL_INT *>());
-        *row_starts_ = new MKL_INT[m + 1];
-        std::copy(row_starts, row_starts + m, *row_starts_);
-        (*row_starts_)[m] = nnz;
+        std::shared_ptr<MKL_INT *> row_starts_;
+        if (copy) {
+            row_starts_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
+                                                     invlib::ArrayDeleter<MKL_INT *>());
+            *row_starts_ = new MKL_INT[m + 1];
+            std::copy(row_starts, row_starts + m, *row_starts_);
+            (*row_starts_)[m] = nnz;
+        } else {
+            row_starts_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *));
+        }
+
 
         // column indices
-        auto column_indices_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
-                                                          invlib::ArrayDeleter<MKL_INT *>());
-        *column_indices_ = new MKL_INT[nnz];
-        std::copy(column_indices, column_indices + nnz, *column_indices_);
+        std::shared_ptr<MKL_INT *> column_indices_;
+        if (copy) {
+            column_indices_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
+                                                         invlib::ArrayDeleter<MKL_INT *>());
+            *column_indices_ = new MKL_INT[nnz];
+            std::copy(column_indices, column_indices + nnz, *column_indices_);
+        } else {
+            column_indices_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *));
+        }
+
 
         // elements
-        auto elements_       = std::shared_ptr<float *>(new (float *),
-                                                         invlib::ArrayDeleter<float *>());
-        (*elements_) = new float[nnz];
-        std::copy(elements, elements + nnz, *elements_);
+        std::shared_ptr<ScalarType *> elements_;
+        if (copy) {
+            elements_ = std::shared_ptr<ScalarType *>(new (ScalarType *),
+                                                      invlib::ArrayDeleter<ScalarType *>());
+            (*elements_) = new ScalarType[nnz];
+            std::copy(elements, elements + nnz, *elements_);
+        } else {
+            elements_ = std::shared_ptr<ScalarType *>(new (ScalarType *));
+        }
 
 
-        auto data = SparseDataCsrFloat(m, n, nnz,
-                                       row_starts_,
-                                       column_indices_,
-                                       elements_);
-        auto A    = new MklCsrFloat(data);
+        auto data = SparseDataCsr(m, n, nnz,
+                                  row_starts_,
+                                  column_indices_,
+                                  elements_);
+        auto A    = new MklCsr(data);
         return A;
     }
 
-    void* sparse_mkl_csr_multiply_float(void * A,
-                                        void * u)
+    void* sparse_mkl_csr_multiply(void * A,
+                                  void * u)
     {
-        auto & A_ = *reinterpret_cast<MklCsrFloat*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<float>*>(u);
-        auto v_ = new PythonVector<float>(A_ * u_);
+        auto & A_ = *reinterpret_cast<MklCsr*>(A);
+        auto & u_ = *reinterpret_cast<PythonVector<ScalarType>*>(u);
+        auto v_ = new PythonVector<ScalarType>(A_ * u_);
 
         return v_;
     }
 
-    void* sparse_mkl_csr_transpose_multiply_float(void * A,
-                                                  void * u)
+    void* sparse_mkl_csr_transpose_multiply(void * A,
+                                            void * u)
     {
-        auto & A_ = *reinterpret_cast<MklCsrFloat*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<float>*>(u);
+        auto & A_ = *reinterpret_cast<MklCsr*>(A);
+        auto & u_ = *reinterpret_cast<PythonVector<ScalarType>*>(u);
 
-        auto   v_ = new PythonVector<float>(transp(A_) * u_);
+        auto   v_ = new PythonVector<ScalarType>(transp(A_) * u_);
 
         return v_;
     }
 
-    using SparseDataCsrDouble = invlib::SparseData<double,
-                                                   MKL_INT,
-                                                   Representation::CompressedRows>;
-    using MklCsrDouble = invlib::Matrix <invlib::MklSparse<double,
-                                                           Representation::CompressedRows>>;
+    using SparseDataCsr = invlib::SparseData<ScalarType,
+                                             MKL_INT,
+                                             Representation::CompressedRows>;
+    using MklCsr = invlib::Matrix <invlib::MklSparse<ScalarType,
+                                                     Representation::CompressedRows>>;
 
-    void* create_sparse_mkl_csr_double(MKL_INT    m,
-                                       MKL_INT    n,
-                                       MKL_INT    nnz,
-                                       MKL_INT   *row_starts,
-                                       MKL_INT   *column_indices,
-                                       double    *elements)
+    ////////////////////////////////////////////////////////////////////////////////
+    // CSC Format
+    ////////////////////////////////////////////////////////////////////////////////
+
+    using invlib::Representation;
+
+    using SparseDataCsc = invlib::SparseData<ScalarType,
+                                             MKL_INT,
+                                             Representation::CompressedColumns>;
+    using MklCsc = invlib::Matrix<invlib::MklSparse<ScalarType,
+                                                    Representation::CompressedColumns>>;
+
+    void* create_sparse_mkl_csc(MKL_INT    m,
+                                MKL_INT    n,
+                                MKL_INT    nnz,
+                                MKL_INT    *column_starts,
+                                MKL_INT    *row_indices,
+                                ScalarType *elements,
+                                bool copy)
     {
         // We need to copy the data from the Python pointers as MKL requires
         // an extra array pointing to the end of every column.
 
         // row starts
-        auto row_starts_     = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
-                                                          invlib::ArrayDeleter<MKL_INT *>());
-        *row_starts_ = new MKL_INT[m + 1];
-        std::copy(row_starts, row_starts + m, *row_starts_);
-        (*row_starts_)[m] = nnz;
+        std::shared_ptr<MKL_INT *> column_starts_;
+        if (copy) {
+            column_starts_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
+                                                     invlib::ArrayDeleter<MKL_INT *>());
+            *column_starts_ = new MKL_INT[n + 1];
+            std::copy(column_starts, column_starts + n, *column_starts_);
+            (*column_starts_)[n] = nnz;
+        } else {
+            column_starts_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *));
+            (*column_starts_) = column_starts;
+        }
+
 
         // column indices
-        auto column_indices_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
-                                                          invlib::ArrayDeleter<MKL_INT *>());
-        *column_indices_ = new MKL_INT[nnz];
-        std::copy(column_indices, column_indices + nnz, *column_indices_);
+        std::shared_ptr<MKL_INT *> row_indices_;
+        if (copy) {
+            row_indices_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *),
+                                                      invlib::ArrayDeleter<MKL_INT *>());
+            *row_indices_ = new MKL_INT[nnz];
+            std::copy(row_indices, row_indices + nnz, *row_indices_);
+        } else {
+            row_indices_ = std::shared_ptr<MKL_INT *>(new (MKL_INT *));
+            (*row_indices_) = row_indices;
+        }
+
 
         // elements
-        auto elements_       = std::shared_ptr<double *>(new (double *),
-                                                         invlib::ArrayDeleter<double *>());
-        (*elements_) = new double[nnz];
-        std::copy(elements, elements + nnz, *elements_);
+        std::shared_ptr<ScalarType *> elements_;
+        if (copy) {
+            elements_ = std::shared_ptr<ScalarType *>(new (ScalarType *),
+                                                 invlib::ArrayDeleter<ScalarType *>());
+            (*elements_) = new ScalarType[nnz];
+            std::copy(elements, elements + nnz, *elements_);
+        } else {
+            elements_ = std::shared_ptr<ScalarType *>(new (ScalarType *));
+            (*elements_) = elements;
+        }
 
 
-        auto data = SparseDataCsrDouble(m, n, nnz,
-                                        row_starts_,
-                                        column_indices_,
-                                        elements_);
-        auto A    = new MklCsrDouble(data);
+        auto data = SparseDataCsc(m, n, nnz,
+                                  row_indices_,
+                                  column_starts_,
+                                  elements_);
+        auto A    = new MklCsc(data);
         return A;
     }
 
-    void* sparse_mkl_csr_multiply_double(void * A,
-                                         void * u)
+    void* sparse_mkl_csc_multiply(void * A,
+                                  void * u)
     {
-        auto & A_ = *reinterpret_cast<MklCsrDouble*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<double>*>(u);
-
-        auto   v_ = new PythonVector<double>(A_ * u_);
+        auto & A_ = *reinterpret_cast<MklCsc*>(A);
+        auto & u_ = *reinterpret_cast<PythonVector<ScalarType>*>(u);
+        auto v_ = new PythonVector<ScalarType>(A_ * u_);
 
         return v_;
     }
 
-    void* sparse_mkl_csr_transpose_multiply_double(void * A,
-                                                   void * u)
+    void* sparse_mkl_csc_transpose_multiply(void * A,
+                                            void * u)
     {
-        auto & A_ = *reinterpret_cast<MklCsrDouble*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<double>*>(u);
+        auto & A_ = *reinterpret_cast<MklCsc*>(A);
+        auto & u_ = *reinterpret_cast<PythonVector<ScalarType>*>(u);
 
-        auto   v_ = new PythonVector<double>(transp(A_) * u_);
+        auto   v_ = new PythonVector<ScalarType>(transp(A_) * u_);
 
         return v_;
     }
 
-    void* sparse_mkl_csr_solve_double(void * A,
-                                      void * u)
-    {
-        auto & A_ = *reinterpret_cast<MklCsrDouble*>(A);
-        auto & u_ = *reinterpret_cast<PythonVector<double>*>(u);
-
-        auto   v_ = new PythonVector<double>(transp(A_) * u_);
-
-        return v_;
-    }
 
 ////////////////////////////////////////////////////////////////////////////////
 // OEM
@@ -430,40 +359,56 @@ extern "C" {
 
     using SolverType = invlib::ConjugateGradient<>;
 
-    using MinimizerDouble = invlib::GaussNewton<double, SolverType>;
-    using LinearDouble    = invlib::LinearModel<MklCsrDouble>;
-    using CovmatDouble    = invlib::PrecisionMatrix<MklCsrDouble>;
-    using LinearMAPDouble = invlib::MAP<LinearDouble,
-                                        MklCsrDouble,
-                                        CovmatDouble,
-                                        CovmatDouble,
-                                        PythonVector<double>>;
+    using Minimizer = invlib::GaussNewton<ScalarType, SolverType>;
+    using Linear    = invlib::LinearModel<MklCsc>;
+    using Covmat    = invlib::PrecisionMatrix<MklCsc>;
+    using LinearMAP = invlib::MAP<Linear, MklCsc, Covmat,
+                                  Covmat, PythonVector<ScalarType>>;
 
-    void * map_linear_double(void * K,
-                             void * SaInv,
-                             void * SeInv,
-                             void * xa,
-                             void * y)
+    void * map_linear(void * K,
+                      void * SaInv,
+                      void * SeInv,
+                      void * x_a,
+                      void * y)
     {
-        LinearDouble forward_model(*reinterpret_cast<MklCsrDouble*>(K));
-        CovmatDouble SaInv_(*reinterpret_cast<MklCsrDouble*>(SaInv));
-        CovmatDouble SeInv_(*reinterpret_cast<MklCsrDouble*>(SeInv));
+        Covmat SaInv_(*reinterpret_cast<MklCsc*>(SaInv));
+        Covmat SeInv_(*reinterpret_cast<MklCsc*>(SeInv));
 
-        auto & xa_ = *reinterpret_cast<PythonVector<double> *>(xa);
-        auto & y_  = *reinterpret_cast<PythonVector<double> *>(y);
+        auto & x_a_ = *reinterpret_cast<PythonVector<ScalarType> *>(x_a);
+        auto & y_  = *reinterpret_cast<PythonVector<ScalarType> *>(y);
 
-        SolverType      cg = SolverType(1e-6);
-        MinimizerDouble gn(1e-6, 1, cg);
-        LinearMAPDouble oem(forward_model, xa_, SaInv_, SeInv_);
+        Linear forward_model(*reinterpret_cast<MklCsc*>(K));
 
-        auto & x_ = *(new PythonVector<double>{});
-        x_.resize(forward_model.n);
 
-        oem.compute(x_, y_, gn);
+        SolverType cg = SolverType(1e-6, 1);
+        Minimizer  gn(1e-6, 1, cg);
+        LinearMAP  oem(forward_model, x_a_, SaInv_, SeInv_);
 
-        return &x_;
+        auto x_ = new PythonVector<ScalarType>{};
+
+        oem.compute(*x_, y_, gn, 1);
+
+        return x_;
     }
 
+    void * forward_model_linear(void * K,
+                                void * x)
+    {
+        std::cout << K << " // " << x << std::endl;
+        auto & x_ = *reinterpret_cast<PythonVector<ScalarType> *>(x);
+        Linear forward_model(*reinterpret_cast<MklCsc*>(K));
+        auto y_ = new PythonVector<ScalarType>{forward_model.evaluate(x_)};
+        return y_;
+    }
+
+    void * covmat_multiply(void * S,
+                           void * x)
+    {
+        Covmat S_(*reinterpret_cast<MklCsc*>(S));
+        auto & x_ = *reinterpret_cast<PythonVector<ScalarType> *>(x);
+        auto y_ = new PythonVector<ScalarType>(inv(S_) * x_);
+        return y_;
+    }
 }
 
 

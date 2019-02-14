@@ -8,7 +8,7 @@ import ctypes as c
 import scipy.sparse
 
 from invlib.api    import resolve_precision
-from invlib.mkl    import MklSparseCsr
+from invlib.mkl    import MklSparseCsr, MklSparseCsc
 from invlib.vector import Vector
 
 class OEM:
@@ -20,10 +20,11 @@ class OEM:
                  x_a,
                  y):
 
-        if not isinstance(forward_model, MklSparseCsr):
+        if not (isinstance(forward_model, MklSparseCsr) or
+                isinstance(forward_model, MklSparseCsc)):
             raise Exception("Currently only linear forward models are supported.")
 
-        if not all([isinstance(s, MklSparseCsr) for s in [sa_inv, se_inv]]):
+        if not all([isinstance(s, MklSparseCsc) for s in [sa_inv, se_inv]]):
             raise Exception("sa_inv and se_inv must be of type invlib.MklSparseCsr")
 
         if not all([isinstance(v, Vector) for v in [x_a, y]]):
@@ -45,7 +46,15 @@ class OEM:
                 self.y.invlib_ptr)
         return Vector(ptr, self.dtype)
 
+    def evaluate_forward_model(self, x):
+        f = resolve_precision("forward_model_linear", self.dtype)
+        ptr = f(self.forward_model.invlib_ptr, x.invlib_ptr)
+        return Vector(ptr, self.dtype)
 
+    def covmat_multiply(self, S, x):
+        f = resolve_precision("covmat_multiply", self.dtype)
+        ptr = f(S.invlib_ptr, x.invlib_ptr)
+        return Vector(ptr, self.dtype)
 
 
 

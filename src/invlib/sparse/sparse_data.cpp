@@ -408,7 +408,7 @@ std::ostream & operator << (
     std::ostream & s,
     const SparseData<Real, Index, Representation::CompressedColumns>& matrix)
 {
-    s << "Sparse Matrix Data, Compressed Row Representation:" << std::endl;
+    s << "Sparse Matrix Data, Compressed Column Representation:" << std::endl;
     s << "Row Indices:   [";
     for (Index i = 0; i < matrix.non_zeros() - 1; i++)
     {

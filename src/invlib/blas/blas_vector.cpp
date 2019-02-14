@@ -65,13 +65,9 @@ template
 >
 void BlasVector<Real, VData>::scale(Real c)
 {
-    std::cout << n << " / " << c << std::endl;
     blas::axpy<Real>(n, c - 1.0,
                      get_element_pointer(), 1,
                      get_element_pointer(), 1);
-    for (size_t i = 0; i < n; ++i) {
-        std::cout << get_element_pointer()[i] << std::endl;
-    }
 }
 
 template

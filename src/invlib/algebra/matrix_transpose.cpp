@@ -10,7 +10,6 @@ template<typename T2>
 auto MatrixTranspose<T1>::multiply(const T2 &v) const
     -> typename T2::ResultType
 {
-    std::cout << "inside transp: " << std::endl;
     return remove_reference_wrapper(A).transpose_multiply(v);
 }
 

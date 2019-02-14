@@ -119,7 +119,7 @@ auto ConjugateGradient<CGSettings>::solve(const MatrixType &A,
     RealType alpha, beta, rnorm, vnorm;
     VectorType r, p, xnew, rnew, pnew;
 
-    auto x = settings.start_vector(v);
+    VectorType x = settings.start_vector(v);
     r = A * x - v;
     p = -1.0 * r;
     vnorm = v.norm();
@@ -135,9 +135,9 @@ auto ConjugateGradient<CGSettings>::solve(const MatrixType &A,
         beta  = dot(rnew, rnew) / dot(r, r);
         pnew  = beta * p - rnew;
 
-        x = xnew;
-        r = rnew; rnorm = r.norm();
-        p = pnew;
+        x = 1.0 * xnew;
+        r = 1.0 * rnew; rnorm = r.norm();
+        p = 1.0 * pnew;
 
         i++;
         if (i % 10 == 0) {
