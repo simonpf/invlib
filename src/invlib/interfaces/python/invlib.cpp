@@ -1,4 +1,3 @@
-#include <Python.h>
 #include "invlib/interfaces/python/python_vector.h"
 #include "invlib/interfaces/python/python_matrix.h"
 #include "invlib/optimization/gauss_newton.h"
