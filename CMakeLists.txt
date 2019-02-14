@@ -29,8 +29,6 @@ endif (NOT WITH_CUDA)
 include(cmake/FindEigen3.cmake)
 # MKL
 include(cmake/FindMKL.cmake)
-# Python
-find_package(Python COMPONENTS Development Interpreter)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
