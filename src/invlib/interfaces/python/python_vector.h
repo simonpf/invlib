@@ -13,7 +13,6 @@
 #include <iterator>
 #include <memory>
 #include <iostream>
-#include "Python.h"
 
 #include "invlib/blas/blas_vector.h"
 
