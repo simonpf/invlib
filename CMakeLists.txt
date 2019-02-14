@@ -34,12 +34,6 @@ find_package(Python COMPONENTS Development Interpreter)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if (NOT EIGEN3_FOUND)
-  message(WARNING "Could not find Eigen3 library, which is required to build some \
-                   examples. If Eigen3 is not detected automatically consider \
-                   setting EIGEN3_INCLUDE_DIR to the path containing Eigen3.")
-endif (NOT EIGEN3_FOUND)
-
 # Build tests.
 add_subdirectory(src)
 add_subdirectory(test)

@@ -2,8 +2,6 @@ cmake_minimum_required (VERSION 2.6)
 
 # Executables
 find_package(Python COMPONENTS Development)
-find_package(Numpy)
-
 if (Python_FOUND)
   include_directories(
     ${Python_INCLUDE_DIR}
