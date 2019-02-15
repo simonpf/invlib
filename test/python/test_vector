@@ -1,0 +1,56 @@
+"""
+This test file tests the invlib Python interface for @FLOATTYPE@
+precision types. A copy of this file is generated for each precision
+type.
+"""
+import sys
+sys.path.append("@INVLIB_PYTHONPATH@")
+
+import invlib
+import numpy as np
+from invlib.vector import Vector
+
+precision = np.@FLOATTYPE@
+import numpy as np
+
+################################################################################
+# Vector arithmetic
+################################################################################
+
+def random_vector(size):
+    return np.array(np.random.normal(size = size), dtype = precision)
+
+def test_vector_dot():
+
+    v = random_vector(100)
+    w = random_vector(100)
+    d1 = v.dot(w)
+
+    v_ = v.view(Vector)
+    w_ = w.view(Vector)
+    d2 = v_.dot(w_)
+
+    assert(np.isclose(d1, d2))
+
+def test_vector_add():
+
+    v = random_vector(100)
+    w = random_vector(100)
+    u = v + w
+
+    v_ = v.view(Vector)
+    w_ = w.view(Vector)
+    u_ = v_.add(w_)
+
+    assert(np.all(np.isclose(u.ravel(), u_.ravel())))
+
+def test_vector_scale():
+
+    v = random_vector(100)
+    c = np.random.normal()
+    v *= c
+
+    v_ = v.view(Vector)
+    v_.scale(c)
+
+    assert(np.all(np.isclose(v.ravel(), v_.ravel())))

@@ -1,0 +1,74 @@
+"""
+This test file tests the invlib Python interface for @FLOATTYPE@
+precision types. A copy of this file is generated for each precision
+type.
+"""
+import sys
+sys.path.append("@INVLIB_PYTHONPATH@")
+
+import invlib
+from invlib.vector import Vector
+from invlib.matrix import Matrix
+
+import numpy as np
+
+precision = np.@FLOATTYPE@
+
+def test_matrix_vector_multiplication():
+
+    m = np.random.randint(10, 100)
+    n = np.random.randint(10, 100)
+    k = np.random.randint(10, 100)
+
+    A  = np.array(np.random.normal(size = (m, k)), dtype = precision)
+    A_ = A.view(Matrix)
+    u  = np.array(np.random.normal(size = (k, 1)), dtype = precision)
+    u_ = u.view(Vector)
+
+    v  = A @ u
+    v_ = A_.multiply(u_)
+    assert(np.all(np.isclose(v, v_)))
+
+def test_matrix_matrix_multiplication():
+    m = np.random.randint(10, 100)
+    n = np.random.randint(10, 100)
+    k = np.random.randint(10, 100)
+
+    A  = np.array(np.random.normal(size = (m, k)), dtype = precision)
+    A_ = A.view(Matrix)
+    B  = np.array(np.random.normal(size = (k, n)), dtype = precision)
+    B_ = B.view(Matrix)
+    C  = A @ B
+    C_ = A_.multiply(B_)
+
+    assert(np.all(np.isclose(C, C_)))
+
+def test_transpose_matrix_vector_multiplication():
+
+    m = np.random.randint(10, 100)
+    n = np.random.randint(10, 100)
+    k = np.random.randint(10, 100)
+
+    A  = np.array(np.random.normal(size = (k, m)), dtype = precision)
+    A_ = A.view(Matrix)
+    u  = np.array(np.random.normal(size = (k, 1)), dtype = precision)
+    u_ = u.view(Vector)
+
+    v  = A.T @ u
+    v_ = A_.transpose_multiply(u_)
+    assert(np.all(np.isclose(v, v_)))
+
+def test_transpose_matrix_matrix_multiplication():
+
+    m = np.random.randint(10, 100)
+    n = np.random.randint(10, 100)
+    k = np.random.randint(10, 100)
+
+    A  = np.array(np.random.normal(size = (k, m)), dtype = precision)
+    A_ = A.view(Matrix)
+    B  = np.array(np.random.normal(size = (k, n)), dtype = precision)
+    B_ = B.view(Matrix)
+    C  = A.T @ B
+    C_ = A_.transpose_multiply(B_)
+
+    assert(np.all(np.isclose(C, C_)))
