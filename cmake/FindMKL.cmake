@@ -18,7 +18,10 @@ set(INTEL_ROOT "/opt/intel" CACHE PATH "Folder contains intel libs")
 set(MKL_ROOT "/opt/intel/mkl" CACHE PATH "Folder contains MKL")
 
 # Find include dir
-find_path(MKL_INCLUDE_DIR mkl.h PATHS ${MKL_ROOT}/include ENV CPATH)
+find_path(MKL_INCLUDE_DIR mkl.h PATHS ${MKL_ROOT}/include NO_DEFAULT_PATH)
+if(NOT MKL_INCLUDE_DIR)
+  find_path(MKL_INCLUDE_DIR mkl.h PATHS ENV CPATH)
+endif(NOT MKL_INCLUDE_DIR)
 
 # Handle suffix
 set(_MKL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
