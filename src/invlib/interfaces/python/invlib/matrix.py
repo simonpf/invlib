@@ -1,16 +1,42 @@
+"""
+invlib.matrix
+=============
+
+The :code:`invlib.vector` module contains the :code:`Vector` class that provides
+efficient linear algebra operations for dense matrices.
+"""
+import sys
+sys.path.append("@LIBINVLIB_PATH@")
 
 import numpy as np
 import ctypes as c
 
-import sys
-sys.path.append("@LIBINVLIB_PATH@")
 from invlib.vector import Vector
 from invlib.api    import resolve_precision, get_stride, get_c_type, \
     buffer_from_memory
 
-class Matrix(np.ndarray):
+################################################################################
+# The Matrix class
+################################################################################
 
-    def check_memory_layout(matrix):
+class Matrix(np.ndarray):
+    """
+    The :code:`Matrix` class implements dense matrices. The :code:`Matrix` class
+    inherits from :code:`numpy.ndarray` and can therefore be constructed from
+    every 2D :code:`ndarray` object.
+    """
+
+    def _check_memory_layout(matrix):
+        """
+        Check that the memory layout of a :code:`numpy.ndarray` is c-style
+        and contiguous so that it can be used without copying inside
+        invlib.
+
+        Arguments:
+
+            vector(:code:`np.ndarray`): The array of which to check the memory
+                layout.
+        """
         if not matrix.flags.c_contiguous:
             raise Exception("Only vectors that are contiguous and stored in "\
                             "C-order can be passed to invlib directly.")
@@ -21,7 +47,16 @@ class Matrix(np.ndarray):
             raise Exception("Only Matrix with a stride of 1 passed to invlib "\
                             " directly.")
 
-    def check_precision(matrix):
+    def _check_precision(matrix):
+        """
+        Check that precision of a :code:`numpy.ndarray` matches the types supported
+        by invlib.
+
+        Arguments:
+
+            vector(:code:`np.ndarray`): The array of which to check the memory
+                layout.
+        """
         dtype = matrix.dtype
         if not dtype in [np.float32, np.float64]:
             raise ValueError("invlib.matrix objects can only be created from"
@@ -54,14 +89,30 @@ class Matrix(np.ndarray):
         if obj is None:
             return None
 
-        Matrix.check_precision(obj)
-        Matrix.check_memory_layout(obj)
+        if not obj.dtype in [np.float32, np.float64]:
+            return np.array(obj)
+
+        Matrix._check_precision(obj)
+        Matrix._check_memory_layout(obj)
         f = resolve_precision("create_matrix", obj.dtype)
         m, n = obj.shape
         self.invlib_ptr = f(obj.ctypes.data, m, n, False)
 
     def multiply(self, b):
+        """
+        Multiply this matrix from the right by another matrix or vector.
 
+        Arguments:
+
+            b(:code:`invlib.matrix` or :code:`invlib.vector`): The matrix
+                or vector to multiply this matrix with.
+
+        Returns:
+
+            The matrix or vector that results from multiplying this matrix
+            from the right with another matrix or vector, respectively.
+
+        """
         if isinstance(b, Matrix):
             f   = resolve_precision("matrix_matrix_multiply", self.dtype)
             ptr = f(self.invlib_ptr, b.invlib_ptr)
@@ -76,8 +127,22 @@ class Matrix(np.ndarray):
                          "invlib.vector.Vector.")
 
 
-    def multiply_transpose(self, b):
+    def transpose_multiply(self, b):
+        """
+        Multiply the transpose of this matrix from the right by another matrix
+        or vector.
 
+        Arguments:
+
+            b(:code:`invlib.matrix` or :code:`invlib.vector`): The matrix
+                or vector to multiply the transpose of this matrix with.
+
+        Returns:
+
+            The matrix or vector that results from multiplying the transpose
+            of this matrix from the right with another matrix or vector,
+            respectively.
+        """
         if isinstance(b, Vector):
             f   = resolve_precision("matrix_vector_multiply_transpose", self.dtype)
             ptr = f(self.invlib_ptr, b.invlib_ptr)

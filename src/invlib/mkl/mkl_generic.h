@@ -9,13 +9,14 @@
 #define MKL_MKL_GENERIC_H
 
 #include "mkl.h"
+#include "mkl_spblas.h"
 
 namespace invlib {
 namespace mkl {
 
-matrix_descr matrix_descriptor = {SPARSE_MATRIX_TYPE_GENERAL,
-                                  SPARSE_FILL_MODE_FULL,
-                                  SPARSE_DIAG_NON_UNIT};
+::matrix_descr matrix_descriptor = {SPARSE_MATRIX_TYPE_GENERAL,
+                                    SPARSE_FILL_MODE_FULL,
+                                    SPARSE_DIAG_NON_UNIT};
 
 sparse_index_base_t index_base = SPARSE_INDEX_BASE_ZERO;
 

@@ -30,10 +30,18 @@ class build_ext(build_ext_orig):
 
         # example of cmake args
         config = 'Debug' if self.debug else 'Release'
+
         cmake_args = [
             '-DCMAKE_BUILD_TYPE=' + config,
             '-DPYTHON_OUTPUT_DIR=' + os.path.join(str(cwd), ".")
         ]
+
+        if "INTEL_ROOT" in os.environ:
+            cmake_args += ["-DINTEL_ROOT={}".format(os.environ["INTEL_ROOT"])]
+
+        if "MKL_ROOT" in os.environ:
+            cmake_args += ["-DMKL_ROOT={}".format(os.environ["MKL_ROOT"])]
+
 
         # example of build args
         build_args = [
