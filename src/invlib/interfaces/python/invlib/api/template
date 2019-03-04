@@ -25,8 +25,8 @@ invlib.create_vector.restype  = c.c_void_p
 invlib.vector_rows.argtypes = [c.c_void_p]
 invlib.vector_rows.restype  = c.c_uint64
 
-invlib.vector_get_data_pointer.argtypes = [c.c_void_p]
-invlib.vector_get_data_pointer.restype  = c.c_void_p
+invlib.vector_element_pointer.argtypes = [c.c_void_p]
+invlib.vector_element_pointer.restype  = c.c_void_p
 
 invlib.vector_dot.argtypes = [c.c_void_p, c.c_void_p]
 invlib.vector_dot.restype  = c_type
@@ -44,7 +44,8 @@ invlib.vector_scale.restype  = None
 # Matrices
 #
 
-invlib.create_matrix.argtypes = [c.c_void_p, c.c_uint64, c.c_uint64, c.c_bool]
+invlib.create_matrix.argtypes = [c.c_uint64, c.c_uint64, c.c_uint64, c.c_void_p,\
+                                 c.c_void_p, c.c_uint, c.c_bool]
 invlib.create_matrix.restype  = c.c_void_p
 
 invlib.matrix_rows.argtypes = [c.c_void_p]
@@ -53,8 +54,17 @@ invlib.matrix_rows.restype  = c.c_uint64
 invlib.matrix_cols.argtypes = [c.c_void_p]
 invlib.matrix_cols.restype  = c.c_uint64
 
-invlib.matrix_get_data_pointer.argtypes = [c.c_void_p]
-invlib.matrix_get_data_pointer.restype  = c.c_void_p
+invlib.matrix_non_zeros.argtypes = [c.c_void_p]
+invlib.matrix_non_zeros.restype  = c.c_uint64
+
+invlib.matrix_element_pointer.argtypes = [c.c_void_p]
+invlib.matrix_element_pointer.restype  = c.c_void_p
+
+invlib.matrix_index_pointer.argtypes = [c.c_void_p]
+invlib.matrix_index_pointer.restype  = c.c_void_p
+
+invlib.matrix_start_pointer.argtypes = [c.c_void_p]
+invlib.matrix_start_pointer.restype  = c.c_void_p
 
 invlib.matrix_matrix_multiply.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_matrix_multiply.restype  = c.c_void_p
@@ -65,50 +75,3 @@ invlib.matrix_vector_multiply.restype  = c.c_void_p
 invlib.matrix_vector_multiply_transpose.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_vector_multiply_transpose.restype  = c.c_void_p
 
-#
-# MKL Sparse
-#
-
-invlib.create_sparse_mkl_csr.argtypes = [c.c_int, c.c_int, c.c_int,
-                                         c.c_void_p, c.c_void_p, c.c_void_p]
-invlib.create_sparse_mkl_csr.restype  = c.c_void_p
-
-invlib.create_sparse_mkl_csr.argtypes = [c.c_int, c.c_int, c.c_int,
-                                         c.c_void_p, c.c_void_p, c.c_void_p]
-invlib.create_sparse_mkl_csr.restype  = c.c_void_p
-
-invlib.create_sparse_mkl_csr.argtypes = [c.c_int, c.c_int, c.c_int,
-                                         c.c_void_p, c.c_void_p, c.c_void_p]
-invlib.create_sparse_mkl_csr.restype  = c.c_void_p
-
-invlib.sparse_mkl_csr_multiply.argtypes = [c.c_void_p, c.c_void_p,]
-invlib.sparse_mkl_csr_multiply.restype  = c.c_void_p
-
-invlib.sparse_mkl_csr_transpose_multiply.argtypes = [c.c_void_p, c.c_void_p,]
-invlib.sparse_mkl_csr_transpose_multiply.restype  = c.c_void_p
-
-# CSC format
-
-invlib.create_sparse_mkl_csc.argtypes = [c.c_int, c.c_int, c.c_int,
-                                         c.c_void_p, c.c_void_p, c.c_void_p]
-invlib.create_sparse_mkl_csc.restype  = c.c_void_p
-
-
-invlib.create_sparse_mkl_csc.argtypes = [c.c_int, c.c_int, c.c_int,
-                                         c.c_void_p, c.c_void_p, c.c_void_p]
-invlib.create_sparse_mkl_csc.restype  = c.c_void_p
-
-invlib.sparse_mkl_csc_multiply.argtypes = [c.c_void_p, c.c_void_p,]
-invlib.sparse_mkl_csc_multiply.restype = c.c_void_p
-
-invlib.sparse_mkl_csc_transpose_multiply.argtypes = [c.c_void_p, c.c_void_p,]
-invlib.sparse_mkl_csc_transpose_multiply.restype = c.c_void_p
-
-invlib.map_linear.argtypes = [c.c_void_p] * 5
-invlib.map_linear.restype  = c.c_void_p
-
-invlib.forward_model_linear.argtypes = [c.c_void_p, c.c_void_p]
-invlib.forward_model_linear.restype  = c.c_void_p
-
-invlib.covmat_multiply.argtypes = [c.c_void_p, c.c_void_p]
-invlib.covmat_multiply.restype  = c.c_void_p

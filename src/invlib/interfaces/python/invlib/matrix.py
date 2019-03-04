@@ -19,12 +19,74 @@ from invlib.api    import resolve_precision, get_stride, get_c_type, \
 # The Matrix class
 ################################################################################
 
-class Matrix(np.ndarray):
+class Matrix:
     """
     The :code:`Matrix` class implements dense matrices. The :code:`Matrix` class
     inherits from :code:`numpy.ndarray` and can therefore be constructed from
     every 2D :code:`ndarray` object.
     """
+
+    @static_method
+    def from_invlib_pointer(ptr, dtype):
+
+    def _check_precision(matrix):
+        """
+        Check that precision of the provided matrix matches the types supported
+        by invlib.
+
+        Arguments:
+
+            vector(:code:`np.ndarray`): The array of which to check the memory
+                layout.
+        """
+        dtype = matrix.dtype
+        if not dtype in [np.float32, np.float64]:
+            raise ValueError("invlib.matrix objects can only be created from"
+                             " matrices of type float32 or float64")
+
+    def _init_dense(self, m):
+        _check_precision(m)
+        pass
+
+    def _init_sparse_csc(self, m):
+        _check_precision(m)
+        pass
+
+    def _init_sparse_csr(self, m):
+        _check_precision(m)
+        pass
+
+    def __init__(self, m, format = None):
+
+        # Try to deduce format from type of m.
+        if format is None:
+            if type(m) == np.ndarray:
+                self._init_dense(m)
+            elif type(m) == sp.sparse.csc_matrix:
+                self._init_sparse_csc(m)
+            elif type(m) == sp.sparse.csr_matrix:
+                self._init_sparse_csr(m)
+            else:
+                raise Exception("numpy.ndarray or scipy sprase matrix required"\
+                                "to create matrix.")
+        else:
+            if format == "dense":
+                self._init_dense(np.asarray(m))
+            elif format == "sparse_csc":
+                try:
+                    self._init_sparse_csc(m.to_csc)
+                except:
+                    raise ValueError("To create a matrix in sparse CSC format "\
+                                     "the provided matrix must be convertible "\
+                                     "to a scipy.sparse.csc_matrix matrix.")
+            elif format == "sparse_csr":
+                try:
+                    self._init_sparse_csr(m.to_csr)
+                except:
+                    raise ValueError("To create a matrix in sparse CSR format "\
+                                     "the provided matrix must be convertible "\
+                                     "to a scipy.sparse.csr_matrix matrix.")
+
 
     def _check_memory_layout(matrix):
         """

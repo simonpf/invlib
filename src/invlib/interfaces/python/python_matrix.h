@@ -8,6 +8,38 @@
 #ifndef INTERFACES_PYTHON_PYTHON_MATRIX
 #define INTERFACES_PYTHON_PYTHON_MATRIX
 
+#define RESOLVE_FORMAT(f)                       \
+    switch (this->format) {                     \
+    case Format::Dense : {                      \
+        auto ptr = get_as<Dense>();             \
+        return ptr->f();                        \
+    }                                           \
+    case Format::SparseCsc : {                  \
+        auto ptr = get_as<SparseCsc>();         \
+        return ptr->f();                        \
+    }                                           \
+    case Format::SparseCsr : {                  \
+        auto ptr = get_as<SparseCsr>();         \
+        return ptr->f();                        \
+    }                                           \
+    }                                           \
+
+#define RESOLVE_FORMAT2(f, a, b) \
+        switch (this->format) {\
+        case Format::Dense : {\
+            auto ptr_a = a->get_as<Dense>();\
+            return ptr_a->f(b);\
+           }\
+        case Format::SparseCsc : {\
+            auto ptr_a = a->get_as<SparseCsc>();\
+            return ptr_a->f(b);\
+            }\
+        case Format::SparseCsr : {\
+            auto ptr_a = a->get_as<SparseCsr>();\
+            return ptr_a->f(b);\
+        }\
+        }\
+
 #include <cassert>
 #include <cmath>
 #include <iterator>
@@ -15,192 +47,288 @@
 #include <iostream>
 
 #include "invlib/interfaces/python/python_vector.h"
+#include "invlib/dense/matrix_data.h"
+#include "invlib/blas/blas_vector.h"
 #include "invlib/blas/blas_matrix.h"
+#include "invlib/mkl/mkl_sparse.h"
 
 namespace invlib
 {
+    using invlib::Representation;
 
-// --------------------------  //
-//     Python Matrix Data      //
-// --------------------------  //
+    // -------------------  //
+    //    Format enum       //
+    // -------------------  //
 
-/*! Storage class for python matrix data.
- *
- * This class manages memory representing a two dimensional
- * dense matrix represented as contiguous data in memory.
- *
- * \tparam The floating point type used to represent scalars.
- */
-template
-<
-typename ScalarType
->
-class PythonMatrixData
-{
-public:
+    enum class Format : unsigned {Dense, SparseCsc, SparseCsr, SparseHyb};
 
-    template<typename SType2>
-    using MData = PythonMatrixData<SType2>;
+    template<typename T> struct format_trait;
 
-    template<typename SType2>
-    using VData = PythonVectorData<SType2>;
+    template<typename T1, template <typename> typename T2>
+    struct format_trait<BlasMatrix<T1, T2>> {
+        static constexpr Format format = Format::Dense;
+    };
 
-    // ----------------- //
-    //   Constructors    //
-    // ----------------- //
+    template<typename T1>
+    struct format_trait<MklSparse<T1, Representation::CompressedColumns>> {
+        static constexpr Format format = Format::SparseCsc;
+    };
 
-    PythonMatrixData() = default;
-    PythonMatrixData(ScalarType *elements_, size_t m_, size_t n_, bool copy)
-        : m(m_), n(n_), owner(copy)
-    {
-        if (copy) {
-            elements = new ScalarType[m * n];
-            std::copy(elements_, elements_ + m_ * n_, elements);
-        } else {
-            elements = elements_;
+    template<typename T1>
+    struct format_trait<MklSparse<T1, Representation::CompressedRows>> {
+        static constexpr Format format = Format::SparseCsr;
+    };
+
+    template<typename T1>
+        struct format_trait<MklSparse<T1, Representation::Hybrid>> {
+        static constexpr Format format = Format::SparseHyb;
+    };
+
+    // -------------------  //
+    //    Python Matrix     //
+    // -------------------  //
+
+    template <
+        typename ScalarType,
+        typename IndexType = unsigned long
+    >
+    class PythonMatrix {
+        public:
+
+        /*! The floating point type used to represent scalars. */
+        using RealType     = ScalarType;
+        using VectorType   = BlasVector<ScalarType>;
+        using MatrixType   = PythonMatrix<ScalarType, IndexType>;
+        using ResultType   = PythonMatrix<ScalarType, IndexType>;
+
+        using DenseData = MatrixData<ScalarType>;
+        using Dense =     BlasMatrix<ScalarType, MatrixData>;
+
+        using SparseCscData = SparseData<ScalarType,
+                                         IndexType,
+                                         Representation::CompressedColumns>;
+        using SparseCsc = MklSparse<ScalarType, Representation::CompressedColumns>;
+
+        using SparseCsrData = SparseData<ScalarType,
+                                         IndexType,
+                                         Representation::CompressedRows>;
+        using SparseCsr = MklSparse<ScalarType, Representation::CompressedRows>;
+
+        using SparseHybData = SparseData<ScalarType,
+                                         IndexType,
+                                         Representation::Hybrid>;
+        using SparseHyb = MklSparse<ScalarType,
+                                    Representation::Hybrid>;
+
+        // ------------------------------- //
+        //  Constructors and Destructors   //
+        // ------------------------------- //
+
+        PythonMatrix() = delete;
+
+        template <
+            typename T,
+            Format f = format_trait<T>::format
+        >
+        PythonMatrix(T *t)
+        : matrix_ptr(t), format(f) {
+            // Nothing to do here.
         }
-    }
 
-    PythonMatrixData(const PythonMatrixData &other)
-        : elements(other.elements), m(other.m), n(other.n), owner(false)
-    {
-        // Nothing to do here.
-    }
-
-    PythonMatrixData(PythonMatrixData &&) = default;
-
-    PythonMatrixData& operator=(const PythonMatrixData &other) {
-        elements = other.elements;
-        m        = other.m;
-        n        = other.n;
-        owner    = other.owner;
-    }
-    PythonMatrixData& operator=(PythonMatrixData &&) = default;
-
-    ~PythonMatrixData() {
-        if (owner) {
-            delete[] elements;
+        PythonMatrix(size_t m,
+                     size_t n,
+                     size_t nnz,
+                     std::vector<std::shared_ptr<IndexType[]>> index_ptrs,
+                     std::vector<std::shared_ptr<ScalarType[]>> data_ptrs,
+                     Format format_)
+        : format(format_)
+        {
+            switch (format) {
+            case Format::Dense : {
+                if (!(data_ptrs.size() == 1) && (index_ptrs.size() == 0)) {
+                    throw std::runtime_error("Provided number of data pointers "
+                                             "and index pointers does not match "
+                                             "what was expected for constructing"
+                                             " a matrix in dense format.");
+                }
+                auto data  = DenseData(m, n, data_ptrs[0]);
+                auto ptr = new Dense(data);
+                matrix_ptr = reinterpret_cast<void *>(ptr);
+                break;
+            }
+            case Format::SparseCsc : {
+                if (!(data_ptrs.size() == 1) && (index_ptrs.size() == 2)) {
+                    throw std::runtime_error("Provided number of data pointers "
+                                             "and index pointers does not match "
+                                             "what was expected for constructing"
+                                             " a matrix in sparse CSC format.");
+                }
+                auto data  = SparseCscData(m, n, nnz,
+                                           index_ptrs[0],
+                                           index_ptrs[1],
+                                           data_ptrs[0]);
+                auto ptr   = new SparseCsc(data);
+                matrix_ptr = reinterpret_cast<void *>(ptr);
+                break;
+            }
+            case Format::SparseCsr : {
+                if (!(data_ptrs.size() == 1) && (index_ptrs.size() == 2)) {
+                    throw std::runtime_error("Provided number of data pointers "
+                                             "and index pointers does not match "
+                                             "what was expected for constructing"
+                                             " a matrix in sparse CSC format.");
+                }
+                auto data  = SparseCsrData(m, n, nnz,
+                                           index_ptrs[0],
+                                           index_ptrs[1],
+                                           data_ptrs[0]);
+                auto ptr   = new SparseCsr(data);
+                matrix_ptr = reinterpret_cast<void *>(ptr);
+                break;
+            }
+            }
         }
-    }
 
-    PythonMatrixData get_block(size_t i, size_t j,
-                               size_t di, size_t dj) const {
-        PythonMatrixData block{};
-        block.resize(di, dj);
+        PythonMatrix(const PythonMatrix &) = default;
+        PythonMatrix(PythonMatrix &&)      = default;
 
-        for (size_t k = i; k < i + di; ++k) {
-            std::copy(elements + n * k + j,
-                      elements + n * k + j + dj,
-                      block.elements + dj * (k - i));
+        PythonMatrix& operator=(const PythonMatrix &)  = default;
+        PythonMatrix& operator=(PythonMatrix &&)       = default;
+
+        ~PythonMatrix() {
+            switch (format) {
+            case Format::Dense :
+            {
+                auto ptr = reinterpret_cast<Dense *>(matrix_ptr);
+                delete ptr;
+                break;
+            }
+            case Format::SparseCsc :
+            {
+                auto ptr = reinterpret_cast<SparseCsc *>(matrix_ptr);
+                delete ptr;
+                break;
+            }
+            case Format::SparseCsr :
+            {
+                auto ptr = reinterpret_cast<SparseCsr *>(matrix_ptr);
+                delete ptr;
+                break;
+            }
+            }
         }
-        return block;
-    }
 
-    ScalarType * get_element_pointer() {
-        return elements;
-    }
-
-    const ScalarType * get_element_pointer() const {
-        return elements;
-    }
-
-    // ----------------- //
-    //   Manipulations   //
-    // ----------------- //
-
-    /*! Resize the matrix.
-     *
-     * Resize the vector to an \f$i\f$ dimensional vector.
-     *
-     * \param i Number of rows of the resized matrix.
-     * \param j Number of columns of the resized matrix.
-     */
-    void resize(size_t i, size_t j) {
-        if (owner) {
-            delete[] elements;
+        size_t rows() const {
+            RESOLVE_FORMAT(rows);
         }
-        elements = new ScalarType[i * j];
-        m = i; n = j;
-    }
 
-    //
-    // Element access
-    //
+        size_t cols() const {
+            RESOLVE_FORMAT(cols);
+        }
 
-    ScalarType & operator()(size_t i, size_t j)
-    {
-        return elements[i * n + j];
-    }
-    ScalarType operator()(size_t i, size_t j) const
-    {
-        return elements[i * n + j];
-    }
+        ScalarType * get_element_pointer() {
+            RESOLVE_FORMAT(get_element_pointer);
+        }
 
-    //
-    // Size of the matrix.
-    //
+        IndexType * non_zeros() {
+            switch (format) {
+            case Format::Dense : {
+                auto a = *get_as<Dense>();
+                return a.rows() * a.cols();
+            }
+            case Format::SparseCsc : {
+                auto a = *get_as<SparseCsc>();
+                a.non_zeros();
+            }
+            case Format::SparseCsr : {
+                auto a = *get_as<SparaseCsr>();
+                return a.non_zeros();
+            }
+            }
+        }
 
-    unsigned int rows() const
-    {
-        return m;
-    }
+        IndexType * get_index_pointer() {
+            switch (format) {
+            case Format::Dense : {
+                throw std::runtime_error("Matrix in dense format has no "
+                                         "index pointer array.");
+            }
+            case Format::SparseCsc : {
+                auto a = *get_as<SparseCsc>();
+                a.get_index_pointer();
+            }
+            case Format::SparseCsr : {
+                auto a = *get_as<SparaseCsr>();
+                return a.get_index_pointer();
+            }
+            }
+        }
 
-    unsigned int cols() const
-    {
-        return n;
-    }
+        IndexType * get_start_pointer() {
+            switch (format) {
+            case Format::Dense : {
+                throw std::runtime_error("Matrix in dense format has no "
+                                         "start pointer array.");
+            }
+            case Format::SparseCsc : {
+                auto a = get_as<SparseCsc>();
+                a->get_start_pointer();
+            }
+            case Format::SparseCsr : {
+                auto a= get_as<SparaseCsr>();
+                return a->get_start_pointer();
+            }
+            }
+        }
 
-protected:
+        Format get_format const {
+            return format;
+        }
 
-    size_t m   = 0;
-    size_t n   = 0;
-    bool owner = false;
-    ScalarType * elements = nullptr;
+        template<typename T> const T * get_as() const {
+            return reinterpret_cast<const T *>(matrix_ptr);
+        }
 
-};
+    // ----------- //
+    //  Arithmetic //
+    // ----------- //
 
-// -------------------  //
-//    Python Matrix     //
-// -------------------  //
+        void accumulate(const PythonMatrix &b) {
+            if (!(format == Format::Dense && b.format == Format::Dense)) {
+                throw std::runtime_error("Accumulate member function can only be"
+                                         " applied to dense matrices.");
+            }
+            auto ptr_a = get_as<Dense>();
+            auto ptr_b = get_as<Dense>();
+            ptr_a->accumulate(*ptr_b);
+        }
 
-template <typename SType>
-class PythonMatrix : public BlasMatrix<SType, PythonMatrixData>
-{
-public:
+        PythonMatrix multiply(const PythonMatrix &b) const {
+            if (!(format == Format::Dense && b.format == Format::Dense)) {
+                throw std::runtime_error("Matrix-matrix multiplication can only be"
+                                         "applied to dense matrices.");
+            }
+            auto ptr_a = get_as<Dense>();
+            auto ptr_b = get_as<Dense>();
 
-    /*! The floating point type used to represent scalars. */
-    using ScalarType   = SType;
-    using RealType     = SType;
-    using MatrixType   = PythonMatrix<ScalarType>;
-    using ResultType   = PythonMatrix<ScalarType>;
+            auto ptr_c = new Dense(ptr_a->multiply(*ptr_b));
+            return PythonMatrix(ptr_c);
+        }
 
-    // ------------------------------- //
-    //  Constructors and Destructors   //
-    // ------------------------------- //
+        VectorType multiply(const VectorType &b) const {
+            RESOLVE_FORMAT2(multiply, this, b);
+        }
 
-    PythonMatrix() = default;
+        VectorType transpose_multiply(const VectorType &b) const {
+            RESOLVE_FORMAT2(transpose_multiply, this, b);
+        }
 
-    PythonMatrix(const BlasMatrix<SType, PythonMatrixData> &data)
-        : BlasMatrix<SType, PythonMatrixData>(data) {
-        // Nothing to do here.
-    }
+        private:
 
-    PythonMatrix(ScalarType *elements, size_t m, size_t n, bool copy) {
-        PythonMatrixData<ScalarType>::operator=(
-            PythonMatrixData<ScalarType>(elements, m, n, copy)
-            );
-    }
+        void *matrix_ptr = nullptr;
+        Format format;
 
-    PythonMatrix(const PythonMatrix &) = default;
-    PythonMatrix(PythonMatrix &&)      = default;
-
-    PythonMatrix& operator=(const PythonMatrix &)  = default;
-    PythonMatrix& operator=(PythonMatrix &&)       = default;
-
-    ~PythonMatrix() = default;
-
-    using BlasMatrix<SType, PythonMatrixData>::n;
-};
+        };
 
 }      // namespace invlib
 #endif // INTERFACES_PYTHON_PYTHON_MATRIX

@@ -53,7 +53,7 @@ public:
 
     using RealType   = SType;
     using VectorType = BlasVector;
-    using MatrixType = BlasMatrix<SType, VData<SType>::template MData>;
+    using MatrixType = BlasVector;
     using ResultType = BlasVector;
 
     // ------------------------------- //
@@ -87,11 +87,11 @@ public:
     // ------------ //
 
     SType * get_element_pointer() {
-        return elements;
+        return elements.get();
     }
 
     const SType * get_element_pointer() const {
-        return elements;
+        return elements.get();
     }
 
     // ------------ //

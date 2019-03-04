@@ -78,6 +78,10 @@ private:
     using SparseData<Real, MKL_INT, Representation::Coordinates>::column_indices;
     using SparseData<Real, MKL_INT, Representation::Coordinates>::elements;
 
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_row_index_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_column_index_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
+
 };
 
 template
@@ -135,8 +139,9 @@ private:
     using SparseData<Real, MKL_INT, rep>::n;
     using SparseData<Real, MKL_INT, rep>::elements;
 
-    using SparseData<Real, MKL_INT, rep>::get_indices;
-    using SparseData<Real, MKL_INT, rep>::get_starts;
+    using SparseData<Real, MKL_INT, rep>::get_index_pointer;
+    using SparseData<Real, MKL_INT, rep>::get_start_pointer;
+    using SparseData<Real, MKL_INT, rep>::get_element_pointer;
 
 };
 
@@ -196,6 +201,10 @@ private:
 
     using CSCBase::column_starts;
     using CSCBase::row_indices;
+
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_start_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_index_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
 
 };
 

@@ -12,7 +12,7 @@
 #include "invlib/invlib.h"
 #include "invlib/archetypes/matrix_archetype.h"
 #include "invlib/archetypes/vector_archetype.h"
-#include "invlib/utility/array_deleter.h"
+#include "invlib/utility/array.h"
 #include "invlib/utility/functions.h"
 
 #include <algorithm>
@@ -136,13 +136,13 @@ public:
     //   Data Access   //
     // --------------- //
 
-    Index * get_row_index_pointer()    {return * row_indices;}
-    Index * get_column_index_pointer() {return * column_indices;}
-    Real   * get_element_pointer()      {return * elements;}
+    Index * get_row_index_pointer()    {return row_indices.get();}
+    Index * get_column_index_pointer() {return column_indices.get();}
+    Real   * get_element_pointer()      {return elements.get();}
 
-    const Index * get_row_index_pointer()    const {return * row_indices;}
-    const Index * get_column_index_pointer() const {return * column_indices;}
-    const Real   * get_element_pointer()      const {return * elements;}
+    const Index * get_row_index_pointer()    const {return row_indices.get();}
+    const Index * get_column_index_pointer() const {return column_indices.get();}
+    const Real   * get_element_pointer()      const {return elements.get();}
 
     Index rows()     const  {return m;}
     Index cols()     const  {return n;}
@@ -162,9 +162,9 @@ protected:
 
     Index m, n, nnz;
 
-    std::shared_ptr<Index *> column_indices;
-    std::shared_ptr<Index *> row_indices;
-    std::shared_ptr<Real *>   elements;
+    std::shared_ptr<Index[]> column_indices;
+    std::shared_ptr<Index[]> row_indices;
+    std::shared_ptr<Real[]>   elements;
 
 };
 
@@ -228,9 +228,9 @@ public:
     // ------------------------------- //
 
     SparseData(Index m, Index n, Index nnz,
-               const std::shared_ptr<Index *> & row_indices,
-               const std::shared_ptr<Index *> & column_starts,
-               const std::shared_ptr<Real *>   & elements);
+               const std::shared_ptr<Index[]> & row_indices,
+               const std::shared_ptr<Index[]> & column_starts,
+               const std::shared_ptr<Real[]>   & elements);
 
     SparseData(const SparseData & )             = default;
     SparseData(      SparseData &&)             = default;
@@ -245,13 +245,13 @@ public:
 
     void resize(Index i, Index j);
 
-    Index * get_row_index_pointer()    {return * row_indices;}
-    Index * get_column_start_pointer() {return * column_starts;}
-    Real   * get_element_pointer()      {return * elements;}
+    Index * get_row_index_pointer()    {return row_indices.get();}
+    Index * get_column_start_pointer() {return column_starts.get();}
+    Real  * get_element_pointer()      {return elements.get();}
 
-    const Index * get_row_index_pointer()    const {return * row_indices;}
-    const Index * get_column_start_pointer() const {return * column_starts;}
-    const Real   * get_element_pointer()      const {return * elements;}
+    const Index * get_row_index_pointer()    const {return row_indices.get();}
+    const Index * get_column_start_pointer() const {return column_starts.get();}
+    const Real  * get_element_pointer()      const {return elements.get();}
 
     Index rows()     const  {return m;}
     Index cols()     const  {return n;}
@@ -259,16 +259,16 @@ public:
 
 protected:
 
-    Index * get_indices() {return * row_indices;}
-    Index * get_starts()  {return * column_starts;}
-    const Index * get_indices()   const {return * row_indices;}
-    const Index * get_starts()    const {return * column_starts;}
+    Index * get_index_pointer()   {return row_indices.get();}
+    Index * get_start_pointer()   {return column_starts.get();}
+    const Index * get_index_pointer()   const {return row_indices.get();}
+    const Index * get_start_pointer()   const {return column_starts.get();}
 
     Index m, n, nnz;
 
-    std::shared_ptr<Index *> row_indices;
-    std::shared_ptr<Index *> column_starts;
-    std::shared_ptr<Real *>   elements;
+    std::shared_ptr<Index[]> row_indices;
+    std::shared_ptr<Index[]> column_starts;
+    std::shared_ptr<Real[]>   elements;
 
 };
 
@@ -330,9 +330,9 @@ public:
 
     SparseData() = delete;
     SparseData(Index m, Index n, Index nnz,
-               const std::shared_ptr<Index *> & row_starts,
-               const std::shared_ptr<Index *> & column_indices,
-               const std::shared_ptr<Real *>   & elements);
+               const std::shared_ptr<Index[]> & row_starts,
+               const std::shared_ptr<Index[]> & column_indices,
+               const std::shared_ptr<Real[]>   & elements);
 
     SparseData(const SparseData & )             = default;
     SparseData(      SparseData &&)             = default;
@@ -347,13 +347,13 @@ public:
 
     void resize(Index i, Index j);
 
-    Index * get_row_start_pointer()    {return * row_starts;}
-    Index * get_column_index_pointer() {return * column_indices;}
-    Real   * get_element_pointer()      {return * elements;}
+    Index * get_row_start_pointer()    {return row_starts.get();}
+    Index * get_column_index_pointer() {return column_indices.get();}
+    Real  * get_element_pointer()      {return elements.get();}
 
-    const Index * get_row_start_pointer()    const {return * row_starts;}
-    const Index * get_column_index_pointer() const {return * column_indices;}
-    const Real   * get_element_pointer()      const {return * elements;}
+    const Index * get_row_start_pointer()    const {return row_starts.get();}
+    const Index * get_column_index_pointer() const {return column_indices.get();}
+    const Real  * get_element_pointer()      const {return elements.get();}
 
     Index rows()     const  {return m;}
     Index cols()     const  {return n;}
@@ -361,16 +361,16 @@ public:
 
 protected:
 
-    Index * get_indices() {return * column_indices;}
-    Index * get_starts()  {return * row_starts;}
-    const Index * get_indices()   const {return * column_indices;}
-    const Index * get_starts()    const {return * row_starts;}
+    Index * get_index_pointer()   {return column_indices.get();}
+    Index * get_start_pointer()   {return row_starts.get();}
+    const Index * get_index_pointer()   const {return column_indices.get();}
+    const Index * get_start_pointer()   const {return row_starts.get();}
 
     Index m, n, nnz;
 
-    std::shared_ptr<Index *> row_starts;
-    std::shared_ptr<Index *> column_indices;
-    std::shared_ptr<Real *>  elements;
+    std::shared_ptr<Index[]> row_starts;
+    std::shared_ptr<Index[]> column_indices;
+    std::shared_ptr<Real[]>  elements;
 
 };
 

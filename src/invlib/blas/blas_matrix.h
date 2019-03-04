@@ -85,25 +85,26 @@ public:
     // ------------ //
 
     void accumulate(const BlasMatrix &B) {
-        axpy(n * m, 1.0, B.elements, 1, elements, 1);
+        axpy(n * m, 1.0, B.get_element_pointer(), 1, get_element_pointer(), 1);
     }
 
     void subtract(const BlasMatrix &B) {
-        axpy(n * m, -1.0, B.elements, 1, elements, 1);
+        axpy(n * m, -1.0, B.get_element_pointer(), 1, get_element_pointer(), 1);
     }
 
     BlasMatrix multiply(const BlasMatrix &B) const {
         BlasMatrix C; C.resize(m, B.n);
         constexpr char trans = 'n';
         blas::gemm<SType>('n', 'n', B.n, m, n,
-                          1.0, B.elements, B.n,
-                          elements, n, 0.0,
-                          C.elements, C.n);
+                          1.0, B.get_element_pointer(), B.n,
+                          get_element_pointer(), n, 0.0,
+                          C.get_element_pointer(), C.n);
         return C;
     }
 
-    VectorType multiply(const VectorType &u) const {
-        VectorType v; v.resize(m);
+    template<template <typename> typename TT>
+    BlasVector<SType, TT> multiply(const BlasVector<SType, TT> &u) const {
+        BlasVector<SType, TT> v; v.resize(m);
         const SType *u_ptr = u.get_element_pointer();
               SType *v_ptr = v.get_element_pointer();
         constexpr char trans = 't';
@@ -111,18 +112,19 @@ public:
             for (size_t j = 0; j < n - 1; ++ j) {
             }
         }
-        blas::gemv<SType>('t', n, m, 1.0, elements, n, u_ptr, 1, 0.0, v_ptr, 1);
+        blas::gemv<SType>('t', n, m, 1.0, get_element_pointer(), n, u_ptr, 1, 0.0, v_ptr, 1);
         for (size_t i = 0; i < u.rows(); ++i) {
         }
         return v;
     }
 
-    VectorType transpose_multiply(const VectorType &u) const {
-        VectorType v; v.resize(n);
+    template<template <typename> typename TT>
+    BlasVector<SType, TT> transpose_multiply(const BlasVector<SType, TT> &u) const {
+        BlasVector<SType, TT> v; v.resize(n);
         const SType *u_ptr = u.get_element_pointer();
               SType *v_ptr = v.get_element_pointer();
         constexpr char trans = 'n';
-        blas::gemv<SType>('n', m, n, 1.0, elements, m, u_ptr, 1, 0.0, v_ptr, 1);
+        blas::gemv<SType>('n', m, n, 1.0, get_element_pointer(), m, u_ptr, 1, 0.0, v_ptr, 1);
         return v;
     }
 
@@ -132,9 +134,9 @@ protected:
     //  Base Class Members //
     // ------------------- //
 
-    using MData<SType>::elements;
     using MData<SType>::m;
     using MData<SType>::n;
+    using MData<SType>::get_element_pointer;
 
 };
 

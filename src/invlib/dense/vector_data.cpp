@@ -1,57 +1,49 @@
 template
 <
-typename Real
+typename ScalarType
 >
-VectorData<Real>::VectorData(const VectorData &v)
+VectorData<ScalarType>::VectorData(const VectorData &v)
     : n(v.rows())
 {
-    elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
-    *elements = new Real[n];
-
-    if (n > 0)
-    {
-        std::copy(v.begin(), v.end(), *elements);
+    elements = array::create<ScalarType>(n);
+    if (n > 0) {
+        std::copy(v.begin(), v.end(), elements.get());
     }
 }
 
 template
 <
-typename Real
+typename ScalarType
 >
-VectorData<Real> & VectorData<Real>::operator=(const VectorData &v)
+VectorData<ScalarType> & VectorData<ScalarType>::operator=(const VectorData &v)
 {
     n = v.rows();
-    elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
-    *elements = new Real[n];
+    elements  = array::create<ScalarType>(n);
     std::copy(v.begin(), v.end(), *elements);
 }
 
 template
 <
-typename Real
+typename ScalarType
 >
-VectorData<Real> VectorData<Real>::random(size_t n)
+VectorData<ScalarType> VectorData<ScalarType>::random(size_t n)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> real_dis(-10,10);
 
-    std::shared_ptr<Real *> pointer(new (Real *), ArrayDeleter<Real *>());
-    *pointer = new Real[n];
-
-    for (size_t i = 0; i < n; i++)
-    {
+    auto pointer = array::create<ScalarType>(n);
+    for (size_t i = 0; i < n; i++) {
         (*pointer)[i] = real_dis(gen);
     }
-
     return VectorData(n, pointer);
 }
 
 template
 <
-typename Real
+typename ScalarType
 >
-VectorData<Real>::VectorData(size_t n_, std::shared_ptr<Real *> elements_)
+VectorData<ScalarType>::VectorData(size_t n_, std::shared_ptr<ScalarType[]> elements_)
     : n(n_), elements(elements_)
 {
     // Nothing to do here.
@@ -59,27 +51,24 @@ VectorData<Real>::VectorData(size_t n_, std::shared_ptr<Real *> elements_)
 
 template
 <
-typename Real
+typename ScalarType
 >
-VectorData<Real>::VectorData(const VectorArchetype<Real> &v)
+VectorData<ScalarType>::VectorData(const VectorArchetype<ScalarType> &v)
     : n(v.rows())
 {
-    elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
-    *elements = new Real[n];
-
-    for (size_t i = 0; i < n; i++)
-    {
+    elements = array::create<ScalarType>(n);
+    for (size_t i = 0; i < n; i++) {
         (*elements)[i] = v(i);
     }
 }
 
 template
 <
-typename Real
+typename ScalarType
 >
-VectorData<Real>::operator VectorArchetype<Real>() const
+VectorData<ScalarType>::operator VectorArchetype<ScalarType>() const
 {
-    VectorArchetype<Real> v; v.resize(n);
+    VectorArchetype<ScalarType> v; v.resize(n);
     for (size_t i = 0; i < n; i++)
     {
         v(i)= (*elements)[i];
@@ -89,41 +78,39 @@ VectorData<Real>::operator VectorArchetype<Real>() const
 
 template
 <
-typename Real
+typename ScalarType
 >
-void VectorData<Real>::resize(size_t n_)
-{
+void VectorData<ScalarType>::resize(size_t n_) {
     n = n_;
-    elements  = std::shared_ptr<Real *>(new (Real *), ArrayDeleter<Real *>());
-    *elements = new Real[n];
+    elements = array::create<ScalarType>(n);
 }
 
 template
 <
-typename Real
+typename ScalarType
 >
-bool VectorData<Real>::operator== (const VectorData & w) const
+bool VectorData<ScalarType>::operator== (const VectorData & w) const
 {
     bool result = true;
 
-    const Real * w_elements = w.get_element_pointer();
+    const ScalarType * w_elements = w.get_element_pointer();
     for (size_t i = 0; i < n; i++)
     {
-        result = result && numerical_equality((*elements)[i], w_elements[i]);
+        result = result && numerical_equality(elements[i], w_elements[i]);
     }
     return result;
 }
 
-template <typename Real>
-std::ostream & operator<<(std::ostream & s, const VectorData<Real> & vector)
+template <typename ScalarType>
+std::ostream & operator<<(std::ostream & s, const VectorData<ScalarType> & vector)
 {
     s << "Dense Vector Data:" << std::endl;
     s << "[";
     for (size_t i = 0; i < vector.n - 1; i++)
     {
-        s << (*vector.elements)[i] << " ";
+        s << vector.elements[i] << " ";
     }
-    s << (*vector.elements)[vector.n - 1] << "]";
+    s << vector.elements[vector.n - 1] << "]";
     s << std::endl;
     return s;
 }

@@ -15,7 +15,7 @@
 #include "invlib/invlib.h"
 #include "invlib/archetypes/vector_archetype.h"
 #include "invlib/utility/functions.h"
-#include "invlib/utility/array_deleter.h"
+#include "invlib/utility/array.h"
 
 namespace invlib
 {
@@ -35,12 +35,12 @@ namespace invlib
  * This class does not implement any arithmetic operations but is used only
  * for loading and storing of vectors and conversion between different types.
  *
- * \tparam Real The floating point type used for the representation of vector
+ * \tparam ScalarType The floating point type used for the representation of vector
  * elements.
  */
 template
 <
-typename Real
+typename ScalarType
 >
 class VectorData : public Invlib
 {
@@ -51,7 +51,7 @@ public:
     //  Type Aliases  //
     // -------------- //
 
-    using RealType = Real;
+    using RealType = ScalarType;
 
     // --------------- //
     //  Static Members //
@@ -72,6 +72,7 @@ public:
 
     VectorData(      VectorData &&)              = default;
     VectorData & operator= (      VectorData &&) = default;
+    ~VectorData() = default;
 
     /*! Create a VectorData object holding n elements from
      *  a shared_ptr holding the reference to the data array
@@ -80,21 +81,21 @@ public:
      * \param A shared pointer holding a reference to the array
      * holding the n elements.
      */
-    VectorData(size_t n, std::shared_ptr<Real *> elements);
-    VectorData(const VectorArchetype<Real> &);
+    VectorData(size_t n, std::shared_ptr<ScalarType[]> elements);
+    VectorData(const VectorArchetype<ScalarType> &);
 
     // ----------------------------- //
     //  Data Access and Manipulation //
     // ----------------------------- //
 
-    const Real * get_element_pointer() const {return *elements;}
-          Real * get_element_pointer()       {return *elements;}
+    const ScalarType * get_element_pointer() const {return *elements;}
+          ScalarType * get_element_pointer()       {return *elements;}
 
 
-          Real * begin()       {return *elements;}
-    const Real * begin() const {return *elements;}
-          Real * end()         {return *elements + n;}
-    const Real * end()   const {return *elements + n;}
+          ScalarType * begin()       {return elements.get();}
+    const ScalarType * begin() const {return elements.get();}
+          ScalarType * end()         {return elements.get() + n;}
+    const ScalarType * end()   const {return elements.get() + n;}
 
     /*! If the vector already holds a reference to a data array, this shared_ptr
      *  is destructed and a new array of the given size is allocated. */
@@ -113,7 +114,7 @@ public:
     //  Conversions //
     // ------------ //
 
-    operator VectorArchetype<Real>() const;
+    operator VectorArchetype<ScalarType>() const;
 
     template<typename T>
     friend std::ostream & operator<<(std::ostream &, const VectorData<T> &);
@@ -121,13 +122,13 @@ public:
 protected:
 
     size_t n = 0;
-    std::shared_ptr<Real *> elements;
+    std::shared_ptr<ScalarType[]> elements;
 
 };
 
 /*! Stream vector to string */
-template <typename Real>
-std::ostream & operator<<(std::ostream &, const VectorData<Real>&);
+template <typename ScalarType>
+std::ostream & operator<<(std::ostream &, const VectorData<ScalarType>&);
 
 #include "vector_data.cpp"
 

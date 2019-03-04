@@ -19,8 +19,11 @@ auto MklSparse<Real, Representation::Coordinates>::multiply(
 {
     VectorType w{}; w.resize(m);
     mkl::smv<Real, Representation::Coordinates>(
-        'N', static_cast<int>(m), static_cast<int>(n), static_cast<int>(nnz),
-        1.0, *elements, *row_indices, *column_indices, nullptr,
+        'N', static_cast<int>(m), static_cast<int>(n), static_cast<int>(nnz), 1.0,
+        get_element_pointer(),
+        get_row_index_pointer(),
+        get_column_index_pointer(),
+        nullptr,
         v.get_element_pointer(), 0.0, w.get_element_pointer());
     return w;
 }
@@ -36,8 +39,8 @@ auto MklSparse<Real, Representation::Coordinates>::transpose_multiply(
     VectorType w{}; w.resize(n);
     mkl::smv<Real, Representation::Coordinates>(
         'T', static_cast<int>(m), static_cast<int>(n), static_cast<int>(nnz),
-        1.0, *elements, *row_indices, *column_indices, nullptr,
-        v.get_element_pointer(), 0.0, w.get_element_pointer());
+        1.0, get_element_pointer(), get_row_index_pointer(), get_column_index_pointer(),
+        nullptr, v.get_element_pointer(), 0.0, w.get_element_pointer());
     return w;
 }
 
@@ -49,7 +52,10 @@ Representation rep
 MklSparse<Real, rep>::MklSparse(const SparseData<Real, int, rep> & matrix)
     : SparseData<Real, int, rep>(matrix)
 {
-    mkl_matrix = mkl::sparse_create<Real, rep>(m, n, get_starts(), get_indices(), *elements);
+    mkl_matrix = mkl::sparse_create<Real, rep>(m, n,
+                                               get_start_pointer(),
+                                               get_index_pointer(),
+                                               get_element_pointer());
 }
 
 template <typename Real, Representation rep>
@@ -103,7 +109,10 @@ auto MklSparse<Real, Representation::Hybrid>::multiply(
     VectorType w; w.resize(m);
     mkl::smv<Real, Representation::CompressedRows>(
         'N', m, n, nnz, 1.0,
-        * CSRBase::elements, * column_indices, *row_starts, *row_starts + 1,
+        get_element_pointer(),
+        get_index_pointer(),
+        get_start_pointer(),
+        get_start_pointer() + 1,
         v.get_element_pointer(), 0.0, w.get_element_pointer());
     return w;
 }
@@ -120,7 +129,10 @@ auto MklSparse<Real, Representation::Hybrid>::transpose_multiply(
     VectorType w; w.resize(n);
     mkl::smv<Real, Representation::CompressedRows>(
         'N', n, m, nnz, 1.0,
-        * CSCBase::elements, * row_indices, *column_starts, *column_starts + 1,
+        get_element_pointer(),
+        get_index_pointer(),
+        get_start_pointer(),
+        get_start_pointer() + 1,
         v.get_element_pointer(), 0.0, w.get_element_pointer());
     return w;
 }

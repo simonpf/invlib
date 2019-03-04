@@ -27,7 +27,7 @@ if (Boost_FOUND)
 endif (Boost_FOUND)
 
 set(INVLIB_PYTHONPATH ${PROJECT_BINARY_DIR}/src/invlib/interfaces/python)
-file(GLOB_RECURSE FILES python "*[!.py]")
+file(GLOB_RECURSE FILES python "python/test_*[!.py]")
 foreach(file ${FILES})
   file(RELATIVE_PATH file_rel ${CMAKE_CURRENT_SOURCE_DIR} ${file})
   set(FLOATTYPE float32)

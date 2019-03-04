@@ -23,115 +23,22 @@ namespace invlib
 //     Python Vector Data      //
 // --------------------------  //
 
-template<typename SType> class PythonMatrixData;
-
-/*! Storage class for python vector data.
- *
- * This is essentially a wrapper class around Python vector data
- * provided in the form of contiguous floating point numbers in
- * memory.
- *
- * \tparam The floating point type used to represent scalars.
- */
-template
-<
-typename ScalarType
->
-class PythonVectorData
-{
-public:
-
-    template<typename SType2>
-    using MData = PythonMatrixData<SType2>;
-
-    PythonVectorData() = default;
-    PythonVectorData(ScalarType *elements, size_t n, bool copy);
-
-    PythonVectorData(const PythonVectorData &);
-    PythonVectorData(PythonVectorData &&);
-
-    PythonVectorData& operator=(const PythonVectorData &);
-    PythonVectorData& operator=(PythonVectorData &&);
-
-    ~PythonVectorData();
-
-    PythonVectorData get_block(size_t i,
-                               size_t di) const;
-
-    // ----------------- //
-    //   Manipulations   //
-    // ----------------- //
-
-    /*! Resize vector.
-     *
-     * Resize the vector to an \f$i\f$ dimensional vector.
-     *
-     * \param i Number of rows of the resized matrix.
-     */
-    void resize(unsigned int i) {
-        if (owner) {
-            delete[] elements;
-        }
-        elements = new ScalarType[i];
-        n = i;
-    }
-
-    /*! Element access.
-     *
-     * \param i Index of the element to access.
-     */
-    ScalarType & operator()(unsigned int i)
-    {
-        return elements[i];
-    }
-
-    /*! Read-only element access.
-     *
-     * \param i Index of the element to access.
-     */
-    ScalarType operator()(unsigned int i) const
-    {
-        return elements[i];
-    }
-
-    /*! Number of rows of the vector
-     *
-     * \return The number of rows (dimension) of the vector.
-     */
-    unsigned int rows() const
-    {
-        return n;
-    }
-
-    ScalarType * data_pointer(int i = 0);
-    const ScalarType * data_pointer(int i = 0) const;
-
-protected:
-
-    unsigned int n  = 0;
-    bool owner      = false;
-    ScalarType * elements = nullptr;
-
-};
 
 // -----------------  //
 //    Python Vector   //
 // -----------------  //
 
-template <typename SType> class PythonMatrix;
+template <typename ScalarType, typename IndexType> class PythonMatrix;
 
-template <typename SType>
-class PythonVector : public BlasVector<SType, PythonVectorData>
+template <typename ScalarType>
+class PythonVector : public BlasVector<ScalarType, VectorData>
 {
 public:
 
     /*! The floating point type used to represent scalars. */
-    using ScalarType   = SType;
-    using RealType     = SType;
+    using RealType     = ScalarType;
     /*! The fundamental vector type used for the matrix algebra.*/
     using VectorType = PythonVector<ScalarType>;
-    /*! The fundamental matrix type used for the matrix algebra.*/
-    using MatrixType = PythonMatrix<ScalarType>;
     using ResultType = PythonVector<ScalarType>;
 
     // ------------------------------- //
@@ -139,21 +46,15 @@ public:
     // ------------------------------- //
 
     PythonVector() = default;
-
-    PythonVector(ScalarType *elements, size_t n, bool copy);
-    PythonVector(PythonVectorData<SType> const other) {
-        PythonVectorData<SType>::operator=(other);
-    }
+    PythonVector(ScalarType * other_elements, size_t rows, bool copy);
 
     PythonVector(const PythonVector &) = default;
     PythonVector(PythonVector &&)      = default;
-
     PythonVector& operator=(const PythonVector &)  = default;
     PythonVector& operator=(PythonVector &&)       = default;
-
     ~PythonVector() = default;
 
-    using BlasVector<SType, PythonVectorData>::n;
+    using BlasVector<ScalarType, VectorData>::n;
 };
 
 

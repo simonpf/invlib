@@ -76,7 +76,7 @@ public:
     /*! The basic vector type  */
     using VectorType = Vector;
     /*! The basic matrix type. */
-    using MatrixType = Matrix<typename Base::MatrixType>;
+    //using MatrixType = Matrix<typename Base::MatrixType>;
     /*! The type of the result of the expression */
     using ResultType = Vector;
     /*! The type of the result of the expression */
