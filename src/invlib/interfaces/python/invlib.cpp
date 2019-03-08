@@ -161,11 +161,13 @@ extern "C" {
 
     size_t matrix_cols(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+        std::cout << A << std::endl;
         std::cout << A_.cols() << std::endl;
         return A_.cols();
     }
 
     size_t matrix_rows(void *A) {
+        std::cout << A << std::endl;
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
         std::cout << A_.rows() << std::endl;
         return A_.rows();

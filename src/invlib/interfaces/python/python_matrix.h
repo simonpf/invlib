@@ -154,7 +154,6 @@ namespace invlib
                 auto data  = DenseData(m, n, data_ptrs[0]);
                 auto ptr = new Dense(data);
                 std::cout << "Creating matrix " << m  << " // " << n << std::endl;
-                std::cout << ptr->rows() << " :: " << ptr->cols() << std::endl;
                 matrix_ptr = reinterpret_cast<void *>(ptr);
                 break;
             }
@@ -221,6 +220,7 @@ namespace invlib
         }
 
         size_t rows() const {
+            std::cout << "format: " << static_cast<uint>(format> << std::endl;
             RESOLVE_FORMAT(rows);
         }
 
