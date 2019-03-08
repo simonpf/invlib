@@ -161,11 +161,13 @@ extern "C" {
 
     size_t matrix_cols(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+        std::cout << A_.cols() << std::endl;
         return A_.cols();
     }
 
     size_t matrix_rows(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+        std::cout << A_.rows() << std::endl;
         return A_.rows();
     }
 
@@ -176,22 +178,22 @@ extern "C" {
 
     unsigned matrix_format(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<unsigned>(A.get_format());
+        return static_cast<unsigned>(A_.get_format());
     }
 
-    unsigned matrix_element_pointer(void *A) {
+    void * matrix_element_pointer(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<unsigned>(A.get_element_pointer());
+        return static_cast<void *>(A_.get_element_pointer());
     }
 
-    unsigned matrix_index_pointer(void *A) {
+    void * matrix_index_pointer(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<unsigned>(A.get_index_pointer());
+        return static_cast<void *>(A_.get_index_pointer());
     }
 
-    unsigned matrix_start_pointer(void *A) {
+    void * matrix_start_pointer(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<unsigned>(A.get_start_pointer());
+        return static_cast<void *>(A_.get_start_pointer());
     }
 
     //

@@ -153,6 +153,8 @@ namespace invlib
                 }
                 auto data  = DenseData(m, n, data_ptrs[0]);
                 auto ptr = new Dense(data);
+                std::cout << "Creating matrix " << m  << " // " << n << std::endl;
+                std::cout << ptr->rows() << " :: " << ptr->cols() << std::endl;
                 matrix_ptr = reinterpret_cast<void *>(ptr);
                 break;
             }
@@ -226,26 +228,27 @@ namespace invlib
             RESOLVE_FORMAT(cols);
         }
 
-        ScalarType * get_element_pointer() {
-            RESOLVE_FORMAT(get_element_pointer);
-        }
-
-        IndexType * non_zeros() {
+        IndexType non_zeros() {
             switch (format) {
             case Format::Dense : {
-                auto a = *get_as<Dense>();
+                auto & a = *get_as<Dense>();
                 return a.rows() * a.cols();
             }
             case Format::SparseCsc : {
-                auto a = *get_as<SparseCsc>();
+                auto & a = *get_as<SparseCsc>();
                 a.non_zeros();
             }
             case Format::SparseCsr : {
-                auto a = *get_as<SparaseCsr>();
+                auto & a = *get_as<SparseCsr>();
                 return a.non_zeros();
             }
             }
         }
+
+        ScalarType * get_element_pointer() {
+            RESOLVE_FORMAT(get_element_pointer);
+        }
+
 
         IndexType * get_index_pointer() {
             switch (format) {
@@ -254,11 +257,11 @@ namespace invlib
                                          "index pointer array.");
             }
             case Format::SparseCsc : {
-                auto a = *get_as<SparseCsc>();
+                auto & a = *get_as<SparseCsc>();
                 a.get_index_pointer();
             }
             case Format::SparseCsr : {
-                auto a = *get_as<SparaseCsr>();
+                auto & a = *get_as<SparseCsr>();
                 return a.get_index_pointer();
             }
             }
@@ -275,14 +278,18 @@ namespace invlib
                 a->get_start_pointer();
             }
             case Format::SparseCsr : {
-                auto a= get_as<SparaseCsr>();
+                auto a = get_as<SparseCsr>();
                 return a->get_start_pointer();
             }
             }
         }
 
-        Format get_format const {
+        Format get_format() const {
             return format;
+        }
+
+        template<typename T> T * get_as() {
+            return reinterpret_cast<T *>(matrix_ptr);
         }
 
         template<typename T> const T * get_as() const {

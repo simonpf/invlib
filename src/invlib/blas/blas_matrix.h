@@ -128,6 +128,8 @@ public:
         return v;
     }
 
+    using MData<SType>::get_element_pointer;
+
 protected:
 
     // ------------------- //
@@ -136,7 +138,6 @@ protected:
 
     using MData<SType>::m;
     using MData<SType>::n;
-    using MData<SType>::get_element_pointer;
 
 };
 

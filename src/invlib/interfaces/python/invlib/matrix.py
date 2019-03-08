@@ -26,9 +26,67 @@ class Matrix:
     every 2D :code:`ndarray` object.
     """
 
-    @static_method
-    def from_invlib_pointer(ptr, dtype):
+    @staticmethod
+    def matrix_info(ptr, dtype):
 
+        f_rows = resolve_precision("matrix_rows", dtype)
+        m = f_rows(ptr)
+
+        f_cols = resolve_precision("matrix_cols", dtype)
+        n = f_cols(ptr)
+
+        f_nnz = resolve_precision("matrix_non_zeros", dtype)
+        nnz = f_cols(ptr)
+
+        f_format = resolve_precision("matrix_format", dtype)
+        fmt = f_format(ptr)
+
+        f_element_ptr = resolve_precision("matrix_element_pointer", dtype)
+        element_ptr = f_element_ptr(ptr)
+
+        if fmt > 0:
+            f_index_ptr = resolve_precision("matrix_index_pointer", dtype)
+            index_ptr   = f_index_ptr(ptr)
+            f_start_ptr = resolve_precision("matrix_start_pointer", dtype)
+            start_ptr   = f_start_ptr(ptr)
+        else:
+            index_ptr = None
+            start_ptr = None
+        return m, n, nnz, fmt, element_ptr, start_ptr, index_ptr
+
+    @staticmethod
+    def from_invlib_pointer(ptr, dtype):
+        m, n, nnz, fmt, element_ptr, start_ptr, index_ptr = matrix_infor(ptr,
+                                                                         dtype)
+        # Dense format
+        if fmt == 0:
+            if dtype == np.float32:
+                ts = "4"
+            else:
+                ts = "8"
+
+            ai = {"shape" : (m,n ),
+                  "typestr" : "|f" + ts,
+                  "version" : 3}
+            ptr.__array_interface__ = ai
+            m = np.asarray(ptr)
+        # CSC sparse format
+        elif fmt == 1:
+            m = sp.sparse.csc_matrix((element_ptr, (index_ptr, start_ptr)),
+                                     shape = (m, n))
+
+
+        # CSR sparse format
+        elif fmt == 2:
+            m = sp.sparse.csr_matrix((element_ptr, (index_ptr, start_ptr)),
+                                     shape = (m, n))
+        else:
+            raise Exception("Currently only dense, CSC and CSR formats are "
+                            " supported.")
+        return Matrix(m)
+
+
+    @staticmethod
     def _check_precision(matrix):
         """
         Check that precision of the provided matrix matches the types supported
@@ -44,16 +102,54 @@ class Matrix:
             raise ValueError("invlib.matrix objects can only be created from"
                              " matrices of type float32 or float64")
 
+    @staticmethod
+    def _get_data_ptrs(matrix):
+        if isinstance(matrix, np.ndarray):
+            return [matrix.ctypes.data]
+        elif isinstance(matrix, sp.sparse.csc_matrix):
+            return [matrix.data.ctypes.data]
+        elif isinstance(matrix, sp.sparse.csr_matrix):
+            return [matrix.data.ctypes.data]
+        else:
+            raise ValueError("Currently only dense matrices or sparse matrices "
+                             "in CSC or CSR format are supported.")
+
+    @staticmethod
+    def _get_index_ptrs(matrix):
+        if isinstance(matrix, np.ndarray):
+            return []
+        elif isinstance(matrix, sp.sparse.csc_matrix):
+            return [matrix.indices, matrix.indptr]
+        elif isinstance(matrix, sp.sparse.csr_matrix):
+            return [matrix.indices, matrix.indptr]
+        else:
+            raise ValueError("Currently only dense matrices or sparse matrices "
+                             "in CSC or CSR format are supported.")
+
+    @staticmethod
+    def _list_to_ctypes_ptr(ls):
+        array_type = c.c_void_p * len(ls)
+        array = array_type(*ls)
+        ptr = c.pointer(array)
+        return ptr
+
     def _init_dense(self, m):
-        _check_precision(m)
-        pass
+        Matrix._check_precision(m)
+
+        data_ptrs  = Matrix._list_to_ctypes_ptr(Matrix._get_data_ptrs(m))
+        index_ptrs = Matrix._list_to_ctypes_ptr(Matrix._get_index_ptrs(m))
+
+        f = resolve_precision("create_matrix", m.dtype)
+        m, n = m.shape
+        nnz = m * n
+        self.ptr = f(m, n, nnz, index_ptrs, data_ptrs, 0, False)
 
     def _init_sparse_csc(self, m):
-        _check_precision(m)
+        Matirx._check_precision(m)
         pass
 
     def _init_sparse_csr(self, m):
-        _check_precision(m)
+        Matrix._check_precision(m)
         pass
 
     def __init__(self, m, format = None):
@@ -123,28 +219,6 @@ class Matrix:
         if not dtype in [np.float32, np.float64]:
             raise ValueError("invlib.matrix objects can only be created from"
                              "numpy.ndarrays of type float32 or float64")
-
-    def __new__(self, invlib_ptr, dtype):
-
-        f_rows = resolve_precision("matrix_rows", dtype)
-        m = f_rows(invlib_ptr)
-        f_cols = resolve_precision("matrix_cols", dtype)
-        n = f_cols(invlib_ptr)
-
-        shape   = (m, n)
-        stride = get_stride(dtype)
-        strides = (stride * n, stride)
-
-
-        b = resolve_precision("matrix_get_data_pointer", dtype)(invlib_ptr)
-        ctype = get_c_type(dtype)
-        b   = c.cast(b, c.POINTER(ctype))
-        arr = np.ctypeslib.as_array(b, shape = (m, n))
-        obj = super(Matrix, self).__new__(Matrix, shape, dtype, arr.data, 0, strides, 'C')
-
-        self.invlib_ptr = invlib_ptr
-
-        return obj
 
     def __array_finalize__(self, obj):
 

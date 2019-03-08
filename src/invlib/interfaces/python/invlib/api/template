@@ -57,6 +57,9 @@ invlib.matrix_cols.restype  = c.c_uint64
 invlib.matrix_non_zeros.argtypes = [c.c_void_p]
 invlib.matrix_non_zeros.restype  = c.c_uint64
 
+invlib.matrix_format.argtypes = [c.c_void_p]
+invlib.matrix_format.restype  = c.c_uint
+
 invlib.matrix_element_pointer.argtypes = [c.c_void_p]
 invlib.matrix_element_pointer.restype  = c.c_void_p
 

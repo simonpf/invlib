@@ -64,6 +64,10 @@ public:
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
 
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_row_index_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_column_index_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
+
 private:
 
     // --------------//
@@ -77,10 +81,6 @@ private:
     using SparseData<Real, MKL_INT, Representation::Coordinates>::row_indices;
     using SparseData<Real, MKL_INT, Representation::Coordinates>::column_indices;
     using SparseData<Real, MKL_INT, Representation::Coordinates>::elements;
-
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_row_index_pointer;
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_column_index_pointer;
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
 
 };
 
@@ -126,6 +126,10 @@ public:
     template <typename T>
     auto transpose_multiply(const T &) const -> typename T::ResultType;
 
+    using SparseData<Real, MKL_INT, rep>::get_index_pointer;
+    using SparseData<Real, MKL_INT, rep>::get_start_pointer;
+    using SparseData<Real, MKL_INT, rep>::get_element_pointer;
+
 private:
 
     sparse_matrix_t mkl_matrix;
@@ -138,10 +142,6 @@ private:
     using SparseData<Real, MKL_INT, rep>::m;
     using SparseData<Real, MKL_INT, rep>::n;
     using SparseData<Real, MKL_INT, rep>::elements;
-
-    using SparseData<Real, MKL_INT, rep>::get_index_pointer;
-    using SparseData<Real, MKL_INT, rep>::get_start_pointer;
-    using SparseData<Real, MKL_INT, rep>::get_element_pointer;
 
 };
 
@@ -183,6 +183,10 @@ public:
     size_t rows() const {return CSRBase::rows();}
     size_t cols() const {return CSRBase::cols();}
 
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_start_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_index_pointer;
+    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
+
 private:
 
     using CSRBase = SparseData<Real, MKL_INT, Representation::CompressedRows>;
@@ -201,11 +205,6 @@ private:
 
     using CSCBase::column_starts;
     using CSCBase::row_indices;
-
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_start_pointer;
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_index_pointer;
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
-
 };
 
 #include "mkl_sparse.cpp"
