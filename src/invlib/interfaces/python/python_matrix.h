@@ -152,9 +152,8 @@ namespace invlib
                                              " a matrix in dense format.");
                 }
                 auto data  = DenseData(m, n, data_ptrs[0]);
-                auto ptr = new Dense(data);
-                std::cout << "Creating matrix " << m  << " // " << n << std::endl;
-                matrix_ptr = reinterpret_cast<void *>(ptr);
+                matrix_ptr = std::make_shared<Dense>(data);
+                std::cout << "Created " << matrix_ptr << std::endl;
                 break;
             }
             case Format::SparseCsc : {
@@ -168,8 +167,7 @@ namespace invlib
                                            index_ptrs[0],
                                            index_ptrs[1],
                                            data_ptrs[0]);
-                auto ptr   = new SparseCsc(data);
-                matrix_ptr = reinterpret_cast<void *>(ptr);
+                matrix_ptr = std::make_shared<SparseCsc>(data);
                 break;
             }
             case Format::SparseCsr : {
@@ -183,48 +181,24 @@ namespace invlib
                                            index_ptrs[0],
                                            index_ptrs[1],
                                            data_ptrs[0]);
-                auto ptr   = new SparseCsr(data);
-                matrix_ptr = reinterpret_cast<void *>(ptr);
+                matrix_ptr = std::make_shared<SparseCsr>(data);
                 break;
             }
             }
         }
 
-        PythonMatrix(const PythonMatrix &) = default;
-        PythonMatrix(PythonMatrix &&)      = default;
-
+        PythonMatrix(const PythonMatrix &)             = default;
+        PythonMatrix(PythonMatrix &&)                  = default;
         PythonMatrix& operator=(const PythonMatrix &)  = default;
         PythonMatrix& operator=(PythonMatrix &&)       = default;
 
-        ~PythonMatrix() {
-            switch (format) {
-            case Format::Dense :
-            {
-                auto ptr = reinterpret_cast<Dense *>(matrix_ptr);
-                delete ptr;
-                break;
-            }
-            case Format::SparseCsc :
-            {
-                auto ptr = reinterpret_cast<SparseCsc *>(matrix_ptr);
-                delete ptr;
-                break;
-            }
-            case Format::SparseCsr :
-            {
-                auto ptr = reinterpret_cast<SparseCsr *>(matrix_ptr);
-                delete ptr;
-                break;
-            }
-            }
-        }
+        ~PythonMatrix() = default;
 
-        size_t rows() const {
-            std::cout << "format: " << static_cast<uint>(format> << std::endl;
+        size_t rows() {
             RESOLVE_FORMAT(rows);
         }
 
-        size_t cols() const {
+        size_t cols() {
             RESOLVE_FORMAT(cols);
         }
 
@@ -255,10 +229,11 @@ namespace invlib
             case Format::Dense : {
                 throw std::runtime_error("Matrix in dense format has no "
                                          "index pointer array.");
+                break;
             }
             case Format::SparseCsc : {
                 auto & a = *get_as<SparseCsc>();
-                a.get_index_pointer();
+                return a.get_index_pointer();
             }
             case Format::SparseCsr : {
                 auto & a = *get_as<SparseCsr>();
@@ -272,10 +247,11 @@ namespace invlib
             case Format::Dense : {
                 throw std::runtime_error("Matrix in dense format has no "
                                          "start pointer array.");
+                break;
             }
             case Format::SparseCsc : {
                 auto a = get_as<SparseCsc>();
-                a->get_start_pointer();
+                return a->get_start_pointer();
             }
             case Format::SparseCsr : {
                 auto a = get_as<SparseCsr>();
@@ -289,11 +265,13 @@ namespace invlib
         }
 
         template<typename T> T * get_as() {
-            return reinterpret_cast<T *>(matrix_ptr);
+            std::cout << "getting mp: " << matrix_ptr << std::endl;
+            return reinterpret_cast<T *>(matrix_ptr.get());
         }
 
         template<typename T> const T * get_as() const {
-            return reinterpret_cast<const T *>(matrix_ptr);
+            std::cout << "getting mp const: " << matrix_ptr << std::endl;
+            return reinterpret_cast<const T *>(matrix_ptr.get());
         }
 
     // ----------- //
@@ -318,6 +296,9 @@ namespace invlib
             auto ptr_a = get_as<Dense>();
             auto ptr_b = get_as<Dense>();
 
+            std::cout << "a: " << ptr_a << std::endl;
+            std::cout << "b: " << ptr_b << std::endl;
+
             auto ptr_c = new Dense(ptr_a->multiply(*ptr_b));
             return PythonMatrix(ptr_c);
         }
@@ -332,7 +313,7 @@ namespace invlib
 
         private:
 
-        void *matrix_ptr = nullptr;
+        std::shared_ptr<void> matrix_ptr;
         Format format;
 
         };

@@ -72,6 +72,7 @@ public:
 
     BlasMatrix(const MData<SType> & m)
     : MData<SType>(m) {
+        std::cout << m.rows() << " // " << m.cols() << std::endl;
         // Nothing to do here.
     }
 

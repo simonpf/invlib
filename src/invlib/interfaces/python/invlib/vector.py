@@ -46,9 +46,11 @@ class Vector(np.ndarray):
             raise Exception("Only vector that are contiguous and stored in "\
                             "C-order can be passed to invlib directly.")
         dtype = vector.dtype
+        print(vector.strides)
+        print((get_stride(dtype),) * (len(vector.shape)))
         if not vector.strides == (get_stride(dtype),) * (len(vector.shape)):
-            raise Exception("Only vectors with a stride of 1 passed to invlib "\
-                            " directly.")
+            raise Exception("Only vectors with a stride of 1 can be passed "
+                            "passed to invlib directly.")
 
     def _check_precision(vector):
         """
@@ -64,21 +66,43 @@ class Vector(np.ndarray):
         if not dtype in [np.float32, np.float64]:
             raise Vector.wrong_argument_error
 
-    def __new__(self, invlib_ptr, dtype):
+    @staticmethod
+    def create_invlib_vector(obj):
+        Vector._check_precision(obj)
+        Vector._check_memory_layout(obj)
+        f   = resolve_precision("create_vector", obj.dtype)
+        ptr = f(obj.size, obj.ctypes.data, False)
+        return ptr
+
+    @staticmethod
+    def from_invlib_pointer(ptr, dtype):
         f_rows = resolve_precision("vector_rows", dtype)
-        n = f_rows(invlib_ptr)
+        n = f_rows(ptr)
 
         shape   = (n, 1)
         stride  = get_stride(dtype)
         strides = (stride,) * len(shape)
 
-        b = resolve_precision("vector_get_data_pointer", dtype)(invlib_ptr)
+        b = resolve_precision("vector_element_pointer", dtype)(ptr)
         ctype = get_c_type(dtype)
         b   = c.cast(b, c.POINTER(ctype))
         arr = np.ctypeslib.as_array(b, shape = shape)
+        return arr
+
         obj = super(Vector, self).__new__(Vector, shape, dtype, arr.data, 0, strides, 'C')
 
-        self.invlib_ptr = invlib_ptr
+        self.invlib_ptr = ptr
+
+    def __new__(cls, *args, **kwargs):
+        if len(args) == 1:
+            arr, = args
+        if len(args) == 2:
+            ptr, dtype = args
+            arr = Vector.from_invlib_pointer(ptr, dtype)
+
+        obj = super(Vector, cls).__new__(Vector, arr.shape, arr.dtype,
+                                          arr.data, 0, arr.strides, 'C')
+        obj.invlib_ptr = Vector.create_invlib_vector(obj)
         return obj
 
     def __array_finalize__(self, obj):
@@ -89,10 +113,7 @@ class Vector(np.ndarray):
         if not obj.dtype in [np.float32, np.float64]:
             return np.array(obj)
 
-        Vector._check_precision(obj)
-        Vector._check_memory_layout(obj)
-        f = resolve_precision("create_vector", obj.dtype)
-        self.invlib_ptr = f(obj.ctypes.data, obj.size, False)
+        self.invlib_ptr = Vector.create_invlib_vector(obj)
 
     @property
     def rows(self):

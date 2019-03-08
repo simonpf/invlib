@@ -148,10 +148,12 @@ extern "C" {
             break;
         }
         }
-        return new PythonMatrix(invlib::PythonMatrix<ScalarType, IndexType>{m, n, nnz,
+        PythonMatrix * ptr = new PythonMatrix(
+            invlib::PythonMatrix<ScalarType, IndexType>{m, n, nnz,
                                                                             index_ptrs_,
                                                                             data_ptrs_,
                                                                             format_});
+        return ptr;
     }
 
     void destroy_matrix(void * A)
@@ -161,15 +163,11 @@ extern "C" {
 
     size_t matrix_cols(void *A) {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        std::cout << A << std::endl;
-        std::cout << A_.cols() << std::endl;
         return A_.cols();
     }
 
     size_t matrix_rows(void *A) {
-        std::cout << A << std::endl;
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        std::cout << A_.rows() << std::endl;
         return A_.rows();
     }
 
