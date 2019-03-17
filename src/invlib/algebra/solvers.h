@@ -189,6 +189,13 @@ public:
      */
     ConjugateGradient(double tol, int verbosity = 0);
 
+    /*!
+     * Set the settings functor of this conjugate gradient instance.
+     */
+    void set_settings(CGSettings settings_) {
+        settings = settings_;
+    }
+
     /*! Solve linear system using the conjugate gradient method.
      *
      * Takes an arbitrary algebraic expression representing a matrix
