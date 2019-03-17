@@ -153,7 +153,6 @@ namespace invlib
                 }
                 auto data  = DenseData(m, n, data_ptrs[0]);
                 matrix_ptr = std::make_shared<Dense>(data);
-                std::cout << "Created " << matrix_ptr << std::endl;
                 break;
             }
             case Format::SparseCsc : {
@@ -177,9 +176,13 @@ namespace invlib
                                              "what was expected for constructing"
                                              " a matrix in sparse CSC format.");
                 }
+                /*
+                 * Arguments of SparseData constructor are order rows before columns
+                 * the arguments must be reversed here.
+                 */
                 auto data  = SparseCsrData(m, n, nnz,
-                                           index_ptrs[0],
                                            index_ptrs[1],
+                                           index_ptrs[0],
                                            data_ptrs[0]);
                 matrix_ptr = std::make_shared<SparseCsr>(data);
                 break;
@@ -265,12 +268,10 @@ namespace invlib
         }
 
         template<typename T> T * get_as() {
-            std::cout << "getting mp: " << matrix_ptr << std::endl;
             return reinterpret_cast<T *>(matrix_ptr.get());
         }
 
         template<typename T> const T * get_as() const {
-            std::cout << "getting mp const: " << matrix_ptr << std::endl;
             return reinterpret_cast<const T *>(matrix_ptr.get());
         }
 
@@ -294,10 +295,7 @@ namespace invlib
                                          "applied to dense matrices.");
             }
             auto ptr_a = get_as<Dense>();
-            auto ptr_b = get_as<Dense>();
-
-            std::cout << "a: " << ptr_a << std::endl;
-            std::cout << "b: " << ptr_b << std::endl;
+            auto ptr_b = b.get_as<Dense>();
 
             auto ptr_c = new Dense(ptr_a->multiply(*ptr_b));
             return PythonMatrix(ptr_c);
@@ -305,6 +303,18 @@ namespace invlib
 
         VectorType multiply(const VectorType &b) const {
             RESOLVE_FORMAT2(multiply, this, b);
+        }
+
+        PythonMatrix transpose_multiply(const PythonMatrix &b) const {
+            if (!(format == Format::Dense && b.format == Format::Dense)) {
+                throw std::runtime_error("Matrix-matrix multiplication can only be"
+                                         "applied to dense matrices.");
+            }
+            auto ptr_a = get_as<Dense>();
+            auto ptr_b = b.get_as<Dense>();
+
+            auto ptr_c = new Dense(ptr_a->transpose_multiply(*ptr_b));
+            return PythonMatrix(ptr_c);
         }
 
         VectorType transpose_multiply(const VectorType &b) const {

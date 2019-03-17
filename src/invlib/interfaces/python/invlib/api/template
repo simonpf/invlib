@@ -72,9 +72,11 @@ invlib.matrix_start_pointer.restype  = c.c_void_p
 invlib.matrix_matrix_multiply.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_matrix_multiply.restype  = c.c_void_p
 
+invlib.matrix_matrix_transpose_multiply.argtypes = [c.c_void_p, c.c_void_p]
+invlib.matrix_matrix_transpose_multiply.restype  = c.c_void_p
+
 invlib.matrix_vector_multiply.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_vector_multiply.restype  = c.c_void_p
 
-invlib.matrix_vector_multiply_transpose.argtypes = [c.c_void_p, c.c_void_p]
-invlib.matrix_vector_multiply_transpose.restype  = c.c_void_p
-
+invlib.matrix_vector_transpose_multiply.argtypes = [c.c_void_p, c.c_void_p]
+invlib.matrix_vector_transpose_multiply.restype  = c.c_void_p

@@ -11,52 +11,106 @@ from invlib.vector import Vector
 from invlib.matrix import Matrix
 
 import numpy as np
+import scipy as sp
+import scipy.sparse
 
 precision = np.@FLOATTYPE@
 
-def test_matrix_vector_multiplication():
+def random_matrix(m, n, format = "dns"):
+    """
+    Create a random matrix of given format.
 
+    Arguments:
+
+        m(int): Number of rows of the matrix.
+
+        n(int): Number of columns of the matrix.
+
+        format: The format of the matrix: dns,
+            csc, csr or hyb
+    """
+    if format == "dns":
+        matrix = np.random.normal(size = (m, n))
+    elif format == "csc":
+        matrix = sp.sparse.csc_matrix((m, n))
+        for i in range(max(m, n)):
+            ii = np.random.randint(m)
+            jj = np.random.randint(n)
+            matrix[ii, jj] = np.random.normal()
+    elif format == "csr":
+        matrix = sp.sparse.csr_matrix((m, n))
+        for i in range(max(m, n)):
+            ii = np.random.randint(m)
+            jj = np.random.randint(n)
+            matrix[ii, jj] = np.random.normal()
+    elif format == "hyb":
+        raise Exception("Hybrid format not yet supported.")
+    else:
+        raise Exception("Unknown format {0}.".format(format))
+
+    return matrix
+
+def random_vector(m):
+    """
+    Create a random vector.
+
+    Arguments:
+
+        m(int): Number of rows of the vector.
+    """
+    return np.random.normal(size = (m, 1))
+
+################################################################################
+# Tests
+################################################################################
+
+#
+# Matrix-vector multiplications
+#
+
+def test_matrix_vector_multiplication(format = "dns"):
     m = np.random.randint(10, 100)
     n = np.random.randint(10, 100)
-    k = np.random.randint(10, 100)
 
-    A  = np.array(np.random.normal(size = (m, k)), dtype = precision)
-    A_ = A.view(Matrix)
-    u  = np.array(np.random.normal(size = (k, 1)), dtype = precision)
-    u_ = u.view(Vector)
+    A  = random_matrix(m, n, format)
+    A_ = Matrix(A)
+    u  = random_vector(n)
+    u_ = Vector(u)
 
     v  = A @ u
     v_ = A_.multiply(u_)
     assert(np.all(np.isclose(v, v_)))
+
+def test_transpose_matrix_vector_multiplication(format = "dns"):
+    m = np.random.randint(10, 100)
+    n = np.random.randint(10, 100)
+
+    A  = random_matrix(n, m, format)
+    A_ = Matrix(A)
+    u  = random_vector(n)
+    u_ = Vector(u)
+
+    v  = A.T @ u
+    v_ = A_.tranpose_multiply(u_)
+    assert(np.all(np.isclose(v, v_)))
+
+#
+# Matrix-matrix multiplications
+#
 
 def test_matrix_matrix_multiplication():
     m = np.random.randint(10, 100)
     n = np.random.randint(10, 100)
     k = np.random.randint(10, 100)
 
-    A  = np.array(np.random.normal(size = (m, k)), dtype = precision)
-    A_ = A.view(Matrix)
-    B  = np.array(np.random.normal(size = (k, n)), dtype = precision)
-    B_ = B.view(Matrix)
+    A  = random_matrix(m, n, format = "dns")
+    A_ = Matrix(A)
+    B  = random_matrix(n, k, format = "dns")
+    B_ = Matrix(B)
     C  = A @ B
     C_ = A_.multiply(B_)
 
-    assert(np.all(np.isclose(C, C_)))
-
-def test_transpose_matrix_vector_multiplication():
-
-    m = np.random.randint(10, 100)
-    n = np.random.randint(10, 100)
-    k = np.random.randint(10, 100)
-
-    A  = np.array(np.random.normal(size = (k, m)), dtype = precision)
-    A_ = A.view(Matrix)
-    u  = np.array(np.random.normal(size = (k, 1)), dtype = precision)
-    u_ = u.view(Vector)
-
-    v  = A.T @ u
-    v_ = A_.transpose_multiply(u_)
-    assert(np.all(np.isclose(v, v_)))
+    assert(np.all(np.isclose(C, C_.matrix)))
 
 def test_transpose_matrix_matrix_multiplication():
 
@@ -65,24 +119,10 @@ def test_transpose_matrix_matrix_multiplication():
     k = np.random.randint(10, 100)
 
     A  = np.array(np.random.normal(size = (k, m)), dtype = precision)
-    A_ = A.view(Matrix)
+    A_ = Matrix(A)
     B  = np.array(np.random.normal(size = (k, n)), dtype = precision)
-    B_ = B.view(Matrix)
+    B_ = Matrix(B)
     C  = A.T @ B
     C_ = A_.transpose_multiply(B_)
 
-    assert(np.all(np.isclose(C, C_)))
-
-
-m = np.random.randint(10, 100)
-n = np.random.randint(10, 100)
-k = np.random.randint(10, 100)
-
-A  = np.array(np.random.normal(size = (m, k)), dtype = precision)
-A_ = A.view(Matrix)
-u  = np.array(np.random.normal(size = (k, 1)), dtype = precision)
-u_ = u.view(Vector)
-
-v  = A @ u
-v_ = A_.multiply(u_)
-assert(np.all(np.isclose(v, v_)))
+    assert(np.all(np.isclose(C, C_.matrix)))

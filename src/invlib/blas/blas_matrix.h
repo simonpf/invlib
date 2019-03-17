@@ -103,6 +103,16 @@ public:
         return C;
     }
 
+    BlasMatrix transpose_multiply(const BlasMatrix &B) const {
+        BlasMatrix C; C.resize(n, B.n);
+        constexpr char trans = 'n';
+        blas::gemm<SType>('n', 't', B.n, n, m,
+                        1.0, B.get_element_pointer(), B.n,
+                        get_element_pointer(), n, 0.0,
+                        C.get_element_pointer(), C.n);
+        return C;
+    }
+
     template<template <typename> typename TT>
     BlasVector<SType, TT> multiply(const BlasVector<SType, TT> &u) const {
         BlasVector<SType, TT> v; v.resize(m);

@@ -210,8 +210,8 @@ extern "C" {
         return v_;
     }
 
-    void* matrix_vector_multiply_transpose(void *A,
-                                           void *u)
+    void* matrix_vector_transpose_multiply(void *A,
+                                          void *u)
     {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
         auto & u_ = *reinterpret_cast<PythonVector*>(u);
@@ -225,6 +225,15 @@ extern "C" {
         auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
         auto & B_ = *reinterpret_cast<PythonMatrix*>(B);
         auto   C_ = new PythonMatrix(A_ * B_);
+        return C_;
+    }
+
+    void* matrix_matrix_transpose_multiply(void *A,
+                                           void *B)
+    {
+        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+        auto & B_ = *reinterpret_cast<PythonMatrix*>(B);
+        auto   C_ = new PythonMatrix(transp(A_) * B_);
         return C_;
     }
 

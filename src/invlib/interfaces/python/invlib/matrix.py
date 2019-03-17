@@ -140,15 +140,16 @@ class Matrix:
         if isinstance(matrix, np.ndarray):
             return []
         elif isinstance(matrix, sp.sparse.csc_matrix):
-            return [matrix.indices, matrix.indptr]
+            return [matrix.indices.ctypes.data, matrix.indptr.ctypes.data]
         elif isinstance(matrix, sp.sparse.csr_matrix):
-            return [matrix.indices, matrix.indptr]
+            return [matrix.indices.ctypes.data, matrix.indptr.ctypes.data]
         else:
             raise ValueError("Currently only dense matrices or sparse matrices "
                              "in CSC or CSR format are supported.")
 
     @staticmethod
     def _list_to_ctypes_ptr(ls):
+        print(ls)
         array_type = c.c_void_p * len(ls)
         array = array_type(*ls)
         ptr = c.pointer(array)
@@ -265,9 +266,15 @@ class Matrix:
             of this matrix from the right with another matrix or vector,
             respectively.
         """
+        if isinstance(b, Matrix):
+            f   = resolve_precision("matrix_matrix_transpose_multiply", self.matrix.dtype)
+            ptr = f(self.invlib_ptr, b.invlib_ptr)
+            return Matrix(ptr, self.matrix.dtype)
+
         if isinstance(b, Vector):
-            f   = resolve_precision("matrix_vector_multiply_transpose", self.matrix.dtype)
+            f   = resolve_precision("matrix_vector_transpose_multiply", self.matrix.dtype)
             ptr = f(self.invlib_ptr, b.invlib_ptr)
             return Vector(ptr, self.matrix.dtype)
 
-        raise ValueError("Argument b must be of type invlib.vector.Vector.")
+        raise ValueError("Argument b must be of type invlib.matrix.Matrix or "
+                         "invlib.vector.Vector.")
