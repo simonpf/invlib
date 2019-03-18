@@ -218,8 +218,7 @@ class Matrix:
         nnz = m * n
         f = resolve_precision("create_matrix", matrix.dtype)
         self.invlib_ptr = f(m, n, nnz, index_ptrs, data_ptrs, fi, False)
-
-
+        self.dtype = matrix.dtype
 
     def multiply(self, b):
         """

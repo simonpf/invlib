@@ -1,0 +1,23 @@
+"""
+This test file tests the invlib Python interface for @FLOATTYPE@
+precision types. A copy of this file is generated for each precision
+type.
+"""
+import sys
+sys.path.append("@INVLIB_PYTHONPATH@")
+
+import numpy as np
+
+import invlib
+from invlib.vector import Vector
+from invlib.matrix import Matrix
+from invlib.solver import ConjugateGradient
+
+m = 100
+A = 4.0 * np.eye(m, m)
+v = np.ones(m)
+
+A_ = Matrix(A)
+v_ = Vector(v)
+
+solver = ConjugateGradient()

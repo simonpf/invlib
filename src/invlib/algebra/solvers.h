@@ -196,6 +196,13 @@ public:
         settings = settings_;
     }
 
+    /*!
+     * Return a reference to the solvers settings.
+     */
+    CGSettings & get_settings() {
+        return settings;
+    }
+
     /*! Solve linear system using the conjugate gradient method.
      *
      * Takes an arbitrary algebraic expression representing a matrix

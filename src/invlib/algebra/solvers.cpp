@@ -120,6 +120,7 @@ auto ConjugateGradient<CGSettings>::solve(const MatrixType &A,
     VectorType r, p, xnew, rnew, pnew;
 
     VectorType x = settings.start_vector(v);
+    std::cout << "check " << std::endl;
     r = A * x - v;
     p = -1.0 * r;
     vnorm = v.norm();

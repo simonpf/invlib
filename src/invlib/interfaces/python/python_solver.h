@@ -1,37 +1,61 @@
+/**
+ * \file interfaces/python/python_solver.h
+ *
+ * \brief Interface for the conjugate gradient solver class.
+ *
+ */
+
+#ifndef INTERFACES_PYTHON_PYTHON_SOLVER
+#define INTERFACES_PYTHON_PYTHON_SOLVER
+
+#include "invlib/algebra/solvers.h"
+
+namespace invlib
+{
+
 template<typename VectorType>
-class CGPythonSettings {
-public:
+struct CGPythonSettings {
 
-    using RealType = VectorType::RealType;
+    using RealType = typename VectorType::RealType;
 
-    CGPythonSettings(double tol,
-                     double step_lim)
-        : tolerance(tol), step_limin(step_lim)
+    CGPythonSettings(double tol)
+    : tolerance(tol), step_limit(1e6)
     {
         // Nothing to do here.
     }
 
-    CGPythonSettings(const CGPytonSettings &)  = default;
-    CGPythonSettings(      CGPytonSettings &&) = default;
+    CGPythonSettings(double tol,
+                     size_t step_lim)
+        : tolerance(tol), step_limit(step_lim)
+    {
+        // Nothing to do here.
+    }
+
+    CGPythonSettings(const CGPythonSettings &)  = default;
+    CGPythonSettings(      CGPythonSettings &&) = default;
     CGPythonSettings & operator=(const CGPythonSettings &)  = default;
     CGPythonSettings & operator=(      CGPythonSettings &&) = default;
     ~CGPythonSettings() = default;
 
-    const VectorType & start_vector(const VectorType &w) {
-        auto a_ptr = reinterpret_cast<void *>(&w);
+    VectorType start_vector(const VectorType &w) {
 
-        VectorType & b_ptr;
+        std::cout << "start vector? " << std::endl;
+        const void * a_ptr = reinterpret_cast<const void *>(&w);
+        void **b_ptr_ptr;
+
         if (start_vector_ptr) {
-            b_ptr = start_vector_ptr(a_ptr);
+            std::cout << "mneh?" << std::endl;
+            start_vector_ptr(b_ptr_ptr, a_ptr);
+            return *reinterpret_cast<VectorType *>(*b_ptr_ptr);
         } else {
-            b_ptr = new VectorType();
-            b_ptr->resize(w.nrows());
+            return VectorType(0.0 * w);
         }
-        return & reinterpret_cast<VectorType *>(b_ptr);
     }
 
     bool converged(const VectorType &r,
                    const VectorType &v) {
+        std::cout << "converged " << std::endl;
+        ++steps;
 
         RealType t;
         if (relative) {
@@ -46,15 +70,16 @@ public:
         if (steps >= step_limit) {
             return true;
         }
-
         return false;
     }
 
-private:
-
-    void (start_vector_ptr*)(void *, void *) = nullptr;
+    void (*start_vector_ptr)(void **, const void *) = nullptr;
     bool     relative   = true;
     RealType tolerance  = 1e-6;
+    size_t   steps = 0;
     size_t   step_limit = 1e3;
 
-}
+};
+
+}      // namespace invlib
+#endif // INTERFACES_PYTHON_PYTHON_SOLVER

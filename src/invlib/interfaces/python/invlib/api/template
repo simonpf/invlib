@@ -4,8 +4,7 @@ import numpy  as np
 import ctypes as c
 
 scalar_type = np.@FLOATTYPE@
-path        = "@LIBINVLIB_PATH@"
-
+path        = "@LIBINVLIB_PATH@" 
 if scalar_type == np.float32:
     stride = 4
     c_type = c.c_float
@@ -80,3 +79,28 @@ invlib.matrix_vector_multiply.restype  = c.c_void_p
 
 invlib.matrix_vector_transpose_multiply.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_vector_transpose_multiply.restype  = c.c_void_p
+
+#
+# Solver
+#
+
+invlib.create_solver.argtypes = [c_type, c.c_uint, c.c_int]
+invlib.create_solver.restype  = c.c_void_p
+
+invlib.destroy_solver.argtypes = [c.c_void_p]
+invlib.destroy_solver.restype  = None
+
+invlib.solver_get_tolerance.argtypes = [c.c_void_p]
+invlib.solver_get_tolerance.restype = c_type
+
+invlib.solver_set_tolerance.argtypes = [c.c_void_p, c_type]
+invlib.solver_set_tolerance.restype = None
+
+invlib.solver_get_step_limit.argtypes = [c.c_void_p]
+invlib.solver_get_step_limit.restype = c.c_int
+
+invlib.solver_set_step_limit.argtypes = [c.c_void_p, c.c_int]
+invlib.solver_set_step_limit.restyp = None
+
+invlib.solver_solve.argtypes = [c.c_void_p, c.c_void_p, c.c_void_p]
+invlib.solver_solve.restype  = c.c_void_p

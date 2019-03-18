@@ -7,6 +7,8 @@
 #ifndef UTILITY_ARRAY_H
 #define UTILITY_ARRAY_H
 
+#include <memory>
+
 namespace invlib{
 namespace array{
 

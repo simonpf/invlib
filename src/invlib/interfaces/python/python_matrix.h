@@ -1,8 +1,8 @@
 /**
  * \file interfaces/python/python_matrix.h
  *
- * \brief Interface for numpy.ndarrays that
- * can be interpreted as dense matrices.
+ * \brief Matrix class providing an interface for Python dense
+ * and sparse matrices.
  *
  */
 #ifndef INTERFACES_PYTHON_PYTHON_MATRIX
@@ -302,6 +302,7 @@ namespace invlib
         }
 
         VectorType multiply(const VectorType &b) const {
+            std::cout << "mult?" << std::endl;
             RESOLVE_FORMAT2(multiply, this, b);
         }
 

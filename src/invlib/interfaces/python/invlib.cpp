@@ -1,11 +1,14 @@
-#include "invlib/interfaces/python/python_matrix.h"
-#include "invlib/optimization/gauss_newton.h"
+#include "invlib/algebra.h"
 #include "invlib/map.h"
 #include "invlib/forward_models.h"
-#include "invlib/mkl/mkl_sparse.h"
-#include "invlib/algebra.h"
+#include "invlib/optimization/gauss_newton.h"
 #include "invlib/utility/array.h"
+
+#include "invlib/interfaces/python/python_matrix.h"
+#include "invlib/interfaces/python/python_solver.h"
+
 #include "mkl.h"
+#include "invlib/mkl/mkl_sparse.h"
 
 #define DLL_PUBLIC __attribute__ ((visibility ("default")))
 
@@ -239,10 +242,68 @@ extern "C" {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Python forward model
+// CG Solver
 ////////////////////////////////////////////////////////////////////////////////
 
+    using SettingsType = invlib::CGPythonSettings<PythonVector>;
+    using SolverType   = invlib::ConjugateGradient<SettingsType>;
 
+    SolverType * create_solver(ScalarType tolerance,
+                               size_t step_limit,
+                               int verbosity) {
+        auto & solver   = * new SolverType(tolerance, verbosity);
+        auto & settings = solver.get_settings();
+        settings.tolerance  = tolerance;
+        settings.step_limit = step_limit;
+
+        std::cout << "creating: " << & solver << " / " << settings.tolerance << " / " << settings.step_limit;
+
+        return & solver;
+    }
+
+    void destroy_solver(void *ptr) {
+        delete reinterpret_cast<SolverType *>(ptr);
+    }
+
+    ScalarType solver_get_tolerance(void * ptr) {
+        auto & solver = * reinterpret_cast<SolverType *>(ptr);
+        auto & settings = solver.get_settings();
+        return settings.tolerance;
+    }
+
+    void solver_set_tolerance(void * ptr,
+                              ScalarType tolerance) {
+        auto & solver   = * reinterpret_cast<SolverType *>(ptr);
+        auto & settings = solver.get_settings();
+        settings.tolerance  = tolerance;
+    }
+
+    size_t solver_get_step_limit(void * ptr) {
+        auto & solver = * reinterpret_cast<SolverType *>(ptr);
+        auto & settings = solver.get_settings();
+        return settings.step_limit;
+    }
+
+    void solver_set_step_limit(void * ptr,
+                               size_t step_limit) {
+        auto & solver = * reinterpret_cast<SolverType *>(ptr);
+        auto & settings = solver.get_settings();
+        settings.step_limit = step_limit;
+    }
+
+    void * solver_solve(void * solver,
+                        void * A,
+                        void * b) {
+
+        std::cout << "solvgin: " << solver << " / " << A << " / " << b << std::endl;
+        auto & solver_ = * reinterpret_cast<SolverType *>(solver);
+        auto & A_      = * reinterpret_cast<PythonMatrix *>(A);
+        auto & b_      = * reinterpret_cast<PythonVector *>(b);
+
+        std::cout << "b: " << b_ << std::endl;
+        auto c_ = new PythonVector(solver_.solve(A_, b_));
+        return reinterpret_cast<PythonVector *>(c_);
+    }
 
 ////////////////////////////////////////////////////////////////////////////////
 // OEM
