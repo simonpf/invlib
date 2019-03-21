@@ -6,6 +6,7 @@
 
 #include "invlib/interfaces/python/python_matrix.h"
 #include "invlib/interfaces/python/python_solver.h"
+#include "invlib/interfaces/python/python_forward_model.h"
 
 #include "mkl.h"
 #include "invlib/mkl/mkl_sparse.h"
@@ -247,6 +248,7 @@ extern "C" {
 
     using SettingsType = invlib::CGPythonSettings<PythonVector>;
     using SolverType   = invlib::ConjugateGradient<SettingsType>;
+    using StartVectorFunction = void (void *, const void *);
 
     SolverType * create_solver(ScalarType tolerance,
                                size_t step_limit,
@@ -255,8 +257,6 @@ extern "C" {
         auto & settings = solver.get_settings();
         settings.tolerance  = tolerance;
         settings.step_limit = step_limit;
-
-        std::cout << "creating: " << & solver << " / " << settings.tolerance << " / " << settings.step_limit;
 
         return & solver;
     }
@@ -291,40 +291,95 @@ extern "C" {
         settings.step_limit = step_limit;
     }
 
+    void solver_set_start_vector_ptr(void * ptr,
+                                     StartVectorFunction *start_vector_ptr) {
+        auto & solver = * reinterpret_cast<SolverType *>(ptr);
+        auto & settings = solver.get_settings();
+        settings.start_vector_ptr = start_vector_ptr;
+    }
+
     void * solver_solve(void * solver,
                         void * A,
                         void * b) {
 
-        std::cout << "solvgin: " << solver << " / " << A << " / " << b << std::endl;
         auto & solver_ = * reinterpret_cast<SolverType *>(solver);
         auto & A_      = * reinterpret_cast<PythonMatrix *>(A);
         auto & b_      = * reinterpret_cast<PythonVector *>(b);
 
-        std::cout << "b: " << b_ << std::endl;
         auto c_ = new PythonVector(solver_.solve(A_, b_));
         return reinterpret_cast<PythonVector *>(c_);
     }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Forward Model
+////////////////////////////////////////////////////////////////////////////////
+
+    using ForwardModel = invlib::PythonForwardModel<PythonMatrix, PythonVector>;
+    using JacobianFunctionPointer = typename ForwardModel::JacobianFunctionPointer;
+    using EvaluateFunctionPointer = typename ForwardModel::EvaluateFunctionPointer;
+
+    struct ForwardModelStruct {
+        size_t m;
+        size_t n;
+        void * jacobian_ptr;
+        void * evaluate_ptr;
+    };
+
+    void * forward_model_evaluate(ForwardModelStruct f,
+                                  void * x) {
+        std::cout << "evaluate :: " << f.m << " :: " << f.n << std::endl;
+        std::cout << "evaluate :: " << f.jacobian_ptr << " :: " << f.evaluate_ptr << std::endl;
+        std::cout << "evaluate :: " << x << " :: " << f.evaluate_ptr << std::endl;
+        auto fm = ForwardModel(f.m, f.n,
+                               reinterpret_cast<JacobianFunctionPointer>(f.jacobian_ptr),
+                               reinterpret_cast<EvaluateFunctionPointer>(f.evaluate_ptr));
+        return new PythonVector(fm.evaluate(* reinterpret_cast<PythonVector *>(x)));
+    }
+
+    void * forward_model_jacobian(ForwardModelStruct f,
+                                  void * x) {
+        auto fm = ForwardModel(f.m, f.n,
+                               reinterpret_cast<JacobianFunctionPointer>(f.jacobian_ptr),
+                               reinterpret_cast<EvaluateFunctionPointer>(f.evaluate_ptr));
+        PythonVector y{};
+        return new PythonMatrix(fm.jacobian(* reinterpret_cast<PythonVector *>(x), y));
+    }
+
+    struct OptimizerStruct {
+        unsigned int   type;
+        ScalarType   * parameters;
+        void         * solver;
+    };
+
+////////////////////////////////////////////////////////////////////////////////
 // OEM
 ////////////////////////////////////////////////////////////////////////////////
 
-    // using SolverType = invlib::ConjugateGradient<>;
+    using PrecmatType      = invlib::PrecisionMatrix<PythonMatrix>;
+    using OEMType          = invlib::MAP<ForwardModel,
+                                         PythonMatrix,
+                                         PrecmatType,
+                                         PrecmatType,
+                                         PythonVector>;
 
-    // using Minimizer = invlib::GaussNewton<ScalarType, SolverType>;
-    // using Linear    = invlib::LinearModel<MklCsc>;
-    // using Covmat    = invlib::PrecisionMatrix<MklCsc>;
-    // using LinearMAP = invlib::MAP<Linear, MklCsc, Covmat,
-    //                               Covmat, PythonVector>;
+    void * oem(ForwardModelStruct f,
+               void * s_a_inv,
+               void * s_e_inv,
+               void * x_a,
+               void * x_0,
+               OptimizerStruct opt)
+    {
+        // PrecmatType SaInv_(*reinterpret_cast<PythonMatrix *>(SaInv));
+        // PrecmatType SeInv_(*reinterpret_cast<PythonMatrix *>(SeInv));
 
-    // void * map_linear(void * K,
-    //                   void * SaInv,
-    //                   void * SeInv,
-    //                   void * x_a,
-    //                   void * y)
-    // {
-    //     Covmat SaInv_(*reinterpret_cast<MklCsc*>(SaInv));
-    //     Covmat SeInv_(*reinterpret_cast<MklCsc*>(SeInv));
+        // size_t m = s_e_inv.rows();
+        // size_t n = s_a_inv.rows();
+
+        // fm = PythonForwardModel(m, n,
+        //                         reinterpret_cast<JacobianFunction>(f.jacobian_ptr),
+        //                         reinterpret_cast<EvaluateFunction>(f.evaluate_ptr));
+
+        // return fm.jacobian(x_a, x_0);
 
     //     auto & x_a_ = *reinterpret_cast<PythonVector *>(x_a);
     //     auto & y_  = *reinterpret_cast<PythonVector *>(y);
@@ -360,5 +415,5 @@ extern "C" {
     //     auto & x_ = *reinterpret_cast<PythonVector *>(x);
     //     auto y_ = new PythonVector(inv(S_) * x_);
     //     return y_;
-    // }
+    }
 }

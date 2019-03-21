@@ -39,14 +39,12 @@ struct CGPythonSettings {
 
     VectorType start_vector(const VectorType &w) {
 
-        std::cout << "start vector? " << std::endl;
-        const void * a_ptr = reinterpret_cast<const void *>(&w);
-        void **b_ptr_ptr;
+        const void * w_ptr = reinterpret_cast<const void *>(&w);
 
         if (start_vector_ptr) {
-            std::cout << "mneh?" << std::endl;
-            start_vector_ptr(b_ptr_ptr, a_ptr);
-            return *reinterpret_cast<VectorType *>(*b_ptr_ptr);
+            auto v = VectorType(w);
+            start_vector_ptr(&v, w_ptr);
+            return v;
         } else {
             return VectorType(0.0 * w);
         }
@@ -54,7 +52,6 @@ struct CGPythonSettings {
 
     bool converged(const VectorType &r,
                    const VectorType &v) {
-        std::cout << "converged " << std::endl;
         ++steps;
 
         RealType t;
@@ -73,7 +70,7 @@ struct CGPythonSettings {
         return false;
     }
 
-    void (*start_vector_ptr)(void **, const void *) = nullptr;
+    void (*start_vector_ptr)(void *, const void *) = nullptr;
     bool     relative   = true;
     RealType tolerance  = 1e-6;
     size_t   steps = 0;

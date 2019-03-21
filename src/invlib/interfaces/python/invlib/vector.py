@@ -89,10 +89,6 @@ class Vector(np.ndarray):
         arr = np.ctypeslib.as_array(b, shape = shape)
         return arr
 
-        obj = super(Vector, self).__new__(Vector, shape, dtype, arr.data, 0, strides, 'C')
-
-        self.invlib_ptr = ptr
-
     def __new__(cls, *args, **kwargs):
         if len(args) == 1:
             arr, = args

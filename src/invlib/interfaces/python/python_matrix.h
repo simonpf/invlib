@@ -302,7 +302,6 @@ namespace invlib
         }
 
         VectorType multiply(const VectorType &b) const {
-            std::cout << "mult?" << std::endl;
             RESOLVE_FORMAT2(multiply, this, b);
         }
 

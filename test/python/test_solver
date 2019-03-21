@@ -6,6 +6,7 @@ type.
 import sys
 sys.path.append("@INVLIB_PYTHONPATH@")
 
+import scipy as sp
 import numpy as np
 
 import invlib
@@ -13,11 +14,61 @@ from invlib.vector import Vector
 from invlib.matrix import Matrix
 from invlib.solver import ConjugateGradient
 
-m = 100
-A = 4.0 * np.eye(m, m)
-v = np.ones(m)
+precision = np.@FLOATTYPE@
 
-A_ = Matrix(A)
-v_ = Vector(v)
+def random_tridiag(m, format = "dns"):
+    """
+    Create a random tridiagonal matrix.
 
-solver = ConjugateGradient()
+    Arguments:
+
+        m(int): Number of rows and columns of the matrix.
+
+        format: The format of the matrix: dns,
+            csc, csr or hyb
+    """
+
+    if format == "dns":
+
+        matrix = np.zeros((m, m), dtype = precision)
+
+        for i in range(m):
+            matrix[i, i] = 1.0
+
+        for i in range(m - 1):
+            matrix[i, i + 1] = 0.2 * np.random.normal()
+            matrix[i + 1, i] = matrix[i, i + 1]
+
+    elif format in ["csc", "csr"]:
+
+        d  = np.ones(m)
+        d1 = 0.2 * np.random.normal(size = m - 1)
+
+        matrix = sp.sparse.diags([d1, d, d1],
+                                 offsets = [-1, 0, 1],
+                                 format = format,
+                                 dtype = precision)
+    elif format == "hyb":
+        raise Exception("Hybrid format not yet supported.")
+    else:
+        raise Exception("Unknown format {0}.".format(format))
+
+    return matrix
+
+def test_solver(format = "dns"):
+
+    m = np.random.randint(10, 100)
+
+    A = random_tridiag(m, format = format)
+    v = np.array(np.random.normal(size = m), dtype = precision)
+
+    A_ = Matrix(A)
+    v_ = Vector(v)
+
+    solver = ConjugateGradient()
+    solver.start_vector = lambda w: 0.25 * np.ones(w.shape)
+    w_ = solver.solve(A_, v_)
+
+    v_ref = A_.multiply(w_)
+
+    assert(np.all(np.isclose(v.reshape(-1, 1), v_ref, rtol = 1e-4)))

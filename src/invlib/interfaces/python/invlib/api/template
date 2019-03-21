@@ -14,6 +14,20 @@ else:
     c_type = c.c_double
     invlib = c.CDLL(os.path.join(path, "libinvlib_double.so"))
 
+
+class forward_model_struct(c.Structure):
+
+    _fields_ = [("m", c.c_ulong),
+                ("n", c.c_ulong),
+                ("jacobian_ptr", c.CFUNCTYPE(c.c_void_p, c.c_void_p, c.c_void_p)),
+                ("evaluate_ptr", c.CFUNCTYPE(c.c_void_p, c.c_void_p))]
+
+class optimizer_struct(c.Structure):
+
+    _fields_ = [("type", c.c_ulong),
+                ("params", c.c_void_p),
+                ("solver_ptr", c.c_void_p)]
+
 #
 # Vectors
 #
@@ -100,7 +114,33 @@ invlib.solver_get_step_limit.argtypes = [c.c_void_p]
 invlib.solver_get_step_limit.restype = c.c_int
 
 invlib.solver_set_step_limit.argtypes = [c.c_void_p, c.c_int]
-invlib.solver_set_step_limit.restyp = None
+invlib.solver_set_step_limit.restype = None
+
+invlib.solver_set_start_vector_ptr.argtypes = [c.c_void_p, c.c_void_p]
+invlib.solver_set_start_vector_ptr.restype = None
 
 invlib.solver_solve.argtypes = [c.c_void_p, c.c_void_p, c.c_void_p]
 invlib.solver_solve.restype  = c.c_void_p
+
+#
+# Forward model
+#
+
+invlib.forward_model_evaluate.argtypes = [forward_model_struct, c.c_void_p]
+invlib.forward_model_evaluate.restype  = c.c_void_p
+
+invlib.forward_model_jacobian.argtypes = [forward_model_struct, c.c_void_p]
+invlib.forward_model_jacobian.restype  = c.c_void_p
+
+#
+# OEM
+#
+
+#invlib.oem = [forward_model_struct,
+#              c.c_void_p,
+#              c.c_void_p,
+#              c.c_void_p,
+#              c.c_void_p,
+#              optimizer_struct]
+#
+#invlib.oem = c.c_void_p

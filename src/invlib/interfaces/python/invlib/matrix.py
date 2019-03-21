@@ -168,6 +168,10 @@ class Matrix:
             format = None
 
         elif len(args) == 1:
+
+            if isinstance(matrix, Matrix):
+                matrix = matrix.matrix
+
             matrix, = args
             if "format" in kwargs:
                 format = kwargs["format"]

@@ -50,3 +50,19 @@ def buffer_from_memory(ptr, dtype, size):
     f.restype = ctypes.py_object
     s = strides[dtype]
     buffer    = f(ptr, s * size)
+
+def to_forward_model_struct(fm, dtype):
+    if dtype == np.float32:
+        t = sp.forward_model_struct
+    else:
+        t = dp.forward_model_struct
+    return t(fm.m, fm.n,
+             fm.make_jacobian_wrapper(dtype),
+             fm.make_evaluate_wrapper(dtype))
+
+def to_optimizer_struct(opt, dtype):
+    if dtype == np.float32:
+        t = sp.optimizer_struct
+    else:
+        t = dp.optimizer_struct
+    return t(opt.jacobian_wrapper, fm.evaluate_wrapper)

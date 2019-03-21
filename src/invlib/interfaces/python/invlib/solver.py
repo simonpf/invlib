@@ -10,6 +10,7 @@ from invlib.vector import Vector
 from invlib.api    import resolve_precision
 
 import numpy as np
+import ctypes as c
 
 class ConjugateGradient:
 
@@ -46,18 +47,47 @@ class ConjugateGradient:
         except:
             raise Exception("Verbosity value must be convertible to int.")
 
+    @property
+    def start_vector(self):
+        return self._start_vector
+
+    @start_vector.setter
+    def start_vector(self, f):
+        if not callable(f):
+            raise Exception("The start vector callback can only be set to a "
+                            " callable object.")
+        else:
+            self._start_vector = f
+
     def __init__(self,
-                 tolerance  = 1e-6,
+                 tolerance  = 1e-8,
                  step_limit = 1e4,
                  verbosity  = 0):
 
         self._tolerance  = None
         self._step_limit = None
         self._verbosity  = None
+        self._start_vector = None
 
         self.tolerance  = tolerance
         self.step_limit = step_limit
         self.verbosity  = verbosity
+
+    def _make_start_vector_callback(self, f, dtype):
+        ftype = c.CFUNCTYPE(c.c_void_p, c.c_void_p, c.c_void_p)
+
+        def wrapper(v_ptr, w_ptr):
+            print("incoming: ", v_ptr, w_ptr)
+            w = Vector(w_ptr, dtype)
+            v = Vector(v_ptr, dtype)
+            print(w)
+
+            v_ = f(w)
+            v[:] = v_
+            print("returning :: ", v)
+            return None
+
+        return ftype(wrapper)
 
     def solve(self, A, b):
 
@@ -75,7 +105,13 @@ class ConjugateGradient:
         f = resolve_precision("create_solver", dtype)
         ptr = f(self.tolerance, self.step_limit, self.verbosity)
 
+        if not self.start_vector is None:
+            cb = self._make_start_vector_callback(self.start_vector, dtype)
+            f = resolve_precision("solver_set_start_vector_ptr", dtype)
+            print(cb)
+            f(ptr, cb)
+
         f = resolve_precision("solver_solve", dtype)
         ptr = f(ptr, A.invlib_ptr, b.invlib_ptr)
 
-        return Vector.from_invlib_pointer(ptr, dtype)
+        return Vector(ptr, dtype)
