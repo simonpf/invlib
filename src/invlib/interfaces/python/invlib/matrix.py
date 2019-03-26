@@ -14,8 +14,8 @@ import scipy.sparse
 import ctypes as c
 
 from invlib.vector import Vector
-from invlib.api    import resolve_precision, get_stride, get_c_type, \
-    buffer_from_memory
+from invlib.api    import resolve_precision, get_stride, buffer_from_memory, \
+    get_ctypes_scalar_type, get_ctypes_index_type, get_matrix_struct
 
 ################################################################################
 # The Matrix class
@@ -31,54 +31,75 @@ class Matrix:
     @staticmethod
     def matrix_info(ptr, dtype):
 
-        f_rows = resolve_precision("matrix_rows", dtype)
-        m = f_rows(ptr)
+        f = resolve_precision("matrix_info", dtype)
+        ms = f(ptr)
 
-        f_cols = resolve_precision("matrix_cols", dtype)
-        n = f_cols(ptr)
+        m   = ms.m
+        n   = ms.n
+        nnz = ms.nnz
+        fmt = ms.format
 
-        f_nnz = resolve_precision("matrix_non_zeros", dtype)
-        nnz = f_cols(ptr)
-
-        f_format = resolve_precision("matrix_format", dtype)
-        fmt = f_format(ptr)
-
-        f_element_ptr = resolve_precision("matrix_element_pointer", dtype)
-        element_ptr = f_element_ptr(ptr)
+        if fmt == 0:
+            b = (get_ctypes_scalar_type(dtype) * (m * n)).from_address(ms.data_pointers[0])
+            elements = [np.ctypeslib.as_array(b).reshape(m, n)]
+            indices  = None
+            starts   = None
 
         if fmt > 0:
-            f_index_ptr = resolve_precision("matrix_index_pointer", dtype)
-            index_ptr   = f_index_ptr(ptr)
-            f_start_ptr = resolve_precision("matrix_start_pointer", dtype)
-            start_ptr   = f_start_ptr(ptr)
-        else:
-            index_ptr = None
-            start_ptr = None
-        return m, n, nnz, fmt, element_ptr, start_ptr, index_ptr
+
+            b = (get_ctypes_scalar_type(dtype) * nnz).from_address(ms.data_pointers[0])
+            elements  = [np.ctypeslib.as_array(b)]
+
+            indices = []
+            b = (get_ctypes_index_type() * nnz).from_address(ms.index_pointers[0])
+            indices += [np.ctypeslib.as_array(b)]
+
+            starts = []
+
+            if fmt == 1:
+
+                b = (get_ctypes_index_type() * (n + 1)).from_address(ms.start_pointers[0])
+                starts += [np.ctypeslib.as_array(b, shape = (n + 1,))]
+
+            if fmt == 2:
+
+                b = (get_ctypes_index_type() * (m + 1)).from_address(ms.start_pointers[0])
+                starts += [np.ctypeslib.as_array(b, shape = (m + 1,))]
+
+            if fmt == 3:
+                b = (get_ctypes_scalar_type(dtype) * nnz).from_address(ms.data_pointers[1])
+                elements += [np.ctypeslib.as_array(b)]
+                b = (get_ctypes_index_type() * nnz).from_address(ms.index_pointers[1])
+                indices += [np.ctypeslib.as_array(b)]
+                b = (get_ctypes_index_type() * (n + 1)).from_address(ms.start_pointers[0])
+                starts += [np.ctypeslib.as_array(b, shape = (n + 1,))]
+                b = (get_ctypes_index_type() * (m + 1)).from_address(ms.start_pointers[1])
+                starts += [np.ctypeslib.as_array(b, shape = (m + 1,))]
+
+        return m, n, nnz, fmt, elements, indices, starts
 
     @staticmethod
     def from_invlib_pointer(ptr, dtype):
-        m, n, nnz, fmt, element_ptr, start_ptr, index_ptr \
+        m, n, nnz, fmt, elements, indices, starts \
             = Matrix.matrix_info(ptr, dtype)
         # Dense format
         if fmt == 0:
-            if dtype == np.float32:
-                ct = c.c_float
-            else:
-                ct = c.c_double
-            b = (ct * (m * n)).from_address(element_ptr)
-            matrix = np.ctypeslib.as_array(b).reshape(m, n)
-
+            matrix = elements[0]
         # CSC sparse format
         elif fmt == 1:
-            matrix = sp.sparse.csc_matrix((element_ptr, (index_ptr, start_ptr)),
+            matrix = sp.sparse.csc_matrix((elements[0], indices[0], starts[0]),
                                      shape = (m, n))
-
-
         # CSR sparse format
         elif fmt == 2:
-            matrix = sp.sparse.csr_matrix((element_ptr, (index_ptr, start_ptr)),
+            matrix = sp.sparse.csr_matrix((elements[0], indices[0], starts[0]),
                                      shape = (m, n))
+        # Hybrid format
+        elif fmt == 3:
+            m1 = sp.sparse.csc_matrix((elements[0], indices[0], starts[0]),
+                                      shape = (m, n))
+            m2 = sp.sparse.csr_matrix((elements[1], indices[1], starts[1]),
+                                      shape = (m, n))
+            matrix = (m1, m2)
         else:
             raise Exception("Currently only dense, CSC and CSR formats are "
                             " supported.")
@@ -96,7 +117,7 @@ class Matrix:
             vector(:code:`np.ndarray`): The array of which to check the memory
                 layout.
         """
-        dtype = matrix.dtype
+        dtype = Matrix._get_dtype(matrix)
         if not dtype in [np.float32, np.float64]:
             raise ValueError("invlib.matrix objects can only be created from"
                              " matrices of type float32 or float64")
@@ -116,7 +137,7 @@ class Matrix:
         if not matrix.flags.c_contiguous:
             raise Exception("Only vectors that are contiguous and stored in "\
                             "C-order can be passed to invlib directly.")
-        dtype = matrix.dtype
+        dtype = Matrix._get_dtype(matrix)
         m = matrix.shape[1]
         stride = get_stride(dtype)
         if not matrix.strides == (stride * m, stride):
@@ -124,36 +145,93 @@ class Matrix:
                             " directly.")
 
     @staticmethod
-    def _get_data_ptrs(matrix):
-        if isinstance(matrix, np.ndarray):
-            return [matrix.ctypes.data]
-        elif isinstance(matrix, sp.sparse.csc_matrix):
-            return [matrix.data.ctypes.data]
-        elif isinstance(matrix, sp.sparse.csr_matrix):
-            return [matrix.data.ctypes.data]
+    def _get_dtype(matrix):
+        if isinstance(matrix, tuple):
+            return matrix[0].dtype
         else:
-            raise ValueError("Currently only dense matrices or sparse matrices "
-                             "in CSC or CSR format are supported.")
+            return matrix.dtype
 
     @staticmethod
-    def _get_index_ptrs(matrix):
-        if isinstance(matrix, np.ndarray):
-            return []
-        elif isinstance(matrix, sp.sparse.csc_matrix):
-            return [matrix.indices.ctypes.data, matrix.indptr.ctypes.data]
-        elif isinstance(matrix, sp.sparse.csr_matrix):
-            return [matrix.indices.ctypes.data, matrix.indptr.ctypes.data]
+    def _get_shape(matrix):
+        if isinstance(matrix, tuple):
+            return matrix[0].shape
         else:
-            raise ValueError("Currently only dense matrices or sparse matrices "
-                             "in CSC or CSR format are supported.")
+            return matrix.shape
 
     @staticmethod
-    def _list_to_ctypes_ptr(ls):
-        print(ls)
-        array_type = c.c_void_p * len(ls)
-        array = array_type(*ls)
-        ptr = c.pointer(array)
-        return ptr
+    def _get_nnz(matrix):
+        if isinstance(matrix, np.ndarray):
+            return matrix.size
+        elif isinstance(matrix, tuple):
+            return matrix[0].nnz
+        else:
+            return matrix.nnz
+
+    @staticmethod
+    def _get_data_pointers(matrix):
+        if isinstance(matrix, np.ndarray):
+            ptrs =  [matrix.ctypes.data, None]
+        elif isinstance(matrix, sp.sparse.csc_matrix):
+            ptrs = [matrix.data.ctypes.data, None]
+        elif isinstance(matrix, sp.sparse.csr_matrix):
+            ptrs = [matrix.data.ctypes.data, None]
+        elif isinstance(matrix, tuple):
+            m1, m2 = matrix
+            ptrs = [m1.data.ctypes.data, m2.data.ctypes.data]
+        return (c.c_void_p * 2)(*ptrs)
+
+    @staticmethod
+    def _get_index_pointers(matrix):
+        if isinstance(matrix, np.ndarray):
+            ptrs = []
+        elif isinstance(matrix, sp.sparse.csc_matrix):
+            ptrs = [matrix.indices.ctypes.data, None]
+        elif isinstance(matrix, sp.sparse.csr_matrix):
+            ptrs = [matrix.indices.ctypes.data, None]
+        elif isinstance(matrix, tuple):
+            m1, m2 = matrix
+            ptrs = [m1.indices.ctypes.data, m2.indices.ctypes.data]
+        return (c.c_void_p * 2)(*ptrs)
+
+    @staticmethod
+    def _get_start_pointers(matrix):
+        if isinstance(matrix, np.ndarray):
+            ptrs = []
+        elif isinstance(matrix, sp.sparse.csc_matrix):
+            ptrs = [matrix.indptr.ctypes.data]
+        elif isinstance(matrix, sp.sparse.csr_matrix):
+            ptrs = [matrix.indptr.ctypes.data]
+        elif isinstance(matrix, tuple):
+            m1, m2 = matrix
+            ptrs = [m1.indptr.ctypes.data, m2.indptr.ctypes.data]
+        return (c.c_void_p * 2)(*ptrs)
+
+    @staticmethod
+    def _get_format(matrix):
+        if isinstance(matrix, np.ndarray):
+            return 0
+        elif isinstance(matrix, sp.sparse.csc_matrix):
+            return 1
+        elif isinstance(matrix, sp.sparse.csr_matrix):
+            return 2
+        elif isinstance(matrix, tuple):
+            return 3
+
+    @staticmethod
+    def _to_matrix_struct(matrix):
+        m, n = Matrix._get_shape(matrix)
+
+        format          = Matrix._get_format(matrix)
+        data_pointers   = Matrix._get_data_pointers(matrix)
+        index_pointers  = Matrix._get_index_pointers(matrix)
+        start_pointers  = Matrix._get_start_pointers(matrix)
+
+        nnz = Matrix._get_nnz(matrix)
+
+        dtype = Matrix._get_dtype(matrix)
+        ms = get_matrix_struct(dtype)
+        return ms(m, n, nnz, format, data_pointers, index_pointers, start_pointers)
+
 
     def __init__(self, *args, **kwargs):
 
@@ -168,11 +246,11 @@ class Matrix:
             format = None
 
         elif len(args) == 1:
+            matrix, = args
 
             if isinstance(matrix, Matrix):
                 matrix = matrix.matrix
 
-            matrix, = args
             if "format" in kwargs:
                 format = kwargs["format"]
             else:
@@ -187,6 +265,8 @@ class Matrix:
                 fi = 1
             elif type(matrix) == sp.sparse.csr_matrix:
                 fi = 2
+            elif type(matrix) == tuple:
+                fi = 3
             else:
                 raise Exception("numpy.ndarray or scipy sprase matrix required"\
                                 "to create matrix.")
@@ -210,19 +290,45 @@ class Matrix:
                     raise ValueError("To create a matrix in sparse CSR format "\
                                      "the provided matrix must be convertible "\
                                      "to a scipy.sparse.csr_matrix matrix.")
+            elif format == "sparse_hyb":
+                try:
+                    matrix = (matrix.to_csc(),
+                              matrix.to_csr())
+                    fi = 3
+                except:
+                    raise ValueError("To create a matrix in sparse Hybrid format "\
+                                     "the provided matrix must be convertible "\
+                                     "to a scipy.sparse.csc_matrix and scipy.sparse"
+                                     ".csr_matrix.")
 
         Matrix._check_precision(matrix)
         if fi == 0:
             Matrix._check_memory_layout(matrix)
 
+        dtype = Matrix._get_dtype(matrix)
+        f = resolve_precision("create_matrix", dtype)
+        self._invlib_pointer = f(Matrix._to_matrix_struct(matrix), False)
         self.matrix = matrix
-        data_ptrs   = Matrix._list_to_ctypes_ptr(Matrix._get_data_ptrs(matrix))
-        index_ptrs  = Matrix._list_to_ctypes_ptr(Matrix._get_index_ptrs(matrix))
-        m, n = matrix.shape
-        nnz = m * n
-        f = resolve_precision("create_matrix", matrix.dtype)
-        self.invlib_ptr = f(m, n, nnz, index_ptrs, data_ptrs, fi, False)
-        self.dtype = matrix.dtype
+
+    @property
+    def invlib_pointer(self):
+        return self._invlib_pointer
+
+    @property
+    def dtype(self):
+        return Matrix._get_dtype(self.matrix)
+
+    @property
+    def format(self):
+        return Matrix._get_format(self.matrix)
+
+    @property
+    def nnz(self):
+        return Matrix._get_nnz(self.matrix)
+
+    @property
+    def shape(self):
+        return Matrix._get_shape(self.matrix)
 
     def multiply(self, b):
         """
@@ -239,15 +345,17 @@ class Matrix:
             from the right with another matrix or vector, respectively.
 
         """
+        dtype = Matrix._get_dtype(self.matrix)
+
         if isinstance(b, Matrix):
-            f   = resolve_precision("matrix_matrix_multiply", self.matrix.dtype)
-            ptr = f(self.invlib_ptr, b.invlib_ptr)
-            return Matrix(ptr, self.matrix.dtype)
+            f   = resolve_precision("matrix_matrix_multiply", dtype)
+            ptr = f(self.invlib_pointer, b.invlib_pointer)
+            return Matrix(ptr, dtype)
 
         elif isinstance(b, Vector):
-            f   = resolve_precision("matrix_vector_multiply", self.matrix.dtype)
-            ptr = f(self.invlib_ptr, b.invlib_ptr)
-            return Vector(ptr, self.matrix.dtype)
+            f   = resolve_precision("matrix_vector_multiply", dtype)
+            ptr = f(self.invlib_pointer, b.invlib_pointer)
+            return Vector(ptr, dtype)
 
         raise ValueError("Argument b must be of type invlib.matrix.Matrix or "
                          "invlib.vector.Vector.")
@@ -269,15 +377,17 @@ class Matrix:
             of this matrix from the right with another matrix or vector,
             respectively.
         """
+        dtype = Matrix._get_dtype(self.matrix)
+
         if isinstance(b, Matrix):
-            f   = resolve_precision("matrix_matrix_transpose_multiply", self.matrix.dtype)
-            ptr = f(self.invlib_ptr, b.invlib_ptr)
-            return Matrix(ptr, self.matrix.dtype)
+            f   = resolve_precision("matrix_matrix_transpose_multiply", dtype)
+            ptr = f(self.invlib_pointer, b.invlib_pointer)
+            return Matrix(ptr, dtype)
 
         if isinstance(b, Vector):
-            f   = resolve_precision("matrix_vector_transpose_multiply", self.matrix.dtype)
-            ptr = f(self.invlib_ptr, b.invlib_ptr)
-            return Vector(ptr, self.matrix.dtype)
+            f   = resolve_precision("matrix_vector_transpose_multiply", dtype)
+            ptr = f(self.invlib_pointer, b.invlib_pointer)
+            return Vector(ptr, dtype)
 
         raise ValueError("Argument b must be of type invlib.matrix.Matrix or "
                          "invlib.vector.Vector.")

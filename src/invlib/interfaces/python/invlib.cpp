@@ -38,7 +38,8 @@ extern "C" {
                         bool copy)
     {
         auto data_ = invlib::array::make_shared<ScalarType>(data, n, copy);
-        return new PythonVector(invlib::VectorData<ScalarType>(n, data_));
+        auto *v = new PythonVector(invlib::VectorData<ScalarType>(n, data_));
+        return v;
     }
 
     void destroy_vector(void *v)
@@ -102,61 +103,86 @@ extern "C" {
     // Matrix creation and destruction
     //
 
-    using DataPtr   = std::shared_ptr<ScalarType[]>;
-    using DataPtrs  = std::vector<DataPtr>;
+    struct MatrixStruct {
+        size_t m, n, nnz;
+        unsigned   format;
+        ScalarType * data_pointers[2];
+        IndexType *  index_pointers[2];
+        IndexType *  start_pointers[2];
+    };
 
-    using IndexPtr  = std::shared_ptr<IndexType[]>;
-    using IndexPtrs = std::vector<IndexPtr>;
+    using DataPointer   = std::shared_ptr<ScalarType[]>;
+    using DataPointers  = std::vector<DataPointer>;
 
-    void* create_matrix(size_t m,
-                        size_t n,
-                        size_t nnz,
-                        void **index_ptrs,
-                        void **data_ptrs,
-                        unsigned format,
-                        bool copy)
+    using IndexPointer  = std::shared_ptr<IndexType[]>;
+    using IndexPointers = std::vector<IndexPointer>;
+
+    using invlib::array::make_shared;
+
+    void* create_matrix(MatrixStruct matrix_struct, bool copy)
     {
-        DataPtrs  data_ptrs_{};
-        IndexPtrs index_ptrs_{};
+        DataPointers  data_pointers{};
+        IndexPointers index_pointers{};
+        IndexPointers start_pointers{};
 
-        auto format_ = static_cast<invlib::Format>(format);
-        switch (format_) {
+        size_t m   = matrix_struct.m;
+        size_t n   = matrix_struct.n;
+        size_t nnz = matrix_struct.nnz;
+
+        auto format = static_cast<invlib::Format>(matrix_struct.format);
+
+        switch (format) {
         case invlib::Format::Dense : {
-            data_ptrs_.push_back(invlib::array::make_shared<ScalarType>(data_ptrs[0],
-                                                                        m * n,
-                                                                        copy));
+            auto ptr = make_shared<ScalarType>(matrix_struct.data_pointers[0], m * n, copy);
+            data_pointers.push_back(ptr);
             break;
         }
         case invlib::Format::SparseCsc : {
-            data_ptrs_.push_back(invlib::array::make_shared<ScalarType>(data_ptrs[0],
-                                                                        nnz,
-                                                                        copy));
-            index_ptrs_.push_back(invlib::array::make_shared<IndexType>(index_ptrs[0],
-                                                                         nnz,
-                                                                         copy));
-            index_ptrs_.push_back(invlib::array::make_shared<IndexType>(index_ptrs[1],
-                                                                         n + 1,
-                                                                         copy));
+            auto ptr = make_shared<ScalarType>(matrix_struct.data_pointers[0], nnz, copy);
+            data_pointers.push_back(ptr);
+
+            auto ind_ptr = make_shared<IndexType>(matrix_struct.index_pointers[0], nnz, copy);
+            index_pointers.push_back(ind_ptr);
+
+            ind_ptr = make_shared<IndexType>(matrix_struct.start_pointers[0], nnz, copy);
+            start_pointers.push_back(ind_ptr);
             break;
         }
         case invlib::Format::SparseCsr : {
-            data_ptrs_.push_back(invlib::array::make_shared<ScalarType>(data_ptrs[0],
-                                                                        nnz,
-                                                                        copy));
-            index_ptrs_.push_back(invlib::array::make_shared<IndexType>(index_ptrs[0],
-                                                                        nnz,
-                                                                        copy));
-            index_ptrs_.push_back(invlib::array::make_shared<IndexType>(index_ptrs[1],
-                                                                        m + 1,
-                                                                        copy));
+            auto ptr = make_shared<ScalarType>(matrix_struct.data_pointers[0], nnz, copy);
+            data_pointers.push_back(ptr);
+
+            auto ind_ptr = make_shared<IndexType>(matrix_struct.index_pointers[0], nnz, copy);
+            index_pointers.push_back(ind_ptr);
+
+            ind_ptr = make_shared<IndexType>(matrix_struct.start_pointers[0], nnz, copy);
+            start_pointers.push_back(ind_ptr);
+            break;
+        }
+        case invlib::Format::SparseHyb : {
+
+            auto ptr = make_shared<ScalarType>(matrix_struct.data_pointers[0], nnz, copy);
+            data_pointers.push_back(ptr);
+            ptr = make_shared<ScalarType>(matrix_struct.data_pointers[1], nnz, copy);
+            data_pointers.push_back(ptr);
+
+            auto ind_ptr = make_shared<IndexType>(matrix_struct.index_pointers[0], nnz, copy);
+            index_pointers.push_back(ind_ptr);
+            ind_ptr = make_shared<IndexType>(matrix_struct.index_pointers[1], nnz, copy);
+            index_pointers.push_back(ind_ptr);
+
+            ind_ptr = make_shared<IndexType>(matrix_struct.start_pointers[0], nnz, copy);
+            start_pointers.push_back(ind_ptr);
+            ind_ptr = make_shared<IndexType>(matrix_struct.start_pointers[1], nnz, copy);
+            start_pointers.push_back(ind_ptr);
+
             break;
         }
         }
         PythonMatrix * ptr = new PythonMatrix(
-            invlib::PythonMatrix<ScalarType, IndexType>{m, n, nnz,
-                                                                            index_ptrs_,
-                                                                            data_ptrs_,
-                                                                            format_});
+            invlib::PythonMatrix<ScalarType, IndexType>{
+                m, n, nnz, index_pointers, start_pointers, data_pointers, format
+                    });
         return ptr;
     }
 
@@ -165,40 +191,78 @@ extern "C" {
         delete reinterpret_cast<PythonMatrix *>(A);
     }
 
-    size_t matrix_cols(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return A_.cols();
+    MatrixStruct matrix_info(void *A) {
+        auto & A_ = * reinterpret_cast<PythonMatrix *>(A);
+        MatrixStruct matrix_struct;
+        matrix_struct.m   = A_.rows();
+        matrix_struct.n   = A_.cols();
+        matrix_struct.nnz = A_.non_zeros();
+        matrix_struct.format = static_cast<unsigned>(A_.get_format());
+
+        auto element_pointers = A_.get_element_pointers();
+
+        for (size_t i = 0; i < 2; ++i) {
+            matrix_struct.data_pointers[i] = nullptr;
+        }
+
+        for (size_t i = 0; i < element_pointers.size(); ++i) {
+            matrix_struct.data_pointers[i] = element_pointers[i];
+        }
+
+        auto index_pointers = A_.get_index_pointers();
+        for (size_t i = 0; i < 2; ++i) {
+            matrix_struct.index_pointers[i] = nullptr;
+        }
+        for (size_t i = 0; i < index_pointers.size(); ++i) {
+            matrix_struct.index_pointers[i] = index_pointers[i];
+        }
+
+        auto start_pointers = A_.get_start_pointers();
+        for (size_t i = 0; i < 2; ++i) {
+            matrix_struct.start_pointers[i] = nullptr;
+        }
+        for (size_t i = 0; i < start_pointers.size(); ++i) {
+            matrix_struct.start_pointers[i] = start_pointers[i];
+        }
+
+        return matrix_struct;
     }
 
-    size_t matrix_rows(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return A_.rows();
-    }
 
-    size_t matrix_non_zeros(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return A_.non_zeros();
-    }
-
-    unsigned matrix_format(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<unsigned>(A_.get_format());
-    }
-
-    void * matrix_element_pointer(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<void *>(A_.get_element_pointer());
-    }
-
-    void * matrix_index_pointer(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<void *>(A_.get_index_pointer());
-    }
-
-    void * matrix_start_pointer(void *A) {
-        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
-        return static_cast<void *>(A_.get_start_pointer());
-    }
+//    size_t matrix_cols(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return A_.cols();
+//    }
+//
+//    size_t matrix_rows(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return A_.rows();
+//    }
+//
+//    size_t matrix_non_zeros(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return A_.non_zeros();
+//    }
+//
+//    unsigned matrix_format(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return static_cast<unsigned>(A_.get_format());
+//    }
+//
+//    void * matrix_element_pointer(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return static_cast<void *>(A_.get_element_pointer());
+//    }
+//
+//    void * matrix_index_pointer(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return static_cast<void *>(A_.get_index_pointer());
+//    }
+//
+//    void * matrix_start_pointer(void *A) {
+//        auto & A_ = *reinterpret_cast<PythonMatrix*>(A);
+//        return static_cast<void *>(A_.get_start_pointer());
+//    }
 
     //
     // Arithmetic
@@ -327,9 +391,6 @@ extern "C" {
 
     void * forward_model_evaluate(ForwardModelStruct f,
                                   void * x) {
-        std::cout << "evaluate :: " << f.m << " :: " << f.n << std::endl;
-        std::cout << "evaluate :: " << f.jacobian_ptr << " :: " << f.evaluate_ptr << std::endl;
-        std::cout << "evaluate :: " << x << " :: " << f.evaluate_ptr << std::endl;
         auto fm = ForwardModel(f.m, f.n,
                                reinterpret_cast<JacobianFunctionPointer>(f.jacobian_ptr),
                                reinterpret_cast<EvaluateFunctionPointer>(f.evaluate_ptr));
@@ -337,18 +398,22 @@ extern "C" {
     }
 
     void * forward_model_jacobian(ForwardModelStruct f,
-                                  void * x) {
+                                  void * x,
+                                  void * y) {
         auto fm = ForwardModel(f.m, f.n,
                                reinterpret_cast<JacobianFunctionPointer>(f.jacobian_ptr),
                                reinterpret_cast<EvaluateFunctionPointer>(f.evaluate_ptr));
-        PythonVector y{};
-        return new PythonMatrix(fm.jacobian(* reinterpret_cast<PythonVector *>(x), y));
+        return new PythonMatrix(fm.Jacobian(* reinterpret_cast<PythonVector *>(x),
+                                            * reinterpret_cast<PythonVector *>(y)));
     }
+
+////////////////////////////////////////////////////////////////////////////////
+// Optimizer
+////////////////////////////////////////////////////////////////////////////////
 
     struct OptimizerStruct {
         unsigned int   type;
         ScalarType   * parameters;
-        void         * solver;
     };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,6 +421,7 @@ extern "C" {
 ////////////////////////////////////////////////////////////////////////////////
 
     using PrecmatType      = invlib::PrecisionMatrix<PythonMatrix>;
+    using MinimizerType    = invlib::GaussNewton<ScalarType, SolverType>;
     using OEMType          = invlib::MAP<ForwardModel,
                                          PythonMatrix,
                                          PrecmatType,
@@ -367,53 +433,35 @@ extern "C" {
                void * s_e_inv,
                void * x_a,
                void * x_0,
-               OptimizerStruct opt)
+               void * y,
+               OptimizerStruct opt,
+               SolverType * solver)
     {
-        // PrecmatType SaInv_(*reinterpret_cast<PythonMatrix *>(SaInv));
-        // PrecmatType SeInv_(*reinterpret_cast<PythonMatrix *>(SeInv));
+        auto fm = ForwardModel(f.m, f.n,
+                               reinterpret_cast<JacobianFunctionPointer>(f.jacobian_ptr),
+                               reinterpret_cast<EvaluateFunctionPointer>(f.evaluate_ptr));
 
-        // size_t m = s_e_inv.rows();
-        // size_t n = s_a_inv.rows();
-
-        // fm = PythonForwardModel(m, n,
-        //                         reinterpret_cast<JacobianFunction>(f.jacobian_ptr),
-        //                         reinterpret_cast<EvaluateFunction>(f.evaluate_ptr));
-
-        // return fm.jacobian(x_a, x_0);
-
-    //     auto & x_a_ = *reinterpret_cast<PythonVector *>(x_a);
-    //     auto & y_  = *reinterpret_cast<PythonVector *>(y);
-
-    //     Linear forward_model(*reinterpret_cast<MklCsc*>(K));
+        PrecmatType s_a_inv_(*reinterpret_cast<PythonMatrix *>(s_a_inv));
+        PrecmatType s_e_inv_(*reinterpret_cast<PythonMatrix *>(s_e_inv));
 
 
-    //     SolverType cg = SolverType(1e-6, 1);
-    //     Minimizer  gn(1e-6, 1, cg);
-    //     LinearMAP  oem(forward_model, x_a_, SaInv_, SeInv_);
+        auto & x_a_ = *reinterpret_cast<PythonVector *>(x_a);
+        auto & y_   = *reinterpret_cast<PythonVector *>(y);
 
-    //     auto x_ = new PythonVector{};
+        auto x = new PythonVector();
+        if (x_0) {
+            *x = *reinterpret_cast<PythonVector *>(x_0);
+        } else {
+            x->resize(fm.n);
+            *x = x_a_;
+        }
 
-    //     oem.compute(*x_, y_, gn, 1);
+        SolverType & cg = * reinterpret_cast<SolverType *>(solver);
+        MinimizerType gn(1e-6, 1, cg);
 
-    //     return x_;
-    // }
+        OEMType  oem(fm, x_a_, s_a_inv_, s_e_inv_);
+        oem.compute(*x, y_, gn, 2);
 
-    // void * forward_model_linear(void * K,
-    //                             void * x)
-    // {
-    //     std::cout << K << " // " << x << std::endl;
-    //     auto & x_ = *reinterpret_cast<PythonVector *>(x);
-    //     Linear forward_model(*reinterpret_cast<MklCsc*>(K));
-    //     auto y_ = new PythonVector{forward_model.evaluate(x_)};
-    //     return y_;
-    // }
-
-    // void * covmat_multiply(void * S,
-    //                        void * x)
-    // {
-    //     Covmat S_(*reinterpret_cast<MklCsc*>(S));
-    //     auto & x_ = *reinterpret_cast<PythonVector *>(x);
-    //     auto y_ = new PythonVector(inv(S_) * x_);
-    //     return y_;
+        return x;
     }
 }

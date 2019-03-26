@@ -68,7 +68,7 @@ public:
     using SparseData<Real, MKL_INT, Representation::Coordinates>::get_column_index_pointer;
     using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
 
-private:
+protected:
 
     // --------------//
     // Base Members  //
@@ -130,7 +130,7 @@ public:
     using SparseData<Real, MKL_INT, rep>::get_start_pointer;
     using SparseData<Real, MKL_INT, rep>::get_element_pointer;
 
-private:
+protected:
 
     sparse_matrix_t mkl_matrix;
 
@@ -146,8 +146,8 @@ private:
 };
 
 template<typename Real> class MklSparse<Real, Representation::Hybrid>
-    : protected SparseData<Real, MKL_INT, Representation::CompressedRows>,
-      protected SparseData<Real, MKL_INT, Representation::CompressedColumns>
+    : protected MklSparse<Real, Representation::CompressedRows>,
+      protected MklSparse<Real, Representation::CompressedColumns>
 {
 
 public:
@@ -166,6 +166,8 @@ public:
     // ------------------------------- //
 
     MklSparse(const SparseData<Real, MKL_INT, Representation::Coordinates> &);
+    MklSparse(const SparseData<Real, MKL_INT, Representation::CompressedColumns> &,
+              const SparseData<Real, MKL_INT, Representation::CompressedRows> &);
 
     MklSparse()                               = delete;
     MklSparse(const MklSparse & )             = delete;
@@ -177,20 +179,38 @@ public:
     // Arithmetic //
     // ---------- //
 
-    VectorType multiply(const VectorType &) const;
-    VectorType transpose_multiply(const VectorType &) const;
+    VectorType multiply(const VectorType &v) const {
+        return CSRBase::multiply(v);
+    }
+
+    VectorType transpose_multiply(const VectorType &v) const {
+        return CSCBase::transpose_multiply(v);
+    }
 
     size_t rows() const {return CSRBase::rows();}
     size_t cols() const {return CSRBase::cols();}
 
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_start_pointer;
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_index_pointer;
-    using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
+    std::vector<Real *> get_element_pointers() {
+        return {CSCBase::get_element_pointer(),
+                CSRBase::get_element_pointer()};
+    }
+
+    std::vector<MKL_INT *> get_start_pointers() {
+        return {CSCBase::get_start_pointer(),
+                CSRBase::get_start_pointer()};
+    }
+
+    std::vector<MKL_INT *> get_index_pointers() {
+        return {CSCBase::get_index_pointer(),
+                CSRBase::get_index_pointer()};
+    }
+
+    using CSRBase = MklSparse<Real, Representation::CompressedRows>;
+    using CSCBase = MklSparse<Real, Representation::CompressedColumns>;
+
+    using CSRBase::non_zeros;
 
 private:
-
-    using CSRBase = SparseData<Real, MKL_INT, Representation::CompressedRows>;
-    using CSCBase = SparseData<Real, MKL_INT, Representation::CompressedColumns>;
 
     // --------------//
     // Base Members  //

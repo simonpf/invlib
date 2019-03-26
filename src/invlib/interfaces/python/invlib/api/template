@@ -15,6 +15,16 @@ else:
     invlib = c.CDLL(os.path.join(path, "libinvlib_double.so"))
 
 
+class matrix_struct(c.Structure):
+
+    _fields_ = [("m", c.c_ulong),
+                ("n", c.c_ulong),
+                ("nnz", c.c_ulong),
+                ("format", c.c_uint),
+                ("data_pointers", c.c_void_p * 2),
+                ("index_pointers", c.c_void_p * 2),
+                ("start_pointers", c.c_void_p * 2)]
+
 class forward_model_struct(c.Structure):
 
     _fields_ = [("m", c.c_ulong),
@@ -25,8 +35,7 @@ class forward_model_struct(c.Structure):
 class optimizer_struct(c.Structure):
 
     _fields_ = [("type", c.c_ulong),
-                ("params", c.c_void_p),
-                ("solver_ptr", c.c_void_p)]
+                ("params", c.c_void_p)]
 
 #
 # Vectors
@@ -57,30 +66,11 @@ invlib.vector_scale.restype  = None
 # Matrices
 #
 
-invlib.create_matrix.argtypes = [c.c_uint64, c.c_uint64, c.c_uint64, c.c_void_p,\
-                                 c.c_void_p, c.c_uint, c.c_bool]
+invlib.create_matrix.argtypes = [matrix_struct, c.c_bool]
 invlib.create_matrix.restype  = c.c_void_p
 
-invlib.matrix_rows.argtypes = [c.c_void_p]
-invlib.matrix_rows.restype  = c.c_uint64
-
-invlib.matrix_cols.argtypes = [c.c_void_p]
-invlib.matrix_cols.restype  = c.c_uint64
-
-invlib.matrix_non_zeros.argtypes = [c.c_void_p]
-invlib.matrix_non_zeros.restype  = c.c_uint64
-
-invlib.matrix_format.argtypes = [c.c_void_p]
-invlib.matrix_format.restype  = c.c_uint
-
-invlib.matrix_element_pointer.argtypes = [c.c_void_p]
-invlib.matrix_element_pointer.restype  = c.c_void_p
-
-invlib.matrix_index_pointer.argtypes = [c.c_void_p]
-invlib.matrix_index_pointer.restype  = c.c_void_p
-
-invlib.matrix_start_pointer.argtypes = [c.c_void_p]
-invlib.matrix_start_pointer.restype  = c.c_void_p
+invlib.matrix_info.argtypes = [c.c_void_p]
+invlib.matrix_info.restype  = matrix_struct
 
 invlib.matrix_matrix_multiply.argtypes = [c.c_void_p, c.c_void_p]
 invlib.matrix_matrix_multiply.restype  = c.c_void_p
@@ -129,18 +119,20 @@ invlib.solver_solve.restype  = c.c_void_p
 invlib.forward_model_evaluate.argtypes = [forward_model_struct, c.c_void_p]
 invlib.forward_model_evaluate.restype  = c.c_void_p
 
-invlib.forward_model_jacobian.argtypes = [forward_model_struct, c.c_void_p]
+invlib.forward_model_jacobian.argtypes = [forward_model_struct, c.c_void_p, c.c_void_p]
 invlib.forward_model_jacobian.restype  = c.c_void_p
 
 #
 # OEM
 #
 
-#invlib.oem = [forward_model_struct,
-#              c.c_void_p,
-#              c.c_void_p,
-#              c.c_void_p,
-#              c.c_void_p,
-#              optimizer_struct]
-#
-#invlib.oem = c.c_void_p
+invlib.oem.argtypes = [forward_model_struct,
+                       c.c_void_p,
+                       c.c_void_p,
+                       c.c_void_p,
+                       c.c_void_p,
+                       c.c_void_p,
+                       optimizer_struct,
+                       c.c_void_p]
+
+invlib.oem.restype = c.c_void_p

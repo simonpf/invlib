@@ -135,7 +135,7 @@ public:
         const SType *u_ptr = u.get_element_pointer();
               SType *v_ptr = v.get_element_pointer();
         constexpr char trans = 'n';
-        blas::gemv<SType>('n', m, n, 1.0, get_element_pointer(), m, u_ptr, 1, 0.0, v_ptr, 1);
+        blas::gemv<SType>('n', n, m, 1.0, get_element_pointer(), n, u_ptr, 1, 0.0, v_ptr, 1);
         return v;
     }
 

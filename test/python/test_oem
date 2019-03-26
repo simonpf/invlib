@@ -1,0 +1,53 @@
+import sys
+#sys.path.append("@INVLIB_PYTHONPATH@")
+sys.path.append("/home/simon/build/invlib/src/invlib/interfaces/python")
+
+from invlib.oem           import OEM
+from invlib.matrix        import Matrix
+from invlib.vector        import Vector
+from invlib.forward_model import LinearModel
+
+import numpy as np
+import scipy as sp
+import scipy.sparse
+
+import matplotlib.pyplot as plt
+
+precision = np.float64
+
+def make_jacobian(format = "dns"):
+    n = np.random.randint(9000, 10000)
+    z = np.linspace(0, 100, 10001)
+
+    z_i = np.interp(np.linspace(0, z.size, n), np.arange(z.size), z)
+    std = (z[-1] - z[0]) / n
+    K = np.zeros((n, z.size), dtype = precision)
+    for i in range(n):
+        K[i, :] = np.exp(- ((z - z_i[i]) / std) ** 2)
+    K[K < 1e-6] = 0.0
+
+    if format == "dns":
+        return Matrix(K)
+    elif format == "csc":
+        return Matrix(sp.sparse.csc_matrix(K))
+    elif format == "csr":
+        return Matrix(sp.sparse.csr_matrix(K))
+    elif format == "hyb":
+        return Matrix((sp.sparse.csc_matrix(K),
+                       sp.sparse.csr_matrix(K)))
+
+K    = make_jacobian(format = "csc")
+m, n = K.shape
+
+x_t = np.zeros(n, dtype = precision)
+x_a = Vector(np.zeros(n, dtype = precision))
+x_t[int(0.4 * n) : int(0.7 * n)] = 1.0
+
+y = K.multiply(Vector(x_t))
+
+s_e_inv = Matrix(sp.sparse.diags(np.ones(m, dtype = precision), format = "csc"))
+s_a_inv = Matrix(sp.sparse.diags(np.ones(n, dtype = precision), format = "csc"))
+f = LinearModel(K)
+
+
+oem = OEM(f, s_a_inv, s_e_inv, x_a)

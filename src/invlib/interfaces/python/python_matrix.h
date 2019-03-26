@@ -22,6 +22,10 @@
         auto ptr = get_as<SparseCsr>();         \
         return ptr->f();                        \
     }                                           \
+    case Format::SparseHyb : {                  \
+        auto ptr = get_as<SparseHyb>();         \
+        return ptr->f();                        \
+    }                                           \
     }                                           \
 
 #define RESOLVE_FORMAT2(f, a, b) \
@@ -38,6 +42,10 @@
             auto ptr_a = a->get_as<SparseCsr>();\
             return ptr_a->f(b);\
         }\
+        case Format::SparseHyb : {                \
+            auto ptr_a = a->get_as<SparseHyb>();  \
+            return ptr_a->f(b);                   \
+        }                                         \
         }\
 
 #include <cassert>
@@ -138,53 +146,82 @@ namespace invlib
         PythonMatrix(size_t m,
                      size_t n,
                      size_t nnz,
-                     std::vector<std::shared_ptr<IndexType[]>> index_ptrs,
-                     std::vector<std::shared_ptr<ScalarType[]>> data_ptrs,
+                     std::vector<std::shared_ptr<IndexType[]>>  index_pointers,
+                     std::vector<std::shared_ptr<IndexType[]>>  start_pointers,
+                     std::vector<std::shared_ptr<ScalarType[]>> data_pointers,
                      Format format_)
         : format(format_)
         {
             switch (format) {
             case Format::Dense : {
-                if (!(data_ptrs.size() == 1) && (index_ptrs.size() == 0)) {
+                if (!(data_pointers.size() == 1)
+                    && (index_pointers.size() == 0)
+                    && (start_pointers.size() == 0)) {
                     throw std::runtime_error("Provided number of data pointers "
                                              "and index pointers does not match "
                                              "what was expected for constructing"
                                              " a matrix in dense format.");
                 }
-                auto data  = DenseData(m, n, data_ptrs[0]);
+                auto data  = DenseData(m, n, data_pointers[0]);
                 matrix_ptr = std::make_shared<Dense>(data);
                 break;
             }
             case Format::SparseCsc : {
-                if (!(data_ptrs.size() == 1) && (index_ptrs.size() == 2)) {
+                if (!(data_pointers.size() == 1)
+                    && (index_pointers.size() == 1)
+                    && (start_pointers.size() == 1)) {
                     throw std::runtime_error("Provided number of data pointers "
                                              "and index pointers does not match "
                                              "what was expected for constructing"
                                              " a matrix in sparse CSC format.");
                 }
                 auto data  = SparseCscData(m, n, nnz,
-                                           index_ptrs[0],
-                                           index_ptrs[1],
-                                           data_ptrs[0]);
+                                           index_pointers[0],
+                                           start_pointers[0],
+                                           data_pointers[0]);
                 matrix_ptr = std::make_shared<SparseCsc>(data);
                 break;
             }
             case Format::SparseCsr : {
-                if (!(data_ptrs.size() == 1) && (index_ptrs.size() == 2)) {
+                if (!(data_pointers.size() == 1)
+                    && (index_pointers.size() == 1)
+                    && (start_pointers.size() == 1)) {
                     throw std::runtime_error("Provided number of data pointers "
                                              "and index pointers does not match "
                                              "what was expected for constructing"
                                              " a matrix in sparse CSC format.");
                 }
                 /*
-                 * Arguments of SparseData constructor are order rows before columns
+                 * Arguments of SparseData constructor are in order rows before columns
                  * the arguments must be reversed here.
                  */
                 auto data  = SparseCsrData(m, n, nnz,
-                                           index_ptrs[1],
-                                           index_ptrs[0],
-                                           data_ptrs[0]);
+                                           start_pointers[0],
+                                           index_pointers[0],
+                                           data_pointers[0]);
                 matrix_ptr = std::make_shared<SparseCsr>(data);
+                break;
+            }
+            case Format::SparseHyb : {
+                if (!(data_pointers.size() == 2) && (index_pointers.size() == 4)) {
+                    throw std::runtime_error("Provided number of data pointers "
+                                             "and index pointers does not match "
+                                             "what was expected for constructing"
+                                             " a matrix in sparse Hybrid format.");
+                }
+                /*
+                 * Arguments of SparseData constructor are in order rows before columns
+                 * the arguments must be reversed here.
+                 */
+                auto data_csc  = SparseCscData(m, n, nnz,
+                                               index_pointers[0],
+                                               start_pointers[0],
+                                               data_pointers[0]);
+                auto data_csr  = SparseCsrData(m, n, nnz,
+                                               start_pointers[1],
+                                               index_pointers[1],
+                                               data_pointers[1]);
+                matrix_ptr = std::make_shared<SparseHyb>(data_csc, data_csr);
                 break;
             }
             }
@@ -213,54 +250,87 @@ namespace invlib
             }
             case Format::SparseCsc : {
                 auto & a = *get_as<SparseCsc>();
-                a.non_zeros();
+                return a.non_zeros();
             }
             case Format::SparseCsr : {
                 auto & a = *get_as<SparseCsr>();
                 return a.non_zeros();
             }
+            case Format::SparseHyb : {
+                auto & a = *get_as<SparseHyb>();
+                return a.non_zeros();
+            }
             }
         }
 
-        ScalarType * get_element_pointer() {
-            RESOLVE_FORMAT(get_element_pointer);
-        }
+        std::vector<ScalarType *> get_element_pointers() {
+            std::vector<ScalarType *> pointers{};
 
-
-        IndexType * get_index_pointer() {
             switch (format) {
             case Format::Dense : {
-                throw std::runtime_error("Matrix in dense format has no "
-                                         "index pointer array.");
+                pointers.push_back(get_as<Dense>()->get_element_pointer());
                 break;
             }
             case Format::SparseCsc : {
-                auto & a = *get_as<SparseCsc>();
-                return a.get_index_pointer();
+                pointers.push_back(get_as<SparseCsc>()->get_element_pointer());
+                break;
             }
             case Format::SparseCsr : {
-                auto & a = *get_as<SparseCsr>();
-                return a.get_index_pointer();
+                pointers.push_back(get_as<SparseCsr>()->get_element_pointer());
+                break;
+            }
+            case Format::SparseHyb : {
+                pointers = get_as<SparseHyb>()->get_element_pointers();
+                break;
             }
             }
+            return pointers;
         }
 
-        IndexType * get_start_pointer() {
+        std::vector<IndexType *> get_index_pointers() {
+            std::vector<IndexType *> pointers{};
+
             switch (format) {
             case Format::Dense : {
-                throw std::runtime_error("Matrix in dense format has no "
-                                         "start pointer array.");
                 break;
             }
             case Format::SparseCsc : {
-                auto a = get_as<SparseCsc>();
-                return a->get_start_pointer();
+                pointers.push_back(get_as<SparseCsc>()->get_index_pointer());
+                break;
             }
             case Format::SparseCsr : {
-                auto a = get_as<SparseCsr>();
-                return a->get_start_pointer();
+                pointers.push_back(get_as<SparseCsr>()->get_index_pointer());
+                break;
+            }
+            case Format::SparseHyb : {
+                pointers = get_as<SparseHyb>()->get_index_pointers();
+                break;
             }
             }
+            return pointers;
+        }
+
+        std::vector<IndexType *> get_start_pointers() {
+            std::vector<IndexType *> pointers{};
+
+            switch (format) {
+            case Format::Dense : {
+                break;
+            }
+            case Format::SparseCsc : {
+                pointers.push_back(get_as<SparseCsc>()->get_start_pointer());
+                break;
+            }
+            case Format::SparseCsr : {
+                pointers.push_back(get_as<SparseCsr>()->get_start_pointer());
+                break;
+            }
+            case Format::SparseHyb : {
+                pointers = get_as<SparseHyb>()->get_start_pointers();
+                break;
+            }
+            }
+            return pointers;
         }
 
         Format get_format() const {

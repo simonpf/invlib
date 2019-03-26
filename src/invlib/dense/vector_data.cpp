@@ -19,7 +19,7 @@ VectorData<ScalarType> & VectorData<ScalarType>::operator=(const VectorData &v)
 {
     n = v.rows();
     elements  = array::create<ScalarType>(n);
-    std::copy(v.begin(), v.end(), *elements);
+    std::copy(v.begin(), v.end(), elements.get());
 }
 
 template

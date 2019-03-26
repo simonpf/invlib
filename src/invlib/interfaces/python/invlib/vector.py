@@ -11,7 +11,7 @@ sys.path.append("@LIBINVLIB_PATH@")
 import numpy  as np
 import ctypes as c
 
-from invlib.api import resolve_precision, get_stride, get_c_type, \
+from invlib.api import resolve_precision, get_stride, get_ctypes_scalar_type, \
     buffer_from_memory
 
 ################################################################################
@@ -46,11 +46,9 @@ class Vector(np.ndarray):
             raise Exception("Only vector that are contiguous and stored in "\
                             "C-order can be passed to invlib directly.")
         dtype = vector.dtype
-        print(vector.strides)
-        print((get_stride(dtype),) * (len(vector.shape)))
-        if not vector.strides == (get_stride(dtype),) * (len(vector.shape)):
-            raise Exception("Only vectors with a stride of 1 can be passed "
-                            "passed to invlib directly.")
+        if not dtype in [np.float32, np.float64]:
+            raise Exception("Only single or double precision vectors can be "
+                            "passed to invlib.")
 
     def _check_precision(vector):
         """
@@ -63,6 +61,7 @@ class Vector(np.ndarray):
                 layout.
         """
         dtype = vector.dtype
+        print(dtype)
         if not dtype in [np.float32, np.float64]:
             raise Vector.wrong_argument_error
 
@@ -84,7 +83,7 @@ class Vector(np.ndarray):
         strides = (stride,) * len(shape)
 
         b = resolve_precision("vector_element_pointer", dtype)(ptr)
-        ctype = get_c_type(dtype)
+        ctype = get_ctypes_scalar_type(dtype)
         b   = c.cast(b, c.POINTER(ctype))
         arr = np.ctypeslib.as_array(b, shape = shape)
         return arr
@@ -96,20 +95,22 @@ class Vector(np.ndarray):
             ptr, dtype = args
             arr = Vector.from_invlib_pointer(ptr, dtype)
 
-        obj = super(Vector, cls).__new__(Vector, arr.shape, arr.dtype,
-                                          arr.data, 0, arr.strides, 'C')
-        obj.invlib_ptr = Vector.create_invlib_vector(obj)
-        return obj
+        return super(Vector, cls).__new__(Vector,
+                                          dtype = arr.dtype,
+                                          shape = arr.shape,
+                                          buffer = arr,
+                                          order = 'C')
 
     def __array_finalize__(self, obj):
 
-        if obj is None:
-            return None
+        if not obj is None and not obj.dtype in [np.float32, np.float64]:
+            return obj
 
-        if not obj.dtype in [np.float32, np.float64]:
-            return np.array(obj)
+        if not self.dtype in [np.float32, np.float64]:
+            return self
 
-        self.invlib_ptr = Vector.create_invlib_vector(obj)
+        self.invlib_pointer = Vector.create_invlib_vector(self)
+
 
     @property
     def rows(self):
@@ -117,7 +118,7 @@ class Vector(np.ndarray):
         Number of rows of the column vector.
         """
         f = resolve_precision("vector_rows", self.dtype)
-        return f(self.invlib_ptr)
+        return f(self.invlib_pointer)
 
     def dot(self, v):
         """
@@ -133,7 +134,7 @@ class Vector(np.ndarray):
             The scalar results of the dot product.
         """
         f = resolve_precision("vector_dot", self.dtype)
-        return f(self.invlib_ptr, v.invlib_ptr)
+        return f(self.invlib_pointer, v.invlib_pointer)
 
     def add(self, v):
         """
@@ -149,7 +150,7 @@ class Vector(np.ndarray):
         """
         if isinstance(v, Vector):
             f = resolve_precision("vector_add", self.dtype)
-            ptr = f(self.invlib_ptr, v.invlib_ptr)
+            ptr = f(self.invlib_pointer, v.invlib_pointer)
             return Vector(ptr, self.dtype)
 
         raise Vector.wrong_argument_error
@@ -168,7 +169,7 @@ class Vector(np.ndarray):
         """
         if isinstance(v, Vector):
             f = resolve_precision("vector_subtract", self.dtype)
-            ptr = f(self.invlib_ptr, v.invlib_ptr)
+            ptr = f(self.invlib_pointer, v.invlib_pointer)
             return Vector(ptr, self.dtype)
 
         raise Vector.wrong_argument_error
@@ -183,4 +184,4 @@ class Vector(np.ndarray):
 
         """
         f = resolve_precision("vector_scale", self.dtype)
-        f(self.invlib_ptr, c)
+        f(self.invlib_pointer, c)

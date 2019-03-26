@@ -36,20 +36,30 @@ def resolve_precision(fname, dtype):
 strides = {np.dtype('float32') : 4,
            np.dtype('float64') : 8}
 
-c_types = {np.dtype('float32') : c.c_float,
-           np.dtype('float64') : c.c_double}
+ctypes_scalar_types = {np.dtype('float32') : c.c_float,
+                       np.dtype('float64') : c.c_double}
 
 def get_stride(dtype):
     return strides[dtype]
 
-def get_c_type(dtype):
-    return c_types[dtype]
+def get_ctypes_scalar_type(dtype):
+    return ctypes_scalar_types[dtype]
+
+def get_ctypes_index_type():
+    return c.c_uint
 
 def buffer_from_memory(ptr, dtype, size):
     f = c.pythonapi.PyBuffer_FromMemory
     f.restype = ctypes.py_object
     s = strides[dtype]
     buffer    = f(ptr, s * size)
+
+def get_matrix_struct(dtype):
+    if dtype == np.float32:
+        t = sp.matrix_struct
+    else:
+        t = dp.matrix_struct
+    return t
 
 def to_forward_model_struct(fm, dtype):
     if dtype == np.float32:
@@ -65,4 +75,4 @@ def to_optimizer_struct(opt, dtype):
         t = sp.optimizer_struct
     else:
         t = dp.optimizer_struct
-    return t(opt.jacobian_wrapper, fm.evaluate_wrapper)
+    return t(*opt._to_optimizer_struct(dtype))

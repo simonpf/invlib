@@ -15,7 +15,7 @@ template
     template <typename> typename VData
 >
 BlasVector<Real, VData>::BlasVector(VData<Real> && v)
-    : VData<Real>(v)
+    : VData<Real>(std::forward<VData<Real>>(v))
 {
     // Nothing to do here.
 }

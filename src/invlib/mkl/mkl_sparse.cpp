@@ -99,40 +99,14 @@ MklSparse<Real, Representation::Hybrid>::MklSparse(
 
 template
 <
-typename Real
->
-auto MklSparse<Real, Representation::Hybrid>::multiply(
-    const VectorType & v
-    ) const
-    -> VectorType
+    typename Real
+    >
+MklSparse<Real, Representation::Hybrid>::MklSparse(
+    const SparseData<Real, int, Representation::CompressedColumns> & matrix_csc,
+    const SparseData<Real, int, Representation::CompressedRows> & matrix_csr
+    )
+    : CSCBase(matrix_csc), CSRBase(matrix_csr)
 {
-    VectorType w; w.resize(m);
-    mkl::smv<Real, Representation::CompressedRows>(
-        'N', m, n, nnz, 1.0,
-        get_element_pointer(),
-        get_index_pointer(),
-        get_start_pointer(),
-        get_start_pointer() + 1,
-        v.get_element_pointer(), 0.0, w.get_element_pointer());
-    return w;
+    // Nothing to do here.
 }
 
-template
-<
-typename Real
->
-auto MklSparse<Real, Representation::Hybrid>::transpose_multiply(
-    const VectorType & v
-    ) const
-    -> VectorType
-{
-    VectorType w; w.resize(n);
-    mkl::smv<Real, Representation::CompressedRows>(
-        'N', n, m, nnz, 1.0,
-        get_element_pointer(),
-        get_index_pointer(),
-        get_start_pointer(),
-        get_start_pointer() + 1,
-        v.get_element_pointer(), 0.0, w.get_element_pointer());
-    return w;
-}

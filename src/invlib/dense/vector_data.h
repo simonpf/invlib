@@ -88,8 +88,8 @@ public:
     //  Data Access and Manipulation //
     // ----------------------------- //
 
-    const ScalarType * get_element_pointer() const {return *elements;}
-          ScalarType * get_element_pointer()       {return *elements;}
+    const ScalarType * get_element_pointer() const {return elements.get();}
+          ScalarType * get_element_pointer()       {return elements.get();}
 
 
           ScalarType * begin()       {return elements.get();}

@@ -15,7 +15,7 @@ import scipy as sp
 import scipy.sparse
 
 
-precision = np.@FLOATTYPE@
+precision = np.dtype("@FLOATTYPE@")
 
 def random_matrix(m, n, format = "dns"):
     """
@@ -31,21 +31,26 @@ def random_matrix(m, n, format = "dns"):
             csc, csr or hyb
     """
     if format == "dns":
-        matrix = np.random.normal(size = (m, n))
+        matrix = np.array(np.random.normal(size = (m, n)), precision)
     elif format == "csc":
-        matrix = sp.sparse.csc_matrix((m, n))
+        matrix = sp.sparse.csc_matrix((m, n), dtype = precision)
         for i in range(max(m, n)):
             ii = np.random.randint(m)
             jj = np.random.randint(n)
             matrix[ii, jj] = np.random.normal()
     elif format == "csr":
-        matrix = sp.sparse.csr_matrix((m, n))
+        matrix = sp.sparse.csr_matrix((m, n), dtype = precision)
         for i in range(max(m, n)):
             ii = np.random.randint(m)
             jj = np.random.randint(n)
             matrix[ii, jj] = np.random.normal()
     elif format == "hyb":
-        raise Exception("Hybrid format not yet supported.")
+        matrix = sp.sparse.csc_matrix((m, n), dtype = precision)
+        for i in range(max(m, n)):
+            ii = np.random.randint(m)
+            jj = np.random.randint(n)
+            matrix[ii, jj] = np.random.normal()
+        matrix = (matrix, sp.sparse.csr_matrix(matrix))
     else:
         raise Exception("Unknown format {0}.".format(format))
 
@@ -59,11 +64,45 @@ def random_vector(m):
 
         m(int): Number of rows of the vector.
     """
-    return np.random.normal(size = (m, 1))
+    return np.array(np.random.normal(size = (m, 1)), dtype = precision)
 
 ################################################################################
 # Tests
 ################################################################################
+
+#
+# Matrix info
+#
+
+def test_matrix_info(format = "dns"):
+    m = np.random.randint(10, 100)
+    n = np.random.randint(10, 100)
+
+    A = random_matrix(m, n, format)
+    A_ = Matrix(A)
+
+    m, n, nnz, fi, elements, indices, starts = Matrix.matrix_info(
+        A_.invlib_pointer, np.dtype("float32")
+    )
+
+    if format == "dns":
+        assert((m, n) == A.shape)
+        assert(np.all(elements[0] == A))
+
+    if format in ["csc", "csr"]:
+        assert(m, n) == A.shape
+        assert(nnz == A.nnz)
+        assert(np.all(elements[0] == A.data))
+        assert(np.all(indices[0]  == A.indices))
+        assert(np.all(starts[0]   == A.indptr))
+
+    if format in ["hyb"]:
+        assert(m, n) == A[0].shape
+        assert(nnz == A[0].nnz)
+        for i in range(2):
+            assert(np.all(elements[i] == A[i].data))
+            assert(np.all(indices[i] == A[i].indices))
+            assert(np.all(starts[i] == A[i].indptr))
 
 #
 # Matrix-vector multiplications
@@ -78,7 +117,11 @@ def test_matrix_vector_multiplication(format = "dns"):
     u  = random_vector(n)
     u_ = Vector(u)
 
-    v  = A @ u
+    if format == "hyb":
+        v  = A[0] @ u
+    else:
+        v = A @ u
+
     v_ = A_.multiply(u_)
     assert(np.all(np.isclose(v, v_)))
 
@@ -91,8 +134,12 @@ def test_transpose_matrix_vector_multiplication(format = "dns"):
     u  = random_vector(n)
     u_ = Vector(u)
 
-    v  = A.T @ u
-    v_ = A_.tranpose_multiply(u_)
+    if format == "hyb":
+        v  = A[0].T @ u
+    else:
+        v = A.T @ u
+
+    v_ = A_.transpose_multiply(u_)
     assert(np.all(np.isclose(v, v_)))
 
 #

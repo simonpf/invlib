@@ -5,9 +5,10 @@ invlib.solver
 Interface to the invlib conjugate gradient solver.
 """
 
-from invlib.matrix import Matrix
-from invlib.vector import Vector
-from invlib.api    import resolve_precision
+from invlib.matrix  import Matrix
+from invlib.vector  import Vector
+from invlib.api     import resolve_precision
+from invlib.pointer import InvlibPointer
 
 import numpy as np
 import ctypes as c
@@ -73,18 +74,30 @@ class ConjugateGradient:
         self.step_limit = step_limit
         self.verbosity  = verbosity
 
+    def to_invlib_pointer(self, dtype):
+        f = resolve_precision("create_solver", dtype)
+        ptr = f(self.tolerance, self.step_limit, self.verbosity)
+
+        if not self.start_vector is None:
+            cb = self._make_start_vector_callback(self.start_vector, dtype)
+            f = resolve_precision("solver_set_start_vector_ptr", dtype)
+            print(cb)
+            f(ptr, cb)
+
+        destructor = resolve_precision("destroy_solver", dtype)
+        return InvlibPointer(ptr, destructor)
+
+
     def _make_start_vector_callback(self, f, dtype):
         ftype = c.CFUNCTYPE(c.c_void_p, c.c_void_p, c.c_void_p)
 
         def wrapper(v_ptr, w_ptr):
-            print("incoming: ", v_ptr, w_ptr)
             w = Vector(w_ptr, dtype)
             v = Vector(v_ptr, dtype)
             print(w)
 
             v_ = f(w)
             v[:] = v_
-            print("returning :: ", v)
             return None
 
         return ftype(wrapper)
@@ -100,18 +113,10 @@ class ConjugateGradient:
         if not A.dtype == b.dtype:
             raise ValueError("Matrix A and vector b must use same floating point"
                              " type.")
-
         dtype = A.dtype
-        f = resolve_precision("create_solver", dtype)
-        ptr = f(self.tolerance, self.step_limit, self.verbosity)
-
-        if not self.start_vector is None:
-            cb = self._make_start_vector_callback(self.start_vector, dtype)
-            f = resolve_precision("solver_set_start_vector_ptr", dtype)
-            print(cb)
-            f(ptr, cb)
+        ptr   = self.to_invlib_pointer(self, dtype)
 
         f = resolve_precision("solver_solve", dtype)
-        ptr = f(ptr, A.invlib_ptr, b.invlib_ptr)
+        ptr = f(ptr, A.invlib_pointer, b.invlib_pointer)
 
         return Vector(ptr, dtype)
