@@ -7,8 +7,8 @@ from setuptools.command.build_ext import build_ext as build_ext_orig
 
 class CMakeExtension(Extension):
 
-    def __init__(self, name, sources = []):
-        super().__init__(name, sources = sources)
+    def __init__(self, name):
+        super().__init__(name, sources=[])
 
 class build_ext(build_ext_orig):
 
@@ -56,37 +56,21 @@ class build_ext(build_ext_orig):
             self.spawn(['cmake', '--build', '.', '--target', 'invlib_double'] + build_args)
         os.chdir(str(cwd))
 
-import glob
-
-invlib_files = glob.glob("src/**/*.h", recursive = True)
-invlib_files += glob.glob("src/**/*.cpp", recursive = True)
-
 setup(
-    name        = 'invlib',
-    version     = '0.1.0',
-    packages    = ['invlib'],
-    ext_modules = [CMakeExtension('invlib', sources = invlib_files)],
-    cmdclass    = {'build_ext': build_ext},
+    name='invlib',
+    version='0.1',
+    packages=['invlib'],
+    ext_modules=[CMakeExtension('invlib/invlib')],
+    cmdclass={'build_ext': build_ext},
 
-    author       = "Simon Pfreundschuh",
-    author_email = "simon.pfreundschuh@chalmers.se",
-    description  = "Maximum a posteriori estimators for Bayesian inverse " \
-    " problems.",
-    long_description = "This package is an interface to the invlib library "
-    " which provides efficient maximum a posteriori (MAP) solvers for "\
-    " Bayesian inverse problems in remote sensing, also known as the optimal "\
-    "estimation method (OEM) or XDVAR.",
-    license          = "PSF",
-    install_requires = ["numpy", "scipy"],
-    keywords         = "Bayesian, MAP, OEM, remote sensing, inverse problems",
-    url              = "https://github.com/simonpf/invlib",
-    project_urls = {
+    # metadata to display on PyPI
+    author="Simon Pfreundschuh",
+    author_email="simon.pfreundschuh@chalmers.se",
+    description="Python interface for the invlib library.",
+    license="PSF",
+    keywords="OEM",
+    url="https://github.com/simonpf/invlib",
+    project_urls={
         "Source Code": "https://github.com/simonpf/invlib",
-    },
-    classifiers = ['Development Status :: 3 - Alpha',
-                   'Intended Audience :: Science/Research',
-                   'Topic :: Scientific/Engineering :: Atmospheric Science',
-                   'License :: OSI Approved :: MIT License',
-                   'Programming Language :: Python :: 3.8'],
-    python_requires='>=3'
+    }
 )
