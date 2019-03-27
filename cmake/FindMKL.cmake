@@ -14,11 +14,20 @@
 
 include(FindPackageHandleStandardArgs)
 
-set(INTEL_ROOT "/opt/intel" CACHE PATH "Folder contains intel libs")
-set(MKL_ROOT "/opt/intel/mkl" CACHE PATH "Folder contains MKL")
+set(MKLROOT "$ENV{MKLROOT}" CACHE PATH "Folder containing MKL.")
+
+if (NOT "$ENV{INTELROOT}" STREQUAL "")
+  set(INTELROOT "$ENV{INTELROOT}" CACHE INTERNAL "Folder containing intel libs.")
+else()
+  find_path(INTELROOT bin/compilervars.sh PATHS ${MKLROOT}/..)
+endif()
+
+message(intelroot: ${INTELROOT})
+
+set(INTELROOT "$ENV{INTELROOT}" CACHE PATH "Folder contains intel libs")
 
 # Find include dir
-find_path(MKL_INCLUDE_DIR mkl.h PATHS ${MKL_ROOT}/include NO_DEFAULT_PATH)
+find_path(MKL_INCLUDE_DIR mkl.h PATHS ${MKLROOT}/include NO_DEFAULT_PATH)
 if(NOT MKL_INCLUDE_DIR)
   find_path(MKL_INCLUDE_DIR mkl.h PATHS ENV CPATH)
 endif(NOT MKL_INCLUDE_DIR)
@@ -44,49 +53,62 @@ elseif  (${MKL_ARCHITECTURE} EQUAL MIC)
 endif   (${MKL_ARCHITECTURE} EQUAL 32)
 
 if(MKL_SDL)
-  find_library(MKL_LIBRARY mkl_rt PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+  find_library(MKL_LIBRARY mkl_rt PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
                                   ENV   LIBRARY_PATH )
     set(MKL_MINIMAL_LIBRARY ${MKL_LIBRARY})
 else()
     ######################### Interface layer #######################
     set(MKL_INTERFACE_LIBRARY_NAME mkl_intel${MKL_LIBRARY})
     find_library(MKL_INTERFACE_LIBRARY ${MKL_INTERFACE_LIBRARY_NAME}
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/ ${MKL_INTERFACE_LIBRARY}
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/ ${MKL_INTERFACE_LIBRARY}
       ENV LIBRARY_PATH)
 
     ######################## Threading layer ########################
     set(MKL_THREADING_LIBRARY_NAME mkl_intel_thread)
     find_library(MKL_THREADING_LIBRARY ${MKL_THREADING_LIBRARY_NAME}
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
 
     ####################### Computational layer #####################
     find_library(MKL_CORE_LIBRARY mkl_core
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
     find_library(MKL_FFT_LIBRARY mkl_cdft_core
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
     find_library(MKL_SCALAPACK_LIBRARY mkl_scalapack${MKL_LIBRARY}
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
     find_library(MKL_BLACS_LIBRARY mkl_blacs${MKL_LIBRARY}
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
     find_library(MKL_AVX_LIBRARY mkl_avx
-      PATHS ${MKL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      ENV LIBRARY_PATH)
+
+    find_library(MKL_AVX2_LIBRARY mkl_avx2
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      ENV LIBRARY_PATH)
+
+    find_library(MKL_AVX512_LIBRARY mkl_avx512
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      ENV LIBRARY_PATH)
+
+    find_library(MKL_DEF_LIBRARY mkl_def
+      PATHS ${MKLROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
 
     ############################ RTL layer ##########################
     find_library(MKL_RTL_LIBRARY iomp5
-      PATHS ${INTEL_ROOT}/lib/${MKL_LIBRARY_FOLDER}/
+      PATHS ${INTELROOT}/lib/${MKL_LIBRARY_FOLDER}/
       ENV LIBRARY_PATH)
 
     set(MKL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
                     ${MKL_CORE_LIBRARY} ${MKL_FFT_LIBRARY}
                     ${MKL_SCALAPACK_LIBRARY}  ${MKL_RTL_LIBRARY} ${MKL_AVX_LIBRARY})
     set(MKL_MINIMAL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY}
-                    ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY} ${MKL_AVX_LIBRARY})
+      ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY} ${MKL_AVX_LIBRARY} ${MKL_AVX2_LIBRARY}
+      ${MKL_AVX_512} ${MKL_DEF_LIBRARY})
 endif()
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${_MKL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})

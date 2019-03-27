@@ -4,13 +4,13 @@
  * \brief Spare matrix arithmetic using Intel MKL.
  *
  */
-#ifndef MKL_MKL_SPARSE
-#define MKL_MKL_SPARSE
+#ifndef _INVLIB_MKL_MKL_SPARSE
+#define _INVLIB_MKL_MKL_SPARSE
 
 #include <memory>
 
-#include "invlib/blas/blas_vector.h"
 #include "invlib/mkl/mkl_generic.h"
+#include "invlib/blas/blas_vector.h"
 #include "invlib/sparse/sparse_data.h"
 
 namespace invlib
@@ -230,4 +230,4 @@ private:
 #include "mkl_sparse.cpp"
 
 }      // namespace invlib
-#endif // MKL_MKL_SPARSE_H
+#endif // _INVLIB_MKL_MKL_SPARSE_H

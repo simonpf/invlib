@@ -5,9 +5,6 @@ invlib.matrix
 The :code:`invlib.vector` module contains the :code:`Vector` class that provides
 efficient linear algebra operations for dense matrices.
 """
-import sys
-sys.path.append("@LIBINVLIB_PATH@")
-
 import numpy as np
 import scipy as sp
 import scipy.sparse

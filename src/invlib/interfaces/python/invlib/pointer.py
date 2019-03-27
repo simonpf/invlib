@@ -11,5 +11,4 @@ class InvlibPointer:
 
     @property
     def _as_parameter_(self):
-        print("as parameter")
         return c.c_void_p(self.ptr)

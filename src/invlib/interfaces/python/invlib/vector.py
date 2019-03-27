@@ -5,9 +5,6 @@ invlib.vector
 The :code:`invlib.vector` module contains the :code:`Vector` class that provides
 efficient linear algebra operations for dense vectors.
 """
-import sys
-sys.path.append("@LIBINVLIB_PATH@")
-
 import numpy  as np
 import ctypes as c
 
@@ -61,7 +58,6 @@ class Vector(np.ndarray):
                 layout.
         """
         dtype = vector.dtype
-        print(dtype)
         if not dtype in [np.float32, np.float64]:
             raise Vector.wrong_argument_error
 

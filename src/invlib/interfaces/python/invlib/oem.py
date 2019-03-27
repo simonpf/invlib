@@ -1,6 +1,3 @@
-import sys
-sys.path.append("@LIBINVLIB_PATH@")
-
 import numpy  as np
 import scipy  as sp
 import ctypes as c

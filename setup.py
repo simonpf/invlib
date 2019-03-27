@@ -36,13 +36,6 @@ class build_ext(build_ext_orig):
             '-DPYTHON_OUTPUT_DIR=' + os.path.join(str(cwd), ".")
         ]
 
-        if "INTEL_ROOT" in os.environ:
-            cmake_args += ["-DINTEL_ROOT={}".format(os.environ["INTEL_ROOT"])]
-
-        if "MKL_ROOT" in os.environ:
-            cmake_args += ["-DMKL_ROOT={}".format(os.environ["MKL_ROOT"])]
-
-
         # example of build args
         build_args = [
             '--config', config,
@@ -64,7 +57,7 @@ invlib_files += glob.glob("src/**/*.cpp", recursive = True)
 setup(
     name        = 'invlib',
     version     = '0.1.0',
-    packages    = ['invlib'],
+    packages    = ['invlib', 'invlib.api'],
     ext_modules = [CMakeExtension('invlib', sources = invlib_files)],
     cmdclass    = {'build_ext': build_ext},
 

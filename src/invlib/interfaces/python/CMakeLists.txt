@@ -12,18 +12,17 @@ if (MKL_MINIMAL_LIBRARY)
   set(FLOATTYPE float)
   configure_file(invlib.cpp invlib_float.cpp)
   add_library (invlib_float SHARED invlib_float.cpp)
-  target_link_libraries(invlib_float ${BLAS_LIBRARIES} ${MKL_MINIMAL_LIBRARY})
+  target_link_libraries(invlib_float ${MKL_MINIMAL_LIBRARY})
 
   set(FLOATTYPE double)
   configure_file(invlib.cpp invlib_double.cpp)
   add_library (invlib_double SHARED invlib_double.cpp)
-  target_link_libraries(invlib_double ${BLAS_LIBRARIES} ${MKL_MINIMAL_LIBRARY})
+  target_link_libraries(invlib_double ${MKL_MINIMAL_LIBRARY})
 
   #
   # Copy python source files.
   #
 
-  set(LIBINVLIB_PATH ${CMAKE_CURRENT_BINARY_DIR})
   file(GLOB_RECURSE FILES invlib "*.py")
 
   foreach(file ${FILES})
@@ -38,6 +37,8 @@ if (MKL_MINIMAL_LIBRARY)
                     "${file_rel}")
     endif (PYTHON_OUTPUT_DIR)
   endforeach(file)
+
+  set(LIBINVLIB_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
   set(FLOATTYPE float32)
   if (PYTHON_OUTPUT_DIR)

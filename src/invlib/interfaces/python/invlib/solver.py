@@ -4,7 +4,6 @@ invlib.solver
 
 Interface to the invlib conjugate gradient solver.
 """
-
 from invlib.matrix  import Matrix
 from invlib.vector  import Vector
 from invlib.api     import resolve_precision
@@ -81,8 +80,6 @@ class ConjugateGradient:
         if not self.start_vector is None:
             cb = self._make_start_vector_callback(self.start_vector, dtype)
             f = resolve_precision("solver_set_start_vector_ptr", dtype)
-            print(cb)
-            f(ptr, cb)
 
         destructor = resolve_precision("destroy_solver", dtype)
         return InvlibPointer(ptr, destructor)
@@ -94,7 +91,6 @@ class ConjugateGradient:
         def wrapper(v_ptr, w_ptr):
             w = Vector(w_ptr, dtype)
             v = Vector(v_ptr, dtype)
-            print(w)
 
             v_ = f(w)
             v[:] = v_

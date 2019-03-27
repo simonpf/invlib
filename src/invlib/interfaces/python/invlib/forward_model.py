@@ -75,8 +75,6 @@ class ForwardModel(metaclass = ABCMeta):
                 x.invlib_pointer,
                 y.invlib_pointer)
 
-        print(jac)
-
         return Matrix(jac, dtype), y
 
 
