@@ -9,6 +9,9 @@ sys.path.append("@INVLIB_PYTHONPATH@")
 import scipy as sp
 import numpy as np
 
+from datetime import datetime
+np.random.seed(datetime.now().day)
+
 import invlib
 from invlib.vector import Vector
 from invlib.matrix import Matrix
@@ -62,7 +65,7 @@ def test_solver(format = "dns"):
     A = random_tridiag(m, format = format)
     v = np.array(np.random.normal(size = m), dtype = precision)
 
-    A_ = Matrix(A)
+    A_ = Matrix(A, distributed = False)
     v_ = Vector(v)
 
     solver = ConjugateGradient()

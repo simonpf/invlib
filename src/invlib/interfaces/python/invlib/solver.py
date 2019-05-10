@@ -110,7 +110,7 @@ class ConjugateGradient:
             raise ValueError("Matrix A and vector b must use same floating point"
                              " type.")
         dtype = A.dtype
-        ptr   = self.to_invlib_pointer(self, dtype)
+        ptr   = self.to_invlib_pointer(dtype)
 
         f = resolve_precision("solver_solve", dtype)
         ptr = f(ptr, A.invlib_pointer, b.invlib_pointer)

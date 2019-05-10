@@ -71,6 +71,16 @@ const Real* VectorArchetype<Real>::data_pointer(int i) const
 }
 
 template <typename Real>
+Real* VectorArchetype<Real>::get_element_pointer() {
+    return data.get();
+}
+
+template <typename Real>
+const Real* VectorArchetype<Real>::get_element_pointer() const {
+    return data.get();
+}
+
+template <typename Real>
 void VectorArchetype<Real>::accumulate(RealType c)
 {
     for (unsigned int i = 0; i < n; i++)

@@ -4,8 +4,36 @@ import os
 import numpy  as np
 import ctypes as c
 
-from . import float  as sp
-from . import double as dp
+from . import cpu_float32
+from . import cpu_float64
+
+backend = {"single_precision" : cpu_float32,
+           "double_precision" : cpu_float64}
+
+def get_backend(fp_type):
+    if fp_type in [np.float32, np.dtype("float32")]:
+        return backend["single_precision"]
+    elif fp_type in [np.float64, np.dtype("float64")]:
+        return backend["double_precision"]
+    else:
+        raise Exception("Floating point type " + str(fp_type) + " not "
+                        " supported by invlib.")
+
+try:
+    from . import mpi_float32  as mpi_sp
+    from . import mpi_float64 as mpi_dp
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    mpi_size = comm.Get_size()
+    parallel = mpi_size > 1
+
+    if parallel:
+        backend["single_precision"] = mpi_sp
+        backend["double_precision"] = mpi_dp
+
+except Exception as e:
+    print("Failed loading MPI backend: ", e)
+    parallel = False
 
 def resolve_precision(fname, dtype):
     """
@@ -26,9 +54,9 @@ def resolve_precision(fname, dtype):
         Exception if a :code:`numpy.dtype` value is given that is not supported.
     """
     if dtype == np.float32:
-        return getattr(sp.invlib, fname)
+        return getattr(backend["single_precision"].invlib, fname)
     elif dtype == np.float64:
-        return getattr(dp.invlib, fname)
+        return getattr(backend["double_precision"].invlib, fname)
     else:
         raise ValueError("Only numpy.float32 and numpy.float64 types are "\
                          " supported by invlib.")
@@ -55,24 +83,17 @@ def buffer_from_memory(ptr, dtype, size):
     buffer    = f(ptr, s * size)
 
 def get_matrix_struct(dtype):
-    if dtype == np.float32:
-        t = sp.matrix_struct
-    else:
-        t = dp.matrix_struct
-    return t
+    b = get_backend(dtype)
+    return b.matrix_struct
 
 def to_forward_model_struct(fm, dtype):
-    if dtype == np.float32:
-        t = sp.forward_model_struct
-    else:
-        t = dp.forward_model_struct
+    b = get_backend(dtype)
+    t = b.forward_model_struct
     return t(fm.m, fm.n,
              fm.make_jacobian_wrapper(dtype),
              fm.make_evaluate_wrapper(dtype))
 
 def to_optimizer_struct(opt, dtype):
-    if dtype == np.float32:
-        t = sp.optimizer_struct
-    else:
-        t = dp.optimizer_struct
+    b = get_backend(dtype)
+    t = b.optimizer_struct
     return t(*opt._to_optimizer_struct(dtype))

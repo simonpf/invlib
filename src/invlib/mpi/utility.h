@@ -20,7 +20,7 @@ template<typename T1>
 T1 mpi_sum(T1 &t)
 {
     T1 result;
-    MPI_Allreduce(&t, &result, 1, MPIDataType<T1>::name, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&t, &result, 1, MpiDataType<T1>::name, MPI_SUM, MPI_COMM_WORLD);
     return result;
 }
 

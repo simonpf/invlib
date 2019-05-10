@@ -63,6 +63,7 @@ public:
 
     VectorType multiply(const VectorType &) const;
     VectorType transpose_multiply(const VectorType &) const;
+    VectorType transpose_multiply_block(const VectorType &, size_t, size_t) const;
 
     using SparseData<Real, MKL_INT, Representation::Coordinates>::get_row_index_pointer;
     using SparseData<Real, MKL_INT, Representation::Coordinates>::get_column_index_pointer;
@@ -120,11 +121,17 @@ public:
     // Arithmetic //
     // ---------- //
 
-    template < typename T, typename TT = typename T::ResultType >
+    template < typename T, typename TT = typename T::ResultType>
     TT multiply(const T &) const;
+
+    template <typename T, typename TT = typename T::ResultType>
+    auto multiply_block(const T &, size_t, size_t) const -> TT;
 
     template <typename T>
     auto transpose_multiply(const T &) const -> typename T::ResultType;
+
+    template <typename T>
+    auto transpose_multiply_block(const T &, size_t, size_t) const -> typename T::ResultType;
 
     using SparseData<Real, MKL_INT, rep>::get_index_pointer;
     using SparseData<Real, MKL_INT, rep>::get_start_pointer;
@@ -175,7 +182,7 @@ public:
     MklSparse & operator=(const MklSparse & ) = delete;
     MklSparse & operator=(      MklSparse &&) = delete;
 
-    // -----------//
+    // ---------- //
     // Arithmetic //
     // ---------- //
 
@@ -185,6 +192,10 @@ public:
 
     VectorType transpose_multiply(const VectorType &v) const {
         return CSCBase::transpose_multiply(v);
+    }
+
+    VectorType transpose_multiply_block(const VectorType &v, size_t start, size_t extent) const {
+        return CSCBase::multiply_block(v, start, extent);
     }
 
     size_t rows() const {return CSRBase::rows();}

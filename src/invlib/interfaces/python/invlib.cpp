@@ -13,11 +13,12 @@
 
 #define DLL_PUBLIC __attribute__ ((visibility ("default")))
 
-using ScalarType = @FLOATTYPE@;
-using IndexType  = MKL_INT;
+using ScalarType = @PREC@;
+using IndexType = MKL_INT;
+constexpr invlib::Architecture arch = invlib::Architecture::@ARCH@;
 
-using PythonVector = invlib::Vector<invlib::BlasVector<ScalarType>>;
-using PythonMatrix = invlib::Matrix<invlib::PythonMatrix<ScalarType, IndexType>>;
+using PythonMatrix = invlib::Matrix<invlib::PythonMatrix<ScalarType, IndexType, arch>>;
+using PythonVector = invlib::Vector<typename PythonMatrix::VectorType>;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Utility
@@ -180,7 +181,7 @@ extern "C" {
         }
         }
         PythonMatrix * ptr = new PythonMatrix(
-            invlib::PythonMatrix<ScalarType, IndexType>{
+            invlib::PythonMatrix<ScalarType, IndexType, arch>{
                 m, n, nnz, index_pointers, start_pointers, data_pointers, format
                     });
         return ptr;

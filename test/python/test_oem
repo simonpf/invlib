@@ -1,6 +1,5 @@
 import sys
-#sys.path.append("@INVLIB_PYTHONPATH@")
-sys.path.append("/home/simon/build/invlib/src/invlib/interfaces/python")
+sys.path.append("@INVLIB_PYTHONPATH@")
 
 from invlib.oem           import OEM
 from invlib.matrix        import Matrix

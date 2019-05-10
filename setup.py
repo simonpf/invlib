@@ -45,8 +45,10 @@ class build_ext(build_ext_orig):
         os.chdir(str(build_temp))
         self.spawn(['cmake', str(cwd)] + cmake_args)
         if not self.dry_run:
-            self.spawn(['cmake', '--build', '.', '--target', 'invlib_float'] + build_args)
-            self.spawn(['cmake', '--build', '.', '--target', 'invlib_double'] + build_args)
+            self.spawn(['cmake', '--build', '.', '--target', 'invlib_cpu_float'] + build_args)
+            self.spawn(['cmake', '--build', '.', '--target', 'invlib_cpu_double'] + build_args)
+            self.spawn(['cmake', '--build', '.', '--target', 'invlib_mpi_float'] + build_args)
+            self.spawn(['cmake', '--build', '.', '--target', 'invlib_mpi_double'] + build_args)
         os.chdir(str(cwd))
 
 import glob

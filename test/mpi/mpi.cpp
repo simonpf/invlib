@@ -19,10 +19,11 @@ int main()
 
     // D for duplicated types.
     // S for distributed (split) types.
-    using DMatrix  = Matrix<MatrixArchetype<double>>;
-    using DVector  = Vector<VectorArchetype<double>>;
-    using SMatrix  = Matrix<MPIMatrix<MatrixArchetype<double>, LValue>>;
-    using SVector  = Vector<MPIVector<VectorArchetype<double>, LValue>>;
+    using RealType = float;
+    using DMatrix  = Matrix<MatrixArchetype<RealType>>;
+    using DVector  = Vector<VectorArchetype<RealType>>;
+    using SMatrix  = Matrix<MpiMatrix<MatrixArchetype<RealType>, LValue>>;
+    using SVector  = Vector<MpiVector<VectorArchetype<RealType>, LValue>>;
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -54,7 +55,7 @@ int main()
         SVector w_v_mpi;
 
         auto M = random<DMatrix>(m, n);
-        SMatrix::broadcast(M);
+        SMatrix::distribute(M);
 
         MPI_Barrier(MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
@@ -64,8 +65,8 @@ int main()
         w_mpi   = SM * v;
         w_v_mpi = SM * v_mpi;
 
-        double err = maximum_error(w, w_mpi);
-        DVector temp = w_v_mpi.broadcast();
+        RealType err = maximum_error(w, w_mpi);
+        DVector temp = w_v_mpi.gather();
 
         err = std::max(err, maximum_error(w, temp));
         if (err > max_err)
@@ -100,7 +101,7 @@ int main()
         DVector w_mpi{};
 
         auto M = random<DMatrix>(m, n);
-        SMatrix::broadcast(M);
+        SMatrix::distribute(M);
 
         SMatrix SM = SMatrix::split_matrix(M);
 
@@ -108,11 +109,11 @@ int main()
         w_ = transp(SM) * v;
         ww = transp(SM) * vv;
 
-        double err = maximum_error(w, w_);
+        RealType err = maximum_error(w, w_);
         if (err > max_err)
             max_err = err;
 
-        DVector ww_ = ww.broadcast();
+        DVector ww_ = ww.gather();
         err = maximum_error(w, ww_);
         if (err > max_err)
             max_err = err;
@@ -135,7 +136,7 @@ int main()
         int m = dis_m(gen);
         MPI_Bcast(&m ,1, MPI_INTEGER, 0, MPI_COMM_WORLD);
         SVector v       = random<SVector>(m);
-        DVector v_local = v.broadcast();
+        DVector v_local = v.gather();
 
         auto dot_1 = dot(v, v);
         auto dot_2 = dot(v_local, v_local);
@@ -183,9 +184,9 @@ int main()
         DVector w_mpi{};
 
         auto M_1 = random<DMatrix>(m, n);
-        SMatrix::broadcast(M_1);
+        SMatrix::distribute(M_1);
         auto M_2 = random<DMatrix>(m, m);
-        SMatrix::broadcast(M_2);
+        SMatrix::distribute(M_2);
 
         SMatrix SM_1 = SMatrix::split_matrix(M_1);
         SMatrix SM_2 = SMatrix::split_matrix(M_2);

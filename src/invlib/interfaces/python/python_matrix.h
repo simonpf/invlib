@@ -54,41 +54,64 @@
 #include <memory>
 #include <iostream>
 
+#include "invlib/interfaces/python/general.h"
+#include "invlib/interfaces/python/python_mpi.h"
 #include "invlib/interfaces/python/python_vector.h"
 #include "invlib/dense/matrix_data.h"
 #include "invlib/blas/blas_vector.h"
 #include "invlib/blas/blas_matrix.h"
 #include "invlib/mkl/mkl_sparse.h"
+#include "invlib/mpi/mpi_matrix.h"
+#include "invlib/mpi/mpi_vector.h"
 
 namespace invlib
 {
     using invlib::Representation;
 
+    // --------------------  //
+    //  Architecture enum    //
+    // --------------------  //
+
+    template<typename ScalarType, typename IndexType>
+    struct architecture_trait<ScalarType, IndexType, Architecture::Cpu> {
+        using RealType     = ScalarType;
+        using Vector   = BlasVector<ScalarType>;
+
+        using DenseData = MatrixData<ScalarType>;
+        using Dense =     BlasMatrix<ScalarType, MatrixData>;
+
+        using SparseCscData = SparseData<ScalarType, IndexType, Representation::CompressedColumns>;
+        using SparseCsrData = SparseData<ScalarType, IndexType, Representation::CompressedRows>;
+        using SparseHybData = SparseData<ScalarType, IndexType, Representation::Hybrid>;
+
+        using SparseHyb = MklSparse<ScalarType, Representation::Hybrid>;
+        using SparseCsr = MklSparse<ScalarType, Representation::CompressedRows>;
+        using SparseCsc = MklSparse<ScalarType, Representation::CompressedColumns>;
+    };
+
+
     // -------------------  //
     //    Format enum       //
     // -------------------  //
 
-    enum class Format : unsigned {Dense, SparseCsc, SparseCsr, SparseHyb};
 
-    template<typename T> struct format_trait;
-
-    template<typename T1, template <typename> typename T2>
-    struct format_trait<BlasMatrix<T1, T2>> {
+    template<typename Arch>
+        struct format_trait<Arch, typename Arch::Dense> {
         static constexpr Format format = Format::Dense;
     };
 
-    template<typename T1>
-    struct format_trait<MklSparse<T1, Representation::CompressedColumns>> {
+    template<typename Arch>
+        struct format_trait<Arch, typename Arch::SparseCsc> {
         static constexpr Format format = Format::SparseCsc;
     };
 
-    template<typename T1>
-    struct format_trait<MklSparse<T1, Representation::CompressedRows>> {
+    template<typename Arch>
+        struct format_trait<Arch, typename Arch::SparseCsr> {
         static constexpr Format format = Format::SparseCsr;
     };
 
-    template<typename T1>
-        struct format_trait<MklSparse<T1, Representation::Hybrid>> {
+    template<typename Arch>
+        struct format_trait<Arch, typename Arch::SparseHyb> {
         static constexpr Format format = Format::SparseHyb;
     };
 
@@ -98,35 +121,28 @@ namespace invlib
 
     template <
         typename ScalarType,
-        typename IndexType = unsigned long
+        typename IndexType = unsigned long,
+        Architecture arch = Architecture::Cpu
     >
     class PythonMatrix {
         public:
 
         /*! The floating point type used to represent scalars. */
-        using RealType     = ScalarType;
-        using VectorType   = BlasVector<ScalarType>;
-        using MatrixType   = PythonMatrix<ScalarType, IndexType>;
-        using ResultType   = PythonMatrix<ScalarType, IndexType>;
+        using Arch = architecture_trait<ScalarType, IndexType, arch>;
 
-        using DenseData = MatrixData<ScalarType>;
-        using Dense =     BlasMatrix<ScalarType, MatrixData>;
+        using RealType   = ScalarType;
+        using VectorType = typename Arch::Vector;
+        using ResultType = PythonMatrix;
 
-        using SparseCscData = SparseData<ScalarType,
-                                         IndexType,
-                                         Representation::CompressedColumns>;
-        using SparseCsc = MklSparse<ScalarType, Representation::CompressedColumns>;
+        using DenseData     = typename Arch::DenseData;
+        using SparseCscData = typename Arch::SparseCscData;
+        using SparseCsrData = typename Arch::SparseCsrData;
+        using SparseHybData = typename Arch::SparseHybData;
 
-        using SparseCsrData = SparseData<ScalarType,
-                                         IndexType,
-                                         Representation::CompressedRows>;
-        using SparseCsr = MklSparse<ScalarType, Representation::CompressedRows>;
-
-        using SparseHybData = SparseData<ScalarType,
-                                         IndexType,
-                                         Representation::Hybrid>;
-        using SparseHyb = MklSparse<ScalarType,
-                                    Representation::Hybrid>;
+        using Dense     = typename Arch::Dense;
+        using SparseCsc = typename Arch::SparseCsc;
+        using SparseCsr = typename Arch::SparseCsr;
+        using SparseHyb = typename Arch::SparseHyb;
 
         // ------------------------------- //
         //  Constructors and Destructors   //
@@ -136,7 +152,7 @@ namespace invlib
 
         template <
             typename T,
-            Format f = format_trait<T>::format
+            Format f = format_trait<Arch, T>::format
         >
         PythonMatrix(T *t)
         : matrix_ptr(t), format(f) {

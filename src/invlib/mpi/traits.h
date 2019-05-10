@@ -14,8 +14,8 @@ namespace invlib
 //  Storage Types //
 // -------------- //
 
-/*! Passed as second template argument to the MPIMatrix or MPIVector classes,
- * the ConstRef template template triggers the MPIMatrix to only hold a
+/*! Passed as second template argument to the MpiMatrix or MpiVector classes,
+ * the ConstRef template template triggers the MpiMatrix to only hold a
  * const reference to an already existing matrix or vector.
  */
 template
@@ -27,8 +27,8 @@ struct ConstRef
     using type = const T &;
 };
 
-/*! Passed as second template argument to the MPIMatrix or MPIVector classes,
- * the LValue template template triggers the MPIMatrix to hold an MPIMatrix as
+/*! Passed as second template argument to the MpiMatrix or MpiVector classes,
+ * the LValue template template triggers the MpiMatrix to hold an MpiMatrix as
  * lvalue. This is required if a distributed matrix should be maniulated
  * or created from scratch and not from an already locally existing matrix or vector.
  */
@@ -46,20 +46,20 @@ struct LValue
 // ------------------- //
 
 template <typename T>
-struct MPIDataType;
+struct MpiDataType;
 
 template <>
-struct MPIDataType<double>
+struct MpiDataType<double>
 {
 public:
     static constexpr MPI_Datatype name = MPI_DOUBLE;
 };
 
 template <>
-struct MPIDataType<float>
+struct MpiDataType<float>
 {
 public:
-    static constexpr MPI_Datatype value = MPI_FLOAT;
+    static constexpr MPI_Datatype name = MPI_FLOAT;
 };
 
 // ---------------- //
@@ -79,7 +79,7 @@ template
 typename LocalType,
 template <typename> class StorageTrait
 >
-class MPIVector;
+class MpiVector;
 
 template
 <
@@ -92,7 +92,7 @@ template
 typename LocalType,
 template <typename> class StorageTrait
 >
-class MPIMatrix;
+class MpiMatrix;
 
 // MPIType struct.
 
@@ -101,17 +101,17 @@ template
 typename T1,
 template <typename> class StorageType
 >
-struct MPITypeStruct;
+struct MpiTypeStruct;
 
 template
 <
 typename T1,
 template <typename> class StorageType
 >
-struct MPITypeStruct<Vector<T1>, StorageType>
+struct MpiTypeStruct<Vector<T1>, StorageType>
 {
 public:
-    using type = Vector<MPIVector<T1, StorageType>>;
+    using type = Vector<MpiVector<T1, StorageType>>;
 };
 
 template
@@ -119,10 +119,10 @@ template
 typename T1,
 template <typename> class StorageType
 >
-struct MPITypeStruct<Matrix<T1>, StorageType>
+struct MpiTypeStruct<Matrix<T1>, StorageType>
 {
 public:
-    using type = Matrix<MPIMatrix<T1, StorageType>>;
+    using type = Matrix<MpiMatrix<T1, StorageType>>;
 };
 
 // Type alias.
@@ -132,9 +132,7 @@ template
 typename T1,
 template <typename> class StorageType
 >
-using MPIType = typename MPITypeStruct<T1, StorageType>::type;
+using MpiType = typename MpiTypeStruct<T1, StorageType>::type;
 
 }      // namespace invlib
-
-
 #endif // MPI_TRATIS_H

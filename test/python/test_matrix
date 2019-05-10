@@ -7,6 +7,8 @@ import sys
 sys.path.append("@INVLIB_PYTHONPATH@")
 
 import invlib
+import invlib.api
+import pytest
 from invlib.vector import Vector
 from invlib.matrix import Matrix
 
@@ -14,6 +16,8 @@ import numpy as np
 import scipy as sp
 import scipy.sparse
 
+from datetime import datetime
+np.random.seed(datetime.now().day)
 
 precision = np.dtype("@FLOATTYPE@")
 
@@ -79,14 +83,16 @@ def test_matrix_info(format = "dns"):
     n = np.random.randint(10, 100)
 
     A = random_matrix(m, n, format)
-    A_ = Matrix(A)
+    A_ = Matrix(A, distributed = False)
+    A = A_.matrix
 
     m, n, nnz, fi, elements, indices, starts = Matrix.matrix_info(
-        A_.invlib_pointer, np.dtype("float32")
+        A_.invlib_pointer, precision
     )
 
     if format == "dns":
         assert((m, n) == A.shape)
+        print(elements)
         assert(np.all(elements[0] == A))
 
     if format in ["csc", "csr"]:
@@ -113,7 +119,7 @@ def test_matrix_vector_multiplication(format = "dns"):
     n = np.random.randint(10, 100)
 
     A  = random_matrix(m, n, format)
-    A_ = Matrix(A)
+    A_ = Matrix(A, distributed = False)
     u  = random_vector(n)
     u_ = Vector(u)
 
@@ -130,7 +136,7 @@ def test_transpose_matrix_vector_multiplication(format = "dns"):
     n = np.random.randint(10, 100)
 
     A  = random_matrix(n, m, format)
-    A_ = Matrix(A)
+    A_ = Matrix(A, distributed = False)
     u  = random_vector(n)
     u_ = Vector(u)
 
@@ -146,20 +152,24 @@ def test_transpose_matrix_vector_multiplication(format = "dns"):
 # Matrix-matrix multiplications
 #
 
+@pytest.mark.skipif(invlib.api.parallel,
+                    reason="Multiplication not available for MPI matrices.")
 def test_matrix_matrix_multiplication():
     m = np.random.randint(10, 100)
     n = np.random.randint(10, 100)
     k = np.random.randint(10, 100)
 
     A  = random_matrix(m, n, format = "dns")
-    A_ = Matrix(A)
+    A_ = Matrix(A, distributed = False)
     B  = random_matrix(n, k, format = "dns")
-    B_ = Matrix(B)
+    B_ = Matrix(B, distributed = False)
     C  = A @ B
     C_ = A_.multiply(B_)
 
     assert(np.all(np.isclose(C, C_.matrix)))
 
+@pytest.mark.skipif(invlib.api.parallel,
+                    reason="Multiplication not available for MPI matrices.")
 def test_transpose_matrix_matrix_multiplication():
 
     m = np.random.randint(10, 100)
@@ -167,9 +177,9 @@ def test_transpose_matrix_matrix_multiplication():
     k = np.random.randint(10, 100)
 
     A  = np.array(np.random.normal(size = (k, m)), dtype = precision)
-    A_ = Matrix(A)
+    A_ = Matrix(A, distributed = False)
     B  = np.array(np.random.normal(size = (k, n)), dtype = precision)
-    B_ = Matrix(B)
+    B_ = Matrix(B, distributed = False)
     C  = A.T @ B
     C_ = A_.transpose_multiply(B_)
 

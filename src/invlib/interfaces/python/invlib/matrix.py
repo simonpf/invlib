@@ -229,8 +229,29 @@ class Matrix:
         ms = get_matrix_struct(dtype)
         return ms(m, n, nnz, format, data_pointers, index_pointers, start_pointers)
 
+    @staticmethod
+    def _split_matrix(matrix):
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
+        if size <= 1:
+            return matrix
+        else:
+            n = matrix.shape[0]
+            rows_per_rank = n // size
+            remainder = n - rows_per_rank * size
+            i_start = rows_per_rank * rank
+            i_end = i_start + rows_per_rank
+            if rank < remainder:
+                i_start += rank
+                i_end += rank + 1
+            else:
+                i_start += remainder
+                i_end += remainder
+            return matrix[i_start : i_end, :]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, distributed = True, **kwargs):
 
         if len(args) == 2:
             ptr, dtype = args
@@ -301,6 +322,9 @@ class Matrix:
         Matrix._check_precision(matrix)
         if fi == 0:
             Matrix._check_memory_layout(matrix)
+
+        if not distributed:
+            matrix = self._split_matrix(matrix)
 
         dtype = Matrix._get_dtype(matrix)
         f = resolve_precision("create_matrix", dtype)

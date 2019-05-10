@@ -11,12 +11,12 @@ template
 <
 LogType type
 >
-class MPILog
+class MpiLog
 {
 
 public:
 
-    MPILog(unsigned int v) : verbosity(v)
+    MpiLog(unsigned int v) : verbosity(v)
     {
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     }
@@ -46,7 +46,7 @@ private:
 
 template<>
 template<typename... Params>
-void MPILog<LogType::MAP>::init(Params... params)
+void MpiLog<LogType::MAP>::init(Params... params)
 {
     if (rank == 0)
     {
@@ -93,7 +93,7 @@ void MPILog<LogType::MAP>::init(Params... params)
 
 template<>
 template<typename... Params>
-void MPILog<LogType::MAP>::step(Params... params)
+void MpiLog<LogType::MAP>::step(Params... params)
 {
 
     if (verbosity >= 2 && rank == 0)
@@ -114,7 +114,7 @@ void MPILog<LogType::MAP>::step(Params... params)
 
 template<>
 template<typename... Params>
-void MPILog<LogType::MAP>::finalize(Params... params)
+void MpiLog<LogType::MAP>::finalize(Params... params)
 {
     if (verbosity >= 1 && rank == 0)
     {
@@ -145,7 +145,7 @@ void MPILog<LogType::MAP>::finalize(Params... params)
 
 template<>
 template<typename... Params>
-void MPILog<LogType::MAP>::time(Params... params)
+void MpiLog<LogType::MAP>::time(Params... params)
 {
     if (verbosity >= 1 && rank == 0)
     {
@@ -184,7 +184,7 @@ void MPILog<LogType::MAP>::time(Params... params)
 
 template<>
 template<typename... Params>
-void MPILog<LogType::SOL_CG>::init(Params... params)
+void MpiLog<LogType::SOL_CG>::init(Params... params)
 {
     auto tuple = std::make_tuple(params...);
     if (verbosity >= 1 && rank == 0)
@@ -199,7 +199,7 @@ void MPILog<LogType::SOL_CG>::init(Params... params)
 
 template<>
 template<typename... Params>
-void MPILog<LogType::SOL_CG>::step(Params... params)
+void MpiLog<LogType::SOL_CG>::step(Params... params)
 {
     if (verbosity >= 1 && rank == 0)
     {
@@ -211,7 +211,7 @@ void MPILog<LogType::SOL_CG>::step(Params... params)
 
 template<>
 template<typename... Params>
-void MPILog<LogType::SOL_CG>::finalize(Params... params)
+void MpiLog<LogType::SOL_CG>::finalize(Params... params)
 {
     if (verbosity >= 1 && rank == 0)
     {

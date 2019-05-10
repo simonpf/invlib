@@ -119,13 +119,7 @@ public:
         const SType *u_ptr = u.get_element_pointer();
               SType *v_ptr = v.get_element_pointer();
         constexpr char trans = 't';
-        for (size_t i = 0; i < m; ++i) {
-            for (size_t j = 0; j < n - 1; ++ j) {
-            }
-        }
         blas::gemv<SType>('t', n, m, 1.0, get_element_pointer(), n, u_ptr, 1, 0.0, v_ptr, 1);
-        for (size_t i = 0; i < u.rows(); ++i) {
-        }
         return v;
     }
 
@@ -136,6 +130,19 @@ public:
               SType *v_ptr = v.get_element_pointer();
         constexpr char trans = 'n';
         blas::gemv<SType>('n', n, m, 1.0, get_element_pointer(), n, u_ptr, 1, 0.0, v_ptr, 1);
+        return v;
+    }
+
+    template<template <typename> typename TT>
+    BlasVector<SType, TT> transpose_multiply_block(const BlasVector<SType, TT> &u,
+                                                   size_t start,
+                                                   size_t extent) const {
+        BlasVector<SType, TT> v; v.resize(n);
+        const SType *u_ptr = u.get_element_pointer();
+        SType *v_ptr = v.get_element_pointer();
+        constexpr char trans = 'n';
+        blas::gemv<SType>('n', n, m, 1.0, get_element_pointer(),
+                          n, u_ptr + start, 1, 0.0, v_ptr, 1);
         return v;
     }
 

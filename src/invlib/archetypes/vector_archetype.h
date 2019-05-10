@@ -145,6 +145,9 @@ public:
     RealType * data_pointer(int i = 0);
     const RealType * data_pointer(int i = 0) const;
 
+    RealType * get_element_pointer();
+    const RealType * get_element_pointer() const;
+
     // ------------ //
     //  Arithmetic  //
     // ------------ //

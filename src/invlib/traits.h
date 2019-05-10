@@ -123,6 +123,10 @@ using disable_if = typename std::enable_if<!B1::value>::type;
 template<typename T1, typename T2>
 using is_same = typename std::is_same<T1, T2>;
 
+template<typename T1, typename T2>
+using is_equivalent = typename std::is_same<typename std::decay<T1>::type,
+                                            typename std::decay<T2>::type>;
+
 template<typename T1>
 struct Not
 {
@@ -130,7 +134,7 @@ struct Not
 };
 
 template<typename T1, typename T2>
-using is_base = typename std::is_base_of<T1, T2>;
+using is_base = typename std::is_base_of<T1, typename std::decay<T2>::type>;
 
 template<typename T1, typename T2>
 using is_constructible = typename std::is_constructible<T1, T2>;

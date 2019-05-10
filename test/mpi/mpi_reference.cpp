@@ -18,12 +18,13 @@ int main()
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
-    using StdMatrix     = Matrix<MatrixArchetype<double>>;
-    using StdVector     = Vector<VectorArchetype<double>>;
-    using PllMatrix     = Matrix<MPIMatrix<MatrixArchetype<double>, LValue>>;
-    using PllVector     = Vector<MPIVector<VectorArchetype<double>, LValue>>;
-    using RefMatrix     = Matrix<MPIMatrix<MatrixArchetype<double>, ConstRef>>;
-    using RefVector     = Vector<MPIVector<VectorArchetype<double>, ConstRef>>;
+    using RealType      = float;
+    using StdMatrix     = Matrix<MatrixArchetype<RealType>>;
+    using StdVector     = Vector<VectorArchetype<RealType>>;
+    using PllMatrix     = Matrix<MpiMatrix<MatrixArchetype<RealType>, LValue>>;
+    using PllVector     = Vector<MpiVector<VectorArchetype<RealType>, LValue>>;
+    using RefMatrix     = Matrix<MpiMatrix<MatrixArchetype<RealType>, ConstRef>>;
+    using RefVector     = Vector<MpiVector<VectorArchetype<RealType>, ConstRef>>;
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -57,7 +58,7 @@ int main()
         w     = M * v;
         w_mpi = MRef * v;
 
-        double err = maximum_error(w, w_mpi);
+        RealType err = maximum_error(w, w_mpi);
         if (err > max_err)
             max_err = err;
     }
@@ -92,7 +93,7 @@ int main()
         w     = transp(M) * v;
         w_mpi = transp(MRef) * v;
 
-        double err = maximum_error(w, w_mpi);
+        RealType err = maximum_error(w, w_mpi);
         if (err > max_err)
             max_err = err;
     }
@@ -117,7 +118,7 @@ int main()
 
         int nprocs;
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-        auto dot_1 = ((double) nprocs) * dot(v, v);
+        auto dot_1 = ((RealType) nprocs) * dot(v, v);
         auto dot_2 = dot(v_mpi, v_mpi);
 
         auto err = std::abs(dot_1 - dot_2) / std::max(std::abs(dot_1),

@@ -3,17 +3,18 @@ import os
 import numpy  as np
 import ctypes as c
 
-scalar_type = np.@FLOATTYPE@
+scalar_type = np.@PREC@
 path        = "@LIBINVLIB_PATH@" 
+arch        = "@ARCH@"
+
 if scalar_type == np.float32:
     stride = 4
     c_type = c.c_float
-    invlib = c.CDLL(os.path.join(path, "libinvlib_float.so"))
+    invlib = c.CDLL(os.path.join(path, "libinvlib_" + arch + "_float.so"))
 else:
     stride = 8
     c_type = c.c_double
-    invlib = c.CDLL(os.path.join(path, "libinvlib_double.so"))
-
+    invlib = c.CDLL(os.path.join(path, "libinvlib_" + arch + "_double.so"))
 
 class matrix_struct(c.Structure):
 

@@ -28,7 +28,8 @@ namespace invlib
 //    Python Vector   //
 // -----------------  //
 
-template <typename ScalarType, typename IndexType> class PythonMatrix;
+enum class Architecture : unsigned;
+template <typename ScalarType, typename IndexType, Architecture arch> class PythonMatrix;
 
 template <typename ScalarType>
 class PythonVector : public BlasVector<ScalarType, VectorData>

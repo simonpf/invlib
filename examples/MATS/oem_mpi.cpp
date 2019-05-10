@@ -12,24 +12,24 @@ using invlib::EigenVector;
 using MatrixType = invlib::Matrix<EigenSparse>;
 using VectorType = invlib::Vector<EigenVector>;
 using MPIMatrixType = invlib::Matrix<invlib::MPIMatrix<EigenSparse, invlib::LValue>>;
-using MPIVectorType = invlib::Vector<invlib::MPIVector<EigenVector, invlib::LValue>>;
+using MpiVectorType = invlib::Vector<invlib::MpiVector<EigenVector, invlib::LValue>>;
 
 class LinearModel
 {
 public:
 
-    LinearModel(const MPIMatrixType &K_, const MPIVectorType &xa_)
+    LinearModel(const MPIMatrixType &K_, const MpiVectorType &xa_)
         : K(K_), xa(xa_), m(K_.rows()), n(K_.cols())
     {
         // Nothing to do here.
     }
 
-    MPIVectorType evaluate(const MPIVectorType &x)
+    MpiVectorType evaluate(const MpiVectorType &x)
     {
         return K * (x - xa);
     }
 
-    const MPIMatrixType & Jacobian(const MPIVectorType &x, MPIVectorType &y)
+    const MPIMatrixType & Jacobian(const MpiVectorType &x, MpiVectorType &y)
     {
         //foo(K * (x - xa));
         y = K * (x - xa);
@@ -41,7 +41,7 @@ public:
 private:
 
     const MPIMatrixType &K;
-    const MPIVectorType &xa;
+    const MpiVectorType &xa;
 
 };
 
@@ -55,7 +55,7 @@ int main()
                                         MPIMatrixType,
                                         PrecisionMatrix,
                                         PrecisionMatrix,
-                                        MPIVectorType>;
+                                        MpiVectorType>;
 
     // Initialize MPI.
     MPI_Init(nullptr, nullptr);
@@ -75,8 +75,8 @@ int main()
     VectorType y     = read_vector("data/y.vec");
     VectorType xa    = read_vector("data/xa.vec");
 
-    MPIVectorType y_mpi  = MPIVectorType::split(y);
-    MPIVectorType xa_mpi = MPIVectorType::split(xa);
+    MpiVectorType y_mpi  = MpiVectorType::split(y);
+    MpiVectorType xa_mpi = MpiVectorType::split(xa);
 
     // Setup OEM.
     SolverType    cg(1e-6, 1);
@@ -86,7 +86,7 @@ int main()
     MAPType       oem(F, xa_mpi, Pa, Pe);
 
     // Run OEM.
-    MPIVectorType x_mpi{};
+    MpiVectorType x_mpi{};
     oem.compute<MinimizerType, invlib::MPILog>(x_mpi, y_mpi, gn, 1);
 
     int rank;

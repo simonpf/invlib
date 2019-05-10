@@ -29,13 +29,13 @@ using namespace invlib;
 int main()
 {
     using RealType        = double;
-    using VectorType      = Vector<VectorArchetype<double>>;
-    using MatrixType      = Matrix<MatrixArchetype<double>>;
-    using MPIVectorType   = Matrix<MPIVector<VectorArchetype<double>, LValue>>;
-    using MPIMatrixType   = Matrix<MPIMatrix<MatrixArchetype<double>, LValue>>;
-    using PrecisionMatrixType = PrecisionMatrix<MPIMatrixType>;
+    using VectorType      = Vector<VectorArchetype<RealType>>;
+    using MatrixType      = Matrix<MatrixArchetype<RealType>>;
+    using MpiVectorType   = Matrix<MpiVector<VectorArchetype<RealType>, LValue>>;
+    using MpiMatrixType   = Matrix<MpiMatrix<MatrixArchetype<RealType>, LValue>>;
+    using PrecisionMatrixType = PrecisionMatrix<MpiMatrixType>;
     using Id     = MatrixIdentity<MatrixType>;
-    using Model  = Linear<MPIMatrixType>;
+    using Model  = Linear<MpiMatrixType>;
 
     MPI_Init(nullptr, nullptr);
 
@@ -45,16 +45,16 @@ int main()
     MatrixType SaInv_local; SaInv_local.resize(n,n);
     set_identity(SeInv_local);
     set_identity(SaInv_local);
-    MPIMatrixType SeInv = MPIMatrixType::split_matrix(SeInv_local);
-    MPIMatrixType SaInv = MPIMatrixType::split_matrix(SaInv_local);
+    MpiMatrixType SeInv = MpiMatrixType::split_matrix(SeInv_local);
+    MpiMatrixType SaInv = MpiMatrixType::split_matrix(SaInv_local);
     PrecisionMatrixType Pe(SeInv);
     PrecisionMatrixType Pa(SaInv);
 
 
     Model F(n,n);
-    VectorType xa = random<MPIVectorType>(n);
+    VectorType xa = random<MpiVectorType>(n);
 
-    VectorType y = random<MPIVectorType>(n).broadcast();
+    VectorType y = random<MpiVectorType>(n).gather();
     y = F.evaluate(y);
 
     MAP<Model, MatrixType, PrecisionMatrixType, PrecisionMatrixType,
@@ -77,8 +77,8 @@ int main()
 
     VectorType x_std, x_m, x_n;
 
-    std.compute<GN,   MPILog>(x_std, y, gn_cg, 2);
-    nform.compute<GN, MPILog>(x_n, y, gn_cg, 2);
+    std.compute<GN,   MpiLog>(x_std, y, gn_cg, 2);
+    nform.compute<GN, MpiLog>(x_n, y, gn_cg, 2);
 
     auto e1 = maximum_error(x_std, x_n);
     std::cout << "Error STD - NFORM CG = " << e1 << std::endl;

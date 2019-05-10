@@ -1,6 +1,6 @@
 /** \file mpi/mpi_vector.h
  *
- * \brief Contains the MPIVector class, a generic class for vectors distributed
+ * \brief Contains the MpiVector class, a generic class for vectors distributed
  * row-wise over nodes.
  *
  */
@@ -24,7 +24,7 @@ template
 typename LocalType,
 template <typename> class StorageTrait = ConstRef
 >
-class MPIVector
+class MpiVector
 {
 
 public:
@@ -32,18 +32,18 @@ public:
     /*! The basic scalar type. */
     using RealType   = typename LocalType::RealType;
     /*! The basic vector type  */
-    using VectorType = MPIVector;
+    using VectorType = MpiVector;
     /*! The local Matrix type.  */
     using MatrixType = typename LocalType::MatrixType;
     /*!
      * Result type of an algebraic expression with MPIMatrix as right hand
      * operator.
      */
-    using ResultType = MPIVector;
+    using ResultType = MpiVector;
     /*! The type used to store the local vector. */
     using StorageType = typename StorageTrait<LocalType>::type;
 
-    MPIVector();
+    MpiVector();
 
 
     template
@@ -51,9 +51,9 @@ public:
     typename T,
     typename = enable_if<is_constructible<StorageType, T>>
     >
-    MPIVector(T &&local_vector);
+    MpiVector(T &&local_vector);
 
-    static MPIVector<LocalType, LValue> split(const LocalType &);
+    static MpiVector<LocalType, LValue> split(const LocalType &);
 
     // ------------------- //
     //     Manipulation    //
@@ -72,7 +72,7 @@ public:
     RealType operator()(unsigned int i) const;
     RealType& operator()(unsigned int i);
 
-    LocalType broadcast() const;
+    LocalType gather() const;
 
     operator LocalType() const;
 
@@ -80,37 +80,43 @@ public:
     //    Arithmetic Opertations //
     // ------------------------- //
 
-    void accumulate(const MPIVector& v);
-    void subtract(const MPIVector& v);
+    void accumulate(const MpiVector& v);
+    void subtract(const MpiVector& v);
     void scale(RealType c);
     RealType norm() const;
 
+    const RealType * get_element_pointer() const {
+        return local.get_element_pointer();
+    }
 
+    RealType * get_element_pointer() {
+        return local.get_element_pointer();
+    }
     template <typename T1, template <typename> class StorageType>
     friend auto dot(
-        const MPIVector<T1, StorageType> &,
-        const MPIVector<T1, StorageType> &)
-    -> typename MPIVector<T1, StorageType>::RealType;
+        const MpiVector<T1, StorageType> &,
+        const MpiVector<T1, StorageType> &)
+    -> typename MpiVector<T1, StorageType>::RealType;
 
     template <typename T1, template <typename> class StorageType>
     friend auto dot(
         const T1 &,
-        const MPIVector<T1, StorageType> &)
-    -> typename MPIVector<T1, StorageType>::RealType;
+        const MpiVector<T1, StorageType> &)
+    -> typename MpiVector<T1, StorageType>::RealType;
 
     template <typename T1, template <typename> class StorageType>
     friend auto dot(
-        const MPIVector<T1, StorageType> &,
+        const MpiVector<T1, StorageType> &,
         const T1 &)
-    -> typename MPIVector<T1, StorageType>::RealType;
+    -> typename MpiVector<T1, StorageType>::RealType;
 
 private:
 
-    static constexpr MPI_Datatype mpi_data_type = MPI_DOUBLE;
+    static constexpr MPI_Datatype mpi_data_type = MpiDataType<RealType>::name;
 
     void broadcast_local_rows(int proc_rows[]) const;
-    void broadcast_local_block(double *vector,
-                               const double *block) const;
+    void broadcast_local_block(RealType *vector,
+                               const RealType *block) const;
 
     std::vector<unsigned int> row_indices;
     std::vector<unsigned int> row_ranges;
