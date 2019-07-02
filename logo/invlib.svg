@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="41.697701mm"
-   height="15.243269mm"
-   viewBox="0 0 41.697701 15.243269"
+   width="43.707901mm"
+   height="17.25737mm"
+   viewBox="0 0 43.707902 17.25737"
    version="1.1"
    id="svg3895"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
@@ -110,8 +110,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="61.843422"
-     inkscape:cy="22.104912"
+     inkscape:cx="25.115934"
+     inkscape:cy="8.3878212"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -140,9 +140,9 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-35.847574,-94.34265)">
+     transform="translate(-34.847474,-93.328407)">
     <path
-       style="fill:none;stroke:url(#linearGradient3720-6);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:url(#linearGradient3720-6);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        d="M 36.847674,95.356892 V 108.58606 L 50.076844,95.356892 V 108.58606 L 63.306014,95.356892 V 108.58606 L 76.535174,95.356892"
        id="path827-6-2"
        inkscape:connector-curvature="0" />
