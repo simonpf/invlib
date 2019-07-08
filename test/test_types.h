@@ -1,14 +1,17 @@
-#ifndef TEST_TEST_TYPES_H
-#define TEST_TEST_TYPES_H
+#ifndef _TEST_TEST_TYPES_H_
+#define _TEST_TEST_TYPES_H_
 
-#include <boost/mpl/list.hpp>
 #include <invlib/algebra.h>
-#include <invlib/archetypes/matrix_archetype.h>
+#include <invlib/utility/tuple.h>
+#include <invlib/types/matrix_archetype.h>
 
-constexpr double EPS = 1e-8;
-constexpr unsigned int ntests = 10;
+namespace invlib {
 
-using Archetype = invlib::Matrix<invlib::MatrixArchetype<double>>;
-using matrix_types = boost::mpl::list<Archetype>;
+    template <typename T>
+    using Archetype = Matrix<MatrixArchetype<T>>;
+    using Archetypes = typename tuple::Map<Archetype, std::tuple<float, double>>::Type;
 
-#endif // TEST_TEST_TYPES_H
+    using matrix_types = Archetypes;
+}
+
+#endif // _TEST_TEST_TYPES_H_

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 #include "invlib/profiling/timer.h"
 
 namespace invlib

@@ -9,17 +9,34 @@
  * random vectors and matrices.
  *
  */
-
-#ifndef TEST_UTILITY_H
-#define TEST_UTILITY_H
+#ifndef _TEST_UTILITY_H_
+#define _TEST_UTILITY_H_
 
 #include <random>
 #include <cmath>
+#include <cassert>
 #include <iostream>
 #include "invlib/algebra.h"
 
+template<typename T> struct argument_type;
+template<typename T, typename U> struct argument_type<T(U)> {typedef U type;};
+
+#define COMMA ,
+#define TESTMAIN(f)                             \
+    int main(int argc, char ** argv) {          \
+        f                                       \
+            if (passed) {                       \
+                return 0;                       \
+            } else {                            \
+                return 1;                       \
+            }                                   \
+    }                                           \
+
+
 namespace invlib
 {
+
+static bool passed = true;
 
 /**
  * \brief Set matrix to identity matrix.
@@ -207,7 +224,7 @@ typename T::RealType maximum_error(T &A, T &B )
 
     auto a_end = A.end();
     auto b_end = B.end();
-    for( auto&& a = A.begin(), b = B.begin(); (a != a_end) && (b != b_end); ++a, ++b)
+    for(auto&& a = A.begin(), b = B.begin(); (a != a_end) && (b != b_end); ++a, ++b)
     {
         RealType err = abs(*a - *b);
         err = (*b == 0.0) ? err : err / abs(*b);
@@ -237,6 +254,76 @@ void fill(T &A, typename T::RealType c)
     }
 }
 
+/**
+ * \brief Ensure that number is small.
+ *
+ * Checks whether a given floating point number is smaller
+ * than 1e-6 or 1e-3 for double and single precision,
+ * respectively.
+ *
+ * Also prints diagnostic info to std::out as to whether
+ * condition is satisfied. If test fails the static
+ * passed variable is set to false.
+ *
+ * \param x the number 
+ * \param name 
+ * \tparam ScalarType The type of the number.
+ */
+template<typename ScalarType>
+void ensure_small(ScalarType x, std::string name) {
+    if (std::abs(x) < 1e-6) {
+        std::cout << "\t" << name << " (double) : passed" << std::endl;
+    } else {
+        std::cout << "\t" << name << " (double) : FAILED" << std::endl;
+        passed = false;
+    }
 }
+
+template<>
+void ensure_small(float x, std::string name) {
+    if (std::abs(x) < 1e-2) {
+        std::cout << "\t" << name << " (float) : passed" << std::endl;
+    } else {
+        std::cout << "\t" << name << " (float) : FAILED" << std::endl;
+        passed = false;
+    }
+}
+
+
+}
+
+template<template <typename ...> class F, typename ... Ts> struct GenericTest;
+
+template
+<
+    template<typename ...> class F,
+    typename T,
+    typename ... Ts
+>
+struct  GenericTest<F, std::tuple<T, Ts ...>> {
+
+    template <typename ... Args>
+    static void run(Args ... args) {
+
+        std::cout << "Running test: " << F<T>::name << " " << typeid(T).name() << std::endl;
+        F<T>::run(args ...);
+        std::cout << std::endl;
+
+        GenericTest<F, std::tuple<Ts ...>>::run(args ...);
+    }
+};
+
+template<template<typename ...> class F, typename T>
+struct GenericTest<F, std::tuple<T>> {
+
+    template<typename ... Args>
+    static void run(Args ... args) {
+
+        std::cout << "Running test: " << F<T>::name << " " << typeid(T).name() << std::endl;
+        F<T>::run(args ...);
+        std::cout << std::endl;
+    }
+
+};
 
 #endif // TEST_UTILITY_H

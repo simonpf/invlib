@@ -212,6 +212,23 @@ public:
     */
     RealType norm() const;
 
+    // ----------- //
+    //  Iterators  //
+    // ----------- //
+
+    const Real* begin() const {
+        return data.get();
+    }
+
+    Real* begin() {
+        return data.get();
+    }
+
+    const Real* end() const {
+        return data.get() + n;
+    }
+
+
 private:
 
     unsigned int n = 0;

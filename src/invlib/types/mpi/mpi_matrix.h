@@ -12,7 +12,7 @@
 #include <vector>
 #include <iostream>
 #include "mpi.h"
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 #include "invlib/mpi/generic.h"
 #include "invlib/mpi/traits.h"
 

@@ -15,7 +15,7 @@ using std::chrono::steady_clock;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 
 namespace invlib
 {

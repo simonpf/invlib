@@ -7,7 +7,7 @@
 #ifndef ALGEBRA_SUM_H
 #define ALGEBRA_SUM_H
 
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 
 namespace invlib
 {

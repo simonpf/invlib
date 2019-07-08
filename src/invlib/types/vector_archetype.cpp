@@ -164,7 +164,8 @@ std::ostream & operator<<(std::ostream &out, const VectorArchetype<Real>& v)
     out << "[";
     for (unsigned int i = 0; i < v.rows()-1; i++)
     {
-	out << v(i) << ", ";
+        out << v(i) << ", ";
     }
     out << v(v.rows() - 1) << "] " << std::endl;
+    return out;
 }

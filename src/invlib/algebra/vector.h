@@ -10,7 +10,7 @@
 
 #include "invlib/algebra/matrix.h"
 #include "invlib/algebra/matrix_sum.h"
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 #include <utility>
 #include <iostream>
 
@@ -67,21 +67,13 @@ public:
     //  Type Aliases  //
     // -------------- //
 
-    /* template <typename T1> */
-    /* using Product = LEFT1_VECTOR_MULTIPLY_NOT1_SUPPORTED; */
-
     using BaseType   = Base;
     /*! The basic scalar type. */
     using RealType   = typename Base::RealType;
     /*! The basic vector type  */
     using VectorType = Vector;
-    /*! The basic matrix type. */
-    //using MatrixType = Matrix<typename Base::MatrixType>;
     /*! The type of the result of the expression */
     using ResultType = Vector;
-    /*! The type of the result of the expression */
-    template<typename T1>
-    using Product = INVALID_TYPE;
 
     // ------------------------------- //
     //  Constructors and Destructors   //

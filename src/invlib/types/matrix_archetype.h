@@ -5,10 +5,10 @@
  * matrix type used.
  *
  */
-#ifndef ARCHETYPES_MATRIX_ARCHETYPE
-#define ARCHETYPES_MATRIX_ARCHETYPE
+#ifndef _TYPES_MATRIX_ARCHETYPE_
+#define _TYPES_MATRIX_ARCHETYPE_
 
-#include "invlib/archetypes/vector_archetype.h"
+#include "invlib/types/vector_archetype.h"
 #include <memory>
 #include <iterator>
 
@@ -235,7 +235,7 @@ public:
     VectorType backsubstitution(const VectorType &) const;
 
     // --------------------------------- //
-    //  Diagonal, Row adn Column Access  //
+    //  Diagonal, Row and Column Access  //
     // --------------------------------- //
 
     /*! Return the diagonal of the matrix as a vector.
@@ -256,6 +256,22 @@ public:
      */
     VectorType col(size_t i) const;
 
+    // ----------- //
+    //  Iterators  //
+    // ----------- //
+
+    const Real* begin() const {
+        return data.get();
+    }
+
+    Real* begin() {
+        return data.get();
+    }
+
+    const Real* end() const {
+        return data.get() + m * n;
+    }
+
 private:
 
     unsigned int m = 0;
@@ -271,4 +287,4 @@ std::ostream & operator<<(std::ostream &, const MatrixArchetype<Real>&);
 #include "matrix_archetype.cpp"
 
 }       // namespace invlib
-#endif  // ARCHETYPES_MATRIX_ARCHETYPE
+#endif  // _TYPES_MATRIX_ARCHETYPE_

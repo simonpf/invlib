@@ -1,56 +1,39 @@
-#ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE "Algebra, Transformation"
-#endif
-
-#include <boost/test/included/unit_test.hpp>
 #include "invlib/algebra.h"
 #include "utility.h"
 #include "test_types.h"
 
-namespace invlib
-{
+using namespace invlib;
 
-template
-<
-typename T
->
-void transformation_test(unsigned int n)
-{
+template <typename MatrixType>
+struct Transformations {
 
-    using RealType   = typename T::RealType;
-    using VectorType = typename T::VectorType;
-    using MatrixType = typename T::MatrixType;
+    using RealType   = typename MatrixType::RealType;
+    using VectorType = Vector<typename MatrixType::VectorType>;
 
-    auto A = random_positive_definite<MatrixType>(n);
-    auto B = random_positive_definite<MatrixType>(n);
-    auto v = random<VectorType>(n);
+    static constexpr char name[] = "Transformations";
 
-    RealType error;
+    static void run(size_t n) {
 
-    // Identity Transformation
-    Identity I{};
-    VectorType w1 = I.apply(A * B) * I.apply(v);
-    VectorType w2 = A * B * v;
-    error = maximum_error(w1, w2);
-    BOOST_TEST((error < EPS),"maximum_error(w1, w2) = " << error);
+        auto A = random_positive_definite<MatrixType>(n);
+        auto B = random_positive_definite<MatrixType>(n);
+        auto v = random<VectorType>(n);
 
-    // NormalizeDiagonal Transform
-    NormalizeDiagonal<MatrixType> t(A);
-    w1 = t.apply(inv(t.apply(A)) * t.apply(v));
-    w2 = inv(A) * v;
-    error = maximum_error(w1, w2);
-    BOOST_TEST((error < EPS),"maximum_error(w1, w2) = " << error);
+        RealType error;
 
-}
+        // Identity Transformation
+        Identity I{};
+        VectorType w1 = I.apply(A * B) * I.apply(v);
+        VectorType w2 = A * B * v;
+        error = maximum_error(w1, w2);
+        ensure_small(error, "Identity transformation.");
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(transformation, T, matrix_types)
-{
-    srand(time(NULL));
-    for (unsigned int i = 0; i < ntests; i++)
-    {
-        unsigned int n = 1 + rand() % 100;
-        transformation_test<T>(n);
+        // NormalizeDiagonal Transform
+        NormalizeDiagonal<MatrixType> t(A);
+        w1 = t.apply(inv(t.apply(A)) * t.apply(v));
+        w2 = inv(A) * v;
+        error = maximum_error(w1, w2);
+        ensure_small(error, "Normalize diagonal");
     }
-}
+};
 
-}
+TESTMAIN(GenericTest<Transformations COMMA matrix_types>::run(100);)

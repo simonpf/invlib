@@ -10,7 +10,7 @@
 #ifndef ALGEBRA_MATRIX_DIFFERENCE_H
 #define ALGEBRA_MATRIX_DIFFERENCE_H
 
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 
 namespace invlib
 {

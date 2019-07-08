@@ -2,8 +2,8 @@
 
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
-#include "invlib/archetypes/matrix_archetype.h"
-#include "invlib/archetypes/vector_archetype.h"
+#include "invlib/types/matrix_archetype.h"
+#include "invlib/types/vector_archetype.h"
 #include "invlib/mpi.h"
 
 #include "utility.h"

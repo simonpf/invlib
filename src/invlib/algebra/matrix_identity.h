@@ -11,7 +11,7 @@
 #define ALGEBRA_MATRIX_IDENTITY_H
 
 #include <iostream>
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 #include "invlib/algebra/matrix.h"
 
 namespace invlib
@@ -246,15 +246,12 @@ public:
     //  Algebraic Operators  //
     // --------------------- //
 
-    template <typename T3>
-    using NestedProduct = typename decay<T2>::template Product<T3>;
-    template <typename T3>
-    using Product = MatrixProduct<MatrixIdentity<T1>, NestedProduct<T3>>;
-
-    template <typename T3>
-    Product<T3> operator*(T3 &&C) const
-    {
-	return Product<T3>(A, B * std::forward<T3>(C));
+    template <typename T3,
+              typename T2d = decay<T2>,
+              typename NestedProduct = typename T2d::template Product<T3>,
+              typename Result = MatrixProduct<MatrixIdentity<T1>, NestedProduct>>
+    Result operator*(T3 &&C) const {
+        return Result(A, B * std::forward<T3>(C));
     }
 
     template <typename T3>
@@ -262,7 +259,7 @@ public:
     template <typename T3>
     Sum<T3> operator+(T3 &&C) const
     {
-	return Sum<T3>(*this, C);
+        return Sum<T3>(*this, C);
     }
 
     template <typename T3>

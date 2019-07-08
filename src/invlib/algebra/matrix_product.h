@@ -10,7 +10,7 @@
 #include <iostream>
 #include <utility>
 #include <invlib/invlib.h>
-#include <invlib/traits.h>
+#include <invlib/utility/traits.h>
 
 namespace invlib
 {
@@ -19,25 +19,9 @@ namespace invlib
 // Forward Declarations //
 // -------------------- //
 
-template
-<
-typename Base
->
-class Vector;
-
-template
-<
-typename T1,
-typename T2
->
-class MatrixSum;
-
-template
-<
-typename T1,
-typename T2
->
-class MatrixDifference;
+template <typename Base> class Vector;
+template <typename T1, typename T2> class MatrixSum;
+template <typename T1, typename T2> class MatrixDifference;
 
 // ---------------------  //
 //  Matrix Product Class  //
@@ -241,20 +225,6 @@ public:
      */
     ///@{
 
-    /*!
-     * Type of the product of the right hand operand with a given object
-     *  of type T3.
-     */
-    template <typename T3>
-    using NestedProduct = typename decay<T2>::template Product<T3>;
-
-    /*!
-     * Type of the product of the the matrix product with another given object
-     *  of type T3.
-     */
-    template <typename T3>
-    using Product = MatrixProduct<T1, NestedProduct<T3>>;
-
     /*! Create a nested matrix product.
      *
      * Creates a proxy object for the product of the given matrix product
@@ -262,10 +232,12 @@ public:
      *
      * \return The proxy object representing the multiplication.
      */
-    template <typename T3>
-    Product<T3> operator*(T3 &&C) const
-    {
-	return Product<T3>(A, B * std::forward<T3>(C));
+    template <typename T3,
+              typename T2d = decay<T2>,
+              typename NestedProduct = typename T2d::template Product<T3>,
+              typename Result = MatrixProduct<T1, NestedProduct>>
+    Result operator*(T3 &&C) const {
+        return Result(A, B * std::forward<T3>(C));
     }
 
     /*!
@@ -283,9 +255,8 @@ public:
      * \return The proxy object representing the summation.
      */
     template <typename T3>
-    Sum<T3> operator+(T3 &&C) const
-    {
-	return Sum<T3>(*this, C);
+    Sum<T3> operator+(T3 &&C) const {
+        return Sum<T3>(*this, C);
     }
 
     /*!
@@ -303,9 +274,8 @@ public:
      * \return The proxy object representing the difference.
      */
     template <typename T3>
-    Difference<T3> operator-(T3 &&C)
-    {
-	return Difference<T3>(*this, C);
+    Difference<T3> operator-(T3 &&C) {
+        return Difference<T3>(*this, C);
     }
 
     /*! Evaluate the product.

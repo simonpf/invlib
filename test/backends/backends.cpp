@@ -6,7 +6,7 @@
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/insert_range.hpp>
 
-#include "invlib/archetypes/vector_archetype.h"
+#include "invlib/types/vector_archetype.h"
 #include "../utility.h"
 
 // Conditional includes.

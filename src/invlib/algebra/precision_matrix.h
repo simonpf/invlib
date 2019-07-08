@@ -8,37 +8,11 @@
 namespace invlib
 {
 
-template
-<
-typename Matrix
->
-class PrecisionMatrix;
-
-template
-<
-typename T1,
-typename T2
->
-class MatrixProduct;
-
-template
-<
-typename T1,
-typename T2
->
-class MatrixSum;
-
-template
-<
-typename Matrix
->
-const Matrix & inv(PrecisionMatrix<Matrix> &A);
-
-template
-<
-typename Matrix
->
-const Matrix & inv(const PrecisionMatrix<Matrix> &A);
+template <typename Matrix> class PrecisionMatrix;
+template <typename T1, typename T2> class MatrixProduct;
+template <typename T1, typename T2> class MatrixSum;
+template <typename Matrix> const Matrix & inv(PrecisionMatrix<Matrix> &A);
+template <typename Matrix> const Matrix & inv(const PrecisionMatrix<Matrix> &A);
 
 // --------------------- //
 // Class PrecisionMatrix //
@@ -65,10 +39,7 @@ const Matrix & inv(const PrecisionMatrix<Matrix> &A);
  *
  * \todo Maybe remove in favor of passing inv(S) as parameter to MAP directly.
  */
-template
-<
-typename Matrix
->
+template <typename Matrix>
 class PrecisionMatrix
 {
 

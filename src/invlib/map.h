@@ -12,7 +12,7 @@ using std::chrono::duration_cast;
 #include "invlib/algebra.h"
 #include "invlib/algebra/solvers.h"
 #include "invlib/log.h"
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 
 /** file map.h
  * \brief Maximum A Posteriori Estimators

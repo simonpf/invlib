@@ -13,7 +13,7 @@
 #include "lin_alg.h"
 #include "covariance_matrix.h"
 
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 
 using invlib::disable_if;
 using invlib::is_same;

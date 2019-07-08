@@ -2,7 +2,7 @@
 
 #include "invlib/mpi/mpi_matrix.h"
 #include "invlib/mpi/mpi_vector.h"
-#include "invlib/archetypes/matrix_archetype.h"
+#include "invlib/types/matrix_archetype.h"
 #include "invlib/algebra/solvers.h"
 #include "utility.h"
 

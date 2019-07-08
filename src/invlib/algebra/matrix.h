@@ -15,7 +15,7 @@
 #include "invlib/algebra/matrix_difference.h"
 #include "invlib/algebra/matrix_identity.h"
 #include "invlib/algebra/matrix_zero.h"
-#include "invlib/traits.h"
+#include "invlib/utility/traits.h"
 
 namespace invlib
 {

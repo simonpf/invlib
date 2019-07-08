@@ -3,22 +3,19 @@ cmake_minimum_required (VERSION 2.6)
 include_directories("${PROJECT_SOURCE_DIR}/src/"
                     "${PROJECT_SOURCE_DIR}/test/")
 
-link_directories(${Boost_LIBRARIES})
+enable_testing()
 
-# Executables
-if (Boost_FOUND)
+add_executable(diagonal diagonal.cpp)
+add_test(NAME diagonal COMMAND diagonal)
 
-  include_directories(SYSTEM "${Boost_INCLUDE_DIRS}")
+add_executable(identities identities.cpp)
+add_test(NAME identities COMMAND diagonal)
 
-  add_executable(identities identities.cpp)
-  target_link_libraries(identities ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-  add_executable(solvers solvers.cpp)
-  target_link_libraries(solvers ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-  add_executable(precision_matrix precision_matrix.cpp)
-  target_link_libraries(precision_matrix ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-  add_executable(transformation transformation.cpp)
-  target_link_libraries(transformation ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-  add_executable(diagonal diagonal.cpp)
-  target_link_libraries(transformation ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+add_executable(transformation transformation.cpp)
+add_test(NAME transformation COMMAND transformation)
 
-endif (Boost_FOUND)
+add_executable(solvers solvers.cpp)
+add_test(NAME solvers COMMAND solvers)
+
+add_executable(precision_matrix precision_matrix.cpp)
+add_test(NAME precision_matrix COMMAND precision_matrix)

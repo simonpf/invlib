@@ -11,8 +11,8 @@
 #include "invlib/map.h"
 #include "invlib/optimization.h"
 
-#include "invlib/archetypes/matrix_archetype.h"
-#include "invlib/archetypes/vector_archetype.h"
+#include "invlib/types/matrix_archetype.h"
+#include "invlib/types/vector_archetype.h"
 
 #include <utility>
 
