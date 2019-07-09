@@ -50,10 +50,7 @@ class Vector;
  * \tparam Base The base matrix type.
  * \tparam VectorType The corresponding vector type.
  */
-template
-<
-typename Base
->
+template <typename Base>
 class Matrix : public Base
 {
 

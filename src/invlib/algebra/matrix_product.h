@@ -53,11 +53,7 @@ template <typename T1, typename T2> class MatrixDifference;
  * \tparam Matrix The underlying matrix type used.
  *
  */
-template
-<
-typename T1,
-typename T2
->
+template <typename T1, typename T2>
 class MatrixProduct
 {
 
@@ -232,12 +228,12 @@ public:
      *
      * \return The proxy object representing the multiplication.
      */
-    template <typename T3,
-              typename T2d = decay<T2>,
-              typename NestedProduct = typename T2d::template Product<T3>,
-              typename Result = MatrixProduct<T1, NestedProduct>>
-    Result operator*(T3 &&C) const {
-        return Result(A, B * std::forward<T3>(C));
+
+
+    template <typename T3>
+    auto operator*(T3 &&C) const {
+        using Nested = decltype(B * std::forward<T3>(C));
+        return MatrixProduct<T1, Nested>(A, B * std::forward<T3>(C));
     }
 
     /*!
@@ -245,7 +241,7 @@ public:
      * of type T3.
      */
     template <typename T3>
-    using Sum = MatrixSum<MatrixProduct , T3>;
+    using Sum = MatrixSum<MatrixProduct, T3>;
 
     /*! Create a nested matrix sum.
      *

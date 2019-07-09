@@ -1,8 +1,3 @@
-#ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE "Forward Models, Sphere"
-#endif
-
-#include <boost/test/included/unit_test.hpp>
 #include <iostream>
 
 #include "invlib/algebra.h"
@@ -17,68 +12,59 @@ using namespace invlib;
 
 // Use the sphere function forward model to test the equivalence of the
 // standard, n-form and m-form when using the Gauss-Newton optimizer.
-template
-<
-typename T
->
-void sphere_test(unsigned int n)
-{
-    using RealType   = typename T::RealType;
-    using VectorType = typename T::VectorType;
-    using MatrixType = typename T::MatrixType;
-    using Model      = Sphere<MatrixType>;
+template <typename T>
+struct SphereModel {
 
-    MatrixType Se = random_positive_definite<MatrixType>(1);
-    MatrixType Sa = random_positive_definite<MatrixType>(n);
-    VectorType xa = random<VectorType>(n);
-    VectorType y  = random<VectorType>(1);
+    static constexpr char name[] = "Sphere model";
 
-    Model F(n);
-    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::STANDARD>
-        std(F, xa, Sa, Se);
-    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::NFORM>
-        nform(F, xa, Sa, Se);
-    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::MFORM>
-        mform(F, xa, Sa, Se);
+    static void run(size_t n) {
+        using RealType   = typename T::RealType;
+        using VectorType = Vector<typename T::VectorType>;
+        using MatrixType = T;
+        using Model      = Sphere<MatrixType>;
 
-    GaussNewton<RealType> GN{};
-    GN.set_tolerance(1e-15); GN.set_maximum_iterations(1000);
+        MatrixType Se = random_positive_definite<MatrixType>(1);
+        MatrixType Sa = random_positive_definite<MatrixType>(n);
+        VectorType xa = random<VectorType>(n);
+        VectorType y  = random<VectorType>(1);
 
-    VectorType x_std, x_n, x_m;
-    std.compute(x_std, y, GN);
-    nform.compute(x_n, y, GN);
-    mform.compute(x_m, y, GN);
+        Model F(n);
+        MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::STANDARD>
+            std(F, xa, Sa, Se);
+        MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::NFORM>
+            nform(F, xa, Sa, Se);
+        MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::MFORM>
+            mform(F, xa, Sa, Se);
 
-    RealType e1, e2;
-    e1 = maximum_error(x_std, x_m);
-    e2 = maximum_error(x_std, x_n);
+        GaussNewton<RealType> GN{};
+        GN.set_tolerance(1e-15); GN.set_maximum_iterations(100);
 
-    BOOST_TEST((e1 < EPS), "Error STD - NFORM = " << e1);
-    BOOST_TEST((e2 < EPS), "Error STD - MFORM =" << e2);
+        VectorType x_std, x_n, x_m;
+        std.compute(x_std, y, GN);
+        nform.compute(x_n, y, GN);
+        mform.compute(x_m, y, GN);
 
-    // Test inversion using CG solver.
+        auto e1 = maximum_error(x_std, x_m);
+        auto e2 = maximum_error(x_std, x_n);
 
-    ConjugateGradient<> cg(1e-15);
-    GaussNewton<RealType, ConjugateGradient<>> GN_CG(cg);
-    GN_CG.set_tolerance(1e-15); GN_CG.set_maximum_iterations(1000);
+        ensure_small(e1, "Standard - nform");
+        ensure_small(e2, "Standard - nform");
 
-    std.compute(x_std, y, GN_CG);
-    nform.compute(x_n, y, GN_CG);
-    mform.compute(x_m, y, GN_CG);
+        // Test inversion using CG solver.
+        ConjugateGradient<> cg(1e-15);
+        GaussNewton<RealType, ConjugateGradient<>> GN_CG(cg);
+        GN_CG.set_tolerance(1e-15); GN_CG.set_maximum_iterations(100);
 
-    e1 = maximum_error(x_std, x_m);
-    e2 = maximum_error(x_std, x_n);
+        std.compute(x_std, y, GN_CG);
+        nform.compute(x_n, y, GN_CG);
+        mform.compute(x_m, y, GN_CG);
 
-    BOOST_TEST((e1 < EPS), "Error STD - NFORM CG = " << e1);
-    BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);
-}
+        e1 = maximum_error(x_std, x_m);
+        e2 = maximum_error(x_std, x_n);
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(sphere, T, matrix_types)
-{
-    srand(time(NULL));
-    for (unsigned int i = 0; i < ntests; i++)
-    {
-        unsigned int n = 10;
-        sphere_test<T>(n);
+        ensure_small(e1, "Standard - nform CG");
+        ensure_small(e2, "Standard - nform CG");
     }
-}
+};
+
+TESTMAIN(GenericTest<SphereModel COMMA matrix_types>::run(10);)

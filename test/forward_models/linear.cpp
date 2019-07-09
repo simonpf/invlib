@@ -5,11 +5,6 @@
 // Test different MAP formulations using linear foward models. //
 /////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE "Forward Models, Linear"
-#endif
-
-#include <boost/test/included/unit_test.hpp>
 #include <iostream>
 
 #include "invlib/algebra.h"
@@ -31,107 +26,99 @@ using namespace invlib;
  * and the standard form using Levenberg-Marquardt and Gauss-Newton
  * optimization.
  */
-template
-<
-typename T
->
-void linear_test(unsigned int n)
-{
-    using RealType   = typename T::RealType;
-    using VectorType = typename T::VectorType;
-    using MatrixType = typename T::MatrixType;
-    using PrecisionMatrix = PrecisionMatrix<MatrixType>;
-    using Id     = MatrixIdentity<MatrixType>;
-    using Model  = Linear<MatrixType>;
-    using Preconditioner = JacobianPreconditioner<VectorType>;
+template <typename T>
+struct LinearModel {
 
-    MatrixType Se = random_positive_definite<MatrixType>(n);
-    MatrixType Sa = random_positive_definite<MatrixType>(n);
-    MatrixType SeInv = inv(Se);
-    MatrixType SaInv = inv(Sa);
-    VectorType xa = random<VectorType>(n);
-    VectorType y  = random<VectorType>(n);
+    static constexpr char name[] = "Linear";
 
-    PrecisionMatrix Pe(SeInv), Pa(SaInv);
+    static void run(size_t n) {
+        using RealType   = typename T::RealType;
+        using VectorType = Vector<typename T::VectorType>;
+        using MatrixType = typename T::MatrixType;
+        using PrecisionMatrix = PrecisionMatrix<MatrixType>;
+        using Id     = MatrixIdentity<MatrixType>;
+        using Model  = Linear<MatrixType>;
+        using Preconditioner = JacobianPreconditioner<VectorType>;
 
-    Model F(n,n);
-    MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, VectorType, Formulation::STANDARD>
-        std(F, xa, Pa, Pe);
-    MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, VectorType, Formulation::NFORM>
-        nform(F, xa, Pa, Pe);
-    MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::MFORM>
-        mform(F, xa, Sa, Se);
+        MatrixType Se = random_positive_definite<MatrixType>(n);
+        MatrixType Sa = random_positive_definite<MatrixType>(n);
+        MatrixType SeInv = inv(Se);
+        MatrixType SaInv = inv(Sa);
+        VectorType xa = random<VectorType>(n);
+        VectorType y  = random<VectorType>(n);
 
-    // Test inversion using standard solver.
-    Id I{};
-    GaussNewton<RealType> gn{};
-    gn.set_tolerance(1e-9); gn.set_maximum_iterations(1000);
-    LevenbergMarquardt<RealType, Id> lm(I);
-    lm.set_tolerance(1e-9); lm.set_maximum_iterations(1000);
+        PrecisionMatrix Pe(SeInv), Pa(SaInv);
 
-    VectorType x_std_lm, x_std_gn, x_n_gn, x_m_gn;
-    std.compute(x_std_lm, y, lm);
-    std.compute(x_std_gn, y, gn);
-    nform.compute(x_n_gn, y, gn);
-    mform.compute(x_m_gn, y, gn);
+        Model F(n,n);
+        MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, VectorType, Formulation::STANDARD>
+            std(F, xa, Pa, Pe);
+        MAP<Model, MatrixType, PrecisionMatrix, PrecisionMatrix, VectorType, Formulation::NFORM>
+            nform(F, xa, Pa, Pe);
+        MAP<Model, MatrixType, MatrixType, MatrixType, VectorType, Formulation::MFORM>
+            mform(F, xa, Sa, Se);
 
-    RealType e1, e2, e3;
-    e1 = maximum_error(x_std_lm, x_std_gn);
-    e2 = maximum_error(x_std_gn, x_n_gn);
-    e3 = maximum_error(x_std_gn, x_m_gn);
+        // Test inversion using standard solver.
+        Id I{};
+        GaussNewton<RealType> gn{};
+        gn.set_tolerance(1e-9); gn.set_maximum_iterations(1000);
+        LevenbergMarquardt<RealType, Id> lm(I);
+        lm.set_tolerance(1e-9); lm.set_maximum_iterations(1000);
 
-    BOOST_TEST((e1 < EPS), "Error STD - NFORM = " << e1);
-    BOOST_TEST((e2 < EPS), "Error STD - MFORM = " << e2);
-    BOOST_TEST((e3 < EPS), "Error STD - MFORM = " << e3);
+        VectorType x_std_lm, x_std_gn, x_n_gn, x_m_gn;
+        std.compute(x_std_lm, y, lm);
+        std.compute(x_std_gn, y, gn);
+        nform.compute(x_n_gn, y, gn);
+        mform.compute(x_m_gn, y, gn);
 
-    // Test inversion using CG solver.
-    ConjugateGradient<> cg(1e-12);
-    GaussNewton<RealType, ConjugateGradient<>> gn_cg(cg);
-    gn_cg.set_tolerance(1e-6); gn_cg.set_maximum_iterations(1000);
-    LevenbergMarquardt<RealType, Id, ConjugateGradient<>> lm_cg(I, cg);
-    lm_cg.set_tolerance(1e-6); lm_cg.set_maximum_iterations(1000);
+        auto e1 = maximum_error(x_std_lm, x_std_gn);
+        auto e2 = maximum_error(x_std_gn, x_n_gn);
+        auto e3 = maximum_error(x_std_gn, x_m_gn);
 
-    std.compute(x_std_lm, y, lm_cg);
-    std.compute(x_std_gn, y, gn_cg);
-    nform.compute(x_n_gn, y, gn_cg);
-    mform.compute(x_m_gn, y, gn_cg);
+        ensure_small(e1, "Error standard LM - standard GN");
+        ensure_small(e2, "Error standard GN - n-form GN");
+        ensure_small(e3, "Error standard GN - n-form GN");
 
-    e1 = maximum_error(x_std_lm, x_std_gn);
-    e2 = maximum_error(x_std_gn, x_n_gn);
-    e3 = maximum_error(x_std_gn, x_m_gn);
+        // Test inversion using CG solver.
+        ConjugateGradient<> cg(1e-12);
+        GaussNewton<RealType, ConjugateGradient<>> gn_cg(cg);
+        gn_cg.set_tolerance(1e-6); gn_cg.set_maximum_iterations(1000);
+        LevenbergMarquardt<RealType, Id, ConjugateGradient<>> lm_cg(I, cg);
+        lm_cg.set_tolerance(1e-6); lm_cg.set_maximum_iterations(1000);
 
-    BOOST_TEST((e1 < EPS), "Error STD - NFORM CG = " << e1);
-    BOOST_TEST((e2 < EPS), "Error STD - MFORM CG = " << e2);
-    BOOST_TEST((e3 < EPS), "Error STD - MFORM CG = " << e3);
+        std.compute(x_std_lm, y, lm_cg);
+        std.compute(x_std_gn, y, gn_cg);
+        nform.compute(x_n_gn, y, gn_cg);
+        mform.compute(x_m_gn, y, gn_cg);
 
-    // Test inversion using Preconditioned CG solver.
-    using CGType = PreconditionedConjugateGradient<Preconditioner, false>;
-    CGType pre_cg(1e-12);
-    GaussNewton<RealType, CGType> gn_pre_cg(pre_cg);
-    gn_pre_cg.set_tolerance(1e-6); gn_cg.set_maximum_iterations(1000);
-    LevenbergMarquardt<RealType, Id, CGType> lm_pre_cg(I, pre_cg);
-    lm_pre_cg.set_tolerance(1e-6); lm_cg.set_maximum_iterations(1000);
+        e1 = maximum_error(x_std_lm, x_std_gn);
+        e2 = maximum_error(x_std_gn, x_n_gn);
+        e3 = maximum_error(x_std_gn, x_m_gn);
 
-    std.compute(x_std_lm, y, lm_pre_cg);
-    std.compute(x_std_gn, y, gn_pre_cg);
-    nform.compute(x_n_gn, y, gn_pre_cg);
-    mform.compute(x_m_gn, y, gn_pre_cg);
+        ensure_small(e1, "Error standard LM - standard GN");
+        ensure_small(e2, "Error standard GN - n-form GN CG");
+        ensure_small(e3, "Error standard GN - n-form GN CG ");
 
-    e1 = maximum_error(x_std_lm, x_std_gn);
-    e2 = maximum_error(x_std_gn, x_n_gn);
-    e3 = maximum_error(x_std_gn, x_m_gn);
+        // Test inversion using Preconditioned CG solver.
+        using CGType = PreconditionedConjugateGradient<Preconditioner, false>;
+        CGType pre_cg(1e-12);
+        GaussNewton<RealType, CGType> gn_pre_cg(pre_cg);
+        gn_pre_cg.set_tolerance(1e-6); gn_cg.set_maximum_iterations(1000);
+        LevenbergMarquardt<RealType, Id, CGType> lm_pre_cg(I, pre_cg);
+        lm_pre_cg.set_tolerance(1e-6); lm_cg.set_maximum_iterations(1000);
 
-    BOOST_TEST((e1 < EPS), "Error STD - NFORM PRE CG = " << e1);
-    BOOST_TEST((e2 < EPS), "Error STD - MFORM PRE CG = " << e2);
-    BOOST_TEST((e3 < EPS), "Error STD - MFORM PRE CG = " << e3);
-}
+        std.compute(x_std_lm, y, lm_pre_cg);
+        std.compute(x_std_gn, y, gn_pre_cg);
+        nform.compute(x_n_gn, y, gn_pre_cg);
+        mform.compute(x_m_gn, y, gn_pre_cg);
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(linear, T, matrix_types)
-{
-    srand(time(NULL));
-    for (unsigned int i = 0; i < ntests; i++)
-    {
-        unsigned int n = 1 + rand() % 50;
-        linear_test<T>(n);
+        e1 = maximum_error(x_std_lm, x_std_gn);
+        e2 = maximum_error(x_std_gn, x_n_gn);
+        e3 = maximum_error(x_std_gn, x_m_gn);
+
+        ensure_small(e1, "Error standard LM - standard GN");
+        ensure_small(e2, "Error standard GN - n-form GN CGP");
+        ensure_small(e3, "Error standard GN - n-form GN CGP ");
     }
-}
+};
+
+TESTMAIN(GenericTest<LinearModel COMMA matrix_types>::run(10);)

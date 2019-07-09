@@ -33,7 +33,6 @@ public:
     template<typename VectorType>
     VectorType evaluate(const VectorType &x)
     {
-        std::cout << "forward:" <<  K.cols() << " // " << x.rows() << std::endl;
         VectorType w = K * x;
         return w;
     }
