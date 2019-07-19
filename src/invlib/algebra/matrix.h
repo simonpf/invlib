@@ -246,7 +246,7 @@ public:
 private:
 
     MatrixType *M;
-    unsigned int i, j, k, n, m;
+    unsigned int i, j, k, m, n;
 
 };
 

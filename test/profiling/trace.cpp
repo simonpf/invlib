@@ -26,7 +26,6 @@ int main()
     using VectorTracer = invlib::Tracer<VectorArchetype<double>, vector_suffix>;
     using MatrixTracer = invlib::Tracer<MatrixArchetype<double>, matrix_suffix>;
     using MatrixType = invlib::Matrix<MatrixTracer>;
-    using VectorType = invlib::Vector<VectorTracer>;
 
     MatrixTracer::start_tracing();
     VectorTracer::start_tracing();

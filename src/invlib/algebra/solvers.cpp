@@ -178,7 +178,7 @@ auto PreconditionedConjugateGradient<F, true>::solve(const MatrixType &A,
 
     Log<LogType::SOL_CG> log(verbosity);
 
-    RealType tol, alpha, beta, rnorm, r0, vnorm;
+    RealType alpha, beta, rnorm, r0, vnorm;
     VectorType x, y, r, p, xnew, ynew, rnew, pnew;
 
     x = 0.0 * v;
@@ -240,7 +240,7 @@ auto PreconditionedConjugateGradient<F, false>::solve(const MatrixType &A,
     F f(A);
     Log<LogType::SOL_CG> log(verbosity);
 
-    RealType tol, alpha, beta, rnorm, r0, vnorm;
+    RealType alpha, beta, rnorm, r0, vnorm;
     VectorType x, y, r, p, xnew, ynew, rnew, pnew;
 
     x = 0.0 * v;

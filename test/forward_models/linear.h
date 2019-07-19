@@ -25,7 +25,7 @@ class Linear
 public:
 
     Linear(unsigned int n_, unsigned int m_)
-        : n(n_), m(m_)
+        : m(m_), n(n_)
     {
         K = random<MatrixType>(m,n);
     }
@@ -46,7 +46,7 @@ public:
         return J;
     }
 
-    const unsigned int m,n;
+    const unsigned int m, n;
 
 private:
 

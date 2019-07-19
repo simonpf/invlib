@@ -23,7 +23,7 @@ template<typename T, typename U> struct argument_type<T(U)> {typedef U type;};
 
 #define COMMA ,
 #define TESTMAIN(f)                             \
-    int main(int argc, char ** argv) {          \
+    int main(int /*argc*/, char **/*argv*/) {   \
         f                                       \
             if (passed) {                       \
                 return 0;                       \

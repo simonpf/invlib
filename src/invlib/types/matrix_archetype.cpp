@@ -36,21 +36,21 @@ MatrixArchetype<Real>& MatrixArchetype<Real>::operator=(MatrixArchetype &&A)
 }
 
 template <typename Real>
-auto MatrixArchetype<Real>::get_block(unsigned int i,
-                                      unsigned int j,
-                                      unsigned int di,
-                                      unsigned int dj) const
+auto MatrixArchetype<Real>::get_block(size_t i,
+                                      size_t j,
+                                      size_t di,
+                                      size_t dj) const
     -> MatrixArchetype
 {
     assert((di > 0) && (dj > 0));
     assert((i + di <= m) && (j + dj <= n));
 
     MatrixArchetype block; block.resize(di, dj);
-    int data_start = i * n + j;
-    int data_end = data_start + (di - 1) * n + dj;
+    size_t data_start = i * n + j;
+    size_t data_end = data_start + (di - 1) * n + dj;
 
-    int block_ptr = 0;
-    for (int row_ptr = data_start; row_ptr < data_end; row_ptr += n)
+    size_t block_ptr = 0;
+    for (size_t row_ptr = data_start; row_ptr < data_end; row_ptr += n)
     {
         std::copy(&data[row_ptr], &data[row_ptr + dj], &block.data[block_ptr]);
         block_ptr += dj;
@@ -59,7 +59,7 @@ auto MatrixArchetype<Real>::get_block(unsigned int i,
 }
 
 template <typename Real>
-void MatrixArchetype<Real>::resize(unsigned int i, unsigned int j)
+void MatrixArchetype<Real>::resize(size_t i, size_t j)
 {
     m = i;
     n = j;
@@ -67,7 +67,7 @@ void MatrixArchetype<Real>::resize(unsigned int i, unsigned int j)
 }
 
 template <typename Real>
-Real & MatrixArchetype<Real>::operator()(unsigned int i, unsigned int j)
+Real & MatrixArchetype<Real>::operator()(size_t i, size_t j)
 {
     assert((0 <= i) && (i < m));
     assert((0 <= j) && (j < n));
@@ -76,7 +76,7 @@ Real & MatrixArchetype<Real>::operator()(unsigned int i, unsigned int j)
 }
 
 template <typename Real>
-Real MatrixArchetype<Real>::operator()(unsigned int i, unsigned int j) const
+Real MatrixArchetype<Real>::operator()(size_t i, size_t j) const
 {
     assert((0 <= i) && (i < m));
     assert((0 <= j) && (j < n));
@@ -85,13 +85,13 @@ Real MatrixArchetype<Real>::operator()(unsigned int i, unsigned int j) const
 }
 
 template <typename Real>
-unsigned int MatrixArchetype<Real>::cols() const
+size_t MatrixArchetype<Real>::cols() const
 {
     return n;
 }
 
 template <typename Real>
-unsigned int MatrixArchetype<Real>::rows() const
+size_t MatrixArchetype<Real>::rows() const
 {
     return m;
 }
@@ -113,9 +113,9 @@ auto MatrixArchetype<Real>::data_pointer() const
 template <typename Real>
 void MatrixArchetype<Real>::accumulate(const MatrixArchetype &B)
 {
-    for (unsigned int i = 0; i < m; i++)
+    for (size_t i = 0; i < m; i++)
     {
-	for (unsigned int j = 0; j < n; j++)
+	for (size_t j = 0; j < n; j++)
 	{
 	    data[n * i + j] += B(i,j);
 	}
@@ -125,9 +125,9 @@ void MatrixArchetype<Real>::accumulate(const MatrixArchetype &B)
 template <typename Real>
 void MatrixArchetype<Real>::subtract(const MatrixArchetype &B)
 {
-    for (unsigned int i = 0; i < m; i++)
+    for (size_t i = 0; i < m; i++)
     {
-	for (unsigned int j = 0; j < n; j++)
+	for (size_t j = 0; j < n; j++)
 	{
 	    data[n * i + j] -= B(i,j);
 	}
@@ -142,12 +142,12 @@ auto MatrixArchetype<Real>::multiply(const MatrixArchetype<Real> &B) const
 
     MatrixArchetype<Real> C; C.resize(m, B.cols());
 
-    for (unsigned int h = 0; h < m; h++)
+    for (size_t h = 0; h < m; h++)
     {
-	for (unsigned int i = 0; i < B.cols(); i++)
+	for (size_t i = 0; i < B.cols(); i++)
 	{
 	    Real sum = 0.0;
-	    for (unsigned int j = 0; j < n; j++)
+	    for (size_t j = 0; j < n; j++)
 	    {
 		sum += (*this)(h, j) * B(j, i);
 	    }
@@ -166,10 +166,10 @@ auto MatrixArchetype<Real>::multiply(const VectorType &v) const
     VectorType w;
     w.resize(m);
 
-    for (unsigned int i = 0; i < m; i++)
+    for (size_t i = 0; i < m; i++)
     {
 	Real sum = 0.0;
-	for (unsigned int j = 0; j < n; j++)
+	for (size_t j = 0; j < n; j++)
 	{
 	    sum += (*this)(i, j) * v(j);
 	}
@@ -181,9 +181,9 @@ auto MatrixArchetype<Real>::multiply(const VectorType &v) const
 template <typename Real>
 void MatrixArchetype<Real>::scale(Real c)
 {
-    for (unsigned int i = 0; i < m; i++)
+    for (size_t i = 0; i < m; i++)
     {
-	for (unsigned int j = 0; j < n; j++)
+	for (size_t j = 0; j < n; j++)
 	{
 	    (*this)(i, j) *= c;
 	}
@@ -212,19 +212,19 @@ auto MatrixArchetype<Real>::invert() const
     VectorType v; v.resize(n);
     VectorType w; w.resize(n);
 
-    for (unsigned int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         v(i) = 0.0;
     }
 
     MatrixType B; B.resize(n, n);
 
-    for (unsigned int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         v(i) = 1.0;
         w = QR.backsubstitution(v);
 
-        for (unsigned int j = 0; j < n; j++)
+        for (size_t j = 0; j < n; j++)
         {
             B(j, i) = w(j);
         }
@@ -241,17 +241,17 @@ auto MatrixArchetype<Real>::QR() const
 
     MatrixArchetype<Real> QR; QR.resize(n,n);
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
+    for (size_t i = 0; i < n; ++i)
+        for (size_t j = 0; j < m; ++j)
             QR(i,j) = 0.0;
 
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; ++i)
     {
         // Q Matrix.
-        for (int j = 0; j < i; j++)
+        for (size_t j = 0; j < i; ++j)
         {
             Real q_sum = 0.0;
-            for (int k = 0; k < j; k++)
+            for (size_t k = 0; k < j; ++k)
             {
                 q_sum += QR(i, k) * QR(k, j);
             }
@@ -259,11 +259,9 @@ auto MatrixArchetype<Real>::QR() const
         }
 
         // Q Matrix.
-        for (int j = 0; j < i; j++)
-        {
+        for (size_t j = 0; j < i; ++j) {
             Real q_sum = 0.0;
-            for (int k = 0; k < j; k++)
-            {
+            for (size_t k = 0; k < j; ++k) {
                 q_sum += QR(j, k) * QR(k, i);
             }
             if (QR(j,j) != 0.0)
@@ -271,7 +269,7 @@ auto MatrixArchetype<Real>::QR() const
         }
 
         Real diag_sum = 0.0;
-        for (int k = 0; k < i; k++)
+        for (size_t k = 0; k < i; k++)
             diag_sum += QR(i, k) * QR(k, i);
         QR(i,i) = (*this)(i,i) - diag_sum;
     }
@@ -287,21 +285,17 @@ auto MatrixArchetype<Real>::backsubstitution(const VectorType &b) const
     VectorType c; c.resize(n);
     VectorType d; d.resize(n);
 
-    for (int i = 0; i < n; i++)
-    {
+    for (size_t i = 0; i < n; i++) {
         RealType sum = 0.0;
-        for (int j = 0; j < i; j++)
-        {
+        for (size_t j = 0; j < i; j++) {
             sum += (*this)(i, j) * c(j);
         }
         c(i) = (b(i) - sum) / (*this)(i,i);
     }
 
-    for (int i = n - 1; i >= 0; i--)
-    {
+    for (size_t i = n - 1; i >= 0; i--) {
         RealType sum = 0.0;
-        for (int j = i + 1; j < n; j++)
-        {
+        for (size_t j = i + 1; j < n; j++) {
             sum += (*this)(i, j) * d(j);
         }
         d(i) = c(i) - sum;
@@ -355,10 +349,8 @@ auto MatrixArchetype<Real>::transpose() const
 {
     MatrixType B{}; B.resize(n, m);
 
-    for (unsigned int i = 0; i < m; i++)
-    {
-        for (unsigned int j = 0; j < n; j++)
-        {
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
             B(j,i) = (*this)(i,j);
         }
     }
@@ -373,12 +365,12 @@ auto MatrixArchetype<Real>::transpose_multiply(const MatrixArchetype<Real> &B) c
 
     MatrixArchetype<Real> C; C.resize(n, B.cols());
 
-    for (unsigned int h = 0; h < n; h++)
+    for (size_t h = 0; h < n; ++h)
     {
-	for (unsigned int i = 0; i < B.cols(); i++)
+	for (size_t i = 0; i < B.cols(); ++i)
 	{
 	    Real sum = 0.0;
-	    for (unsigned int j = 0; j < m; j++)
+	    for (size_t j = 0; j < m; ++j)
 	    {
 		sum += (*this)(j, h) * B(j, i);
 	    }
@@ -397,10 +389,10 @@ auto MatrixArchetype<Real>::transpose_multiply(const VectorType &v) const
     VectorType w;
     w.resize(n);
 
-    for (unsigned int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; ++i)
     {
 	Real sum = 0.0;
-	for (unsigned int j = 0; j < m; j++)
+	for (size_t j = 0; j < m; j++)
 	{
 	    sum += (*this)(j, i) * v(j);
 	}
@@ -411,8 +403,8 @@ auto MatrixArchetype<Real>::transpose_multiply(const VectorType &v) const
 
 template <typename Real>
 auto MatrixArchetype<Real>::transpose_multiply_block(const VectorType &v,
-                                                     int block_start,
-                                                     int block_length) const
+                                                     size_t block_start,
+                                                     size_t block_length) const
     -> VectorType
 {
     assert(block_length > 0);
@@ -422,9 +414,9 @@ auto MatrixArchetype<Real>::transpose_multiply_block(const VectorType &v,
     VectorType w;
     w.resize(n);
 
-    for (unsigned int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
         Real sum = 0.0;
-        for (unsigned int j = 0; j < m; ++j) {
+        for (size_t j = 0; j < m; ++j) {
             sum += (*this)(j, i) * v(block_start + j);
         }
         w(i) = sum;
@@ -435,9 +427,9 @@ auto MatrixArchetype<Real>::transpose_multiply_block(const VectorType &v,
 template <typename Real>
 std::ostream & operator<<(std::ostream & out, const MatrixArchetype<Real> &A)
 {
-    for (unsigned int i = 0; i < A.rows(); i++)
+    for (size_t i = 0; i < A.rows(); i++)
     {
-        for (unsigned int j = 0; j < A.cols(); j++)
+        for (size_t j = 0; j < A.cols(); j++)
         {
             out << A(i, j) << " ";
         }

@@ -14,7 +14,7 @@ auto Vector<Base>::end()
     -> ElementIterator
 {
     return ElementIterator(this, this->rows());
-};
+}
 
 template <typename Base>
     template <typename T1>

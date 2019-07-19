@@ -75,10 +75,10 @@ public:
      */
     ~MatrixArchetype() = default;
 
-    MatrixArchetype get_block(unsigned int i,
-                              unsigned int j,
-                              unsigned int di,
-                              unsigned int dj) const;
+    MatrixArchetype get_block(size_t i,
+                              size_t j,
+                              size_t di,
+                              size_t dj) const;
     // ----------------- //
     //   Manipulations   //
     // ----------------- //
@@ -90,7 +90,7 @@ public:
      * \param i Number of rows of the resized matrix.
      * \param j Number of columns of the resized matrix.
      */
-    void resize(unsigned int i, unsigned int j);
+    void resize(size_t i, size_t j);
 
     /*! Element access.
      * \param i The row of the element to access.
@@ -99,24 +99,24 @@ public:
      * and column j.
      */
 
-    inline Real & operator()(unsigned int, unsigned int);
+    inline Real & operator()(size_t, size_t);
 
     /*! Constant element access.
      * \param i The row of the element to access.
      * \param j The column of the element to access.
      * \return The value of the matrix element in row i and column j.
      */
-    inline Real operator()(unsigned int, unsigned int) const;
+    inline Real operator()(size_t, size_t) const;
 
     /*! Number of columns of the matrix.
      * \return The number of columns of the matrix.
      */
-    unsigned int cols() const;
+    size_t cols() const;
 
     /*! Number of rows of the matrix.
      * \return The number of rows of the matrix.
      */
-    unsigned int rows() const;
+    size_t rows() const;
 
     /*! Raw pointer to the matrix data. Needed for MPI testing. */
     RealType * data_pointer();
@@ -221,8 +221,8 @@ public:
      * \param block_length The size of the block. Must be m.
      */
     VectorType transpose_multiply_block(const VectorType&,
-                                        int block_start,
-                                        int block_length) const;
+                                        size_t block_start,
+                                        size_t block_length) const;
 
     /*! Helper function to compute the QR decomposition of a matrix. Not
      * required by the matrix algebra interface.
@@ -274,8 +274,8 @@ public:
 
 private:
 
-    unsigned int m = 0;
-    unsigned int n = 0;
+    size_t m = 0;
+    size_t n = 0;
     std::unique_ptr<Real[]> data;
 
 };
