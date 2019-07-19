@@ -13,7 +13,7 @@
 #include <random>
 
 #include "invlib/invlib.h"
-#include "invlib/archetypes/vector_archetype.h"
+#include "invlib/types/vector_archetype.h"
 #include "invlib/utility/functions.h"
 #include "invlib/utility/array.h"
 

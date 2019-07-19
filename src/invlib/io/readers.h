@@ -10,8 +10,8 @@
 #include "pugixml/pugixml.cpp"
 #include "endian.h"
 
-#include "invlib/sparse/sparse_data.h"
-#include "invlib/dense/vector_data.h"
+#include "invlib/types/sparse/sparse_data.h"
+#include "invlib/types/dense/vector_data.h"
 
 namespace invlib
 {
@@ -43,7 +43,7 @@ SparseMatrix<Real, Index> read_matrix_arts(const std::string & filename)
 
     std::string nelem_string = rind_node.attribute("nelem").value();
 
-    Index nelem = std::stoi(nelem_string);
+    size_t nelem = static_cast<size_t>(std::stoi(nelem_string));
     std::vector<Index> row_indices(nelem), column_indices(nelem);
     std::vector<Real> elements(nelem);
 

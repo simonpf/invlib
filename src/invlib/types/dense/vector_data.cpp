@@ -34,7 +34,7 @@ VectorData<ScalarType> VectorData<ScalarType>::random(size_t n)
 
     auto pointer = array::create<ScalarType>(n);
     for (size_t i = 0; i < n; i++) {
-        (*pointer)[i] = real_dis(gen);
+        pointer[i] = real_dis(gen);
     }
     return VectorData(n, pointer);
 }

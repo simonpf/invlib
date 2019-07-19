@@ -11,8 +11,8 @@
 #include "pugixml/pugixml.cpp"
 #include "endian.h"
 
-#include "invlib/sparse/sparse_data.h"
-#include "invlib/dense/vector_data.h"
+#include "invlib/types/sparse/sparse_data.h"
+#include "invlib/types/dense/vector_data.h"
 
 namespace invlib
 {

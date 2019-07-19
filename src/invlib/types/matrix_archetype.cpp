@@ -285,21 +285,22 @@ auto MatrixArchetype<Real>::backsubstitution(const VectorType &b) const
     VectorType c; c.resize(n);
     VectorType d; d.resize(n);
 
-    for (size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; ++i) {
         RealType sum = 0.0;
-        for (size_t j = 0; j < i; j++) {
+        for (size_t j = 0; j < i; ++j) {
             sum += (*this)(i, j) * c(j);
         }
         c(i) = (b(i) - sum) / (*this)(i,i);
     }
 
-    for (size_t i = n - 1; i >= 0; i--) {
+    for (size_t i = n; i > 0; i--) {
         RealType sum = 0.0;
-        for (size_t j = i + 1; j < n; j++) {
-            sum += (*this)(i, j) * d(j);
+        for (size_t j = i; j < n; j++) {
+            sum += (*this)(i - 1, j) * d(j);
         }
-        d(i) = c(i) - sum;
+        d(i - 1) = c(i - 1) - sum;
     }
+
     return d;
 }
 

@@ -10,8 +10,8 @@
 #define SPARSE_SPARSE_DATA
 
 #include "invlib/invlib.h"
-#include "invlib/archetypes/matrix_archetype.h"
-#include "invlib/archetypes/vector_archetype.h"
+#include "invlib/types/matrix_archetype.h"
+#include "invlib/types/vector_archetype.h"
 #include "invlib/utility/array.h"
 #include "invlib/utility/functions.h"
 

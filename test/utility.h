@@ -281,10 +281,19 @@ void ensure_small(ScalarType x, std::string name) {
 
 template<>
 void ensure_small(float x, std::string name) {
-    if (std::abs(x) < 1e-2) {
+    if (std::abs(x) < 1e-1) {
         std::cout << "\t" << name << " (float) : passed" << std::endl;
     } else {
         std::cout << "\t" << name << " (float) : FAILED" << std::endl;
+        passed = false;
+    }
+}
+
+void ensure_true(bool condition, std::string name) {
+    if (condition) {
+        std::cout << "\t" << name << " : passed" << std::endl;
+    } else {
+        std::cout << "\t" << name << " : FAILED" << std::endl;
         passed = false;
     }
 }
