@@ -9,9 +9,9 @@
 
 #include <memory>
 
-#include "invlib/mkl/mkl_generic.h"
-#include "invlib/blas/blas_vector.h"
-#include "invlib/sparse/sparse_data.h"
+#include "invlib/types/mkl/mkl_generic.h"
+#include "invlib/types/blas/blas_vector.h"
+#include "invlib/types/sparse/sparse_data.h"
 
 namespace invlib
 {
@@ -70,6 +70,8 @@ public:
     using SparseData<Real, MKL_INT, Representation::Coordinates>::get_element_pointer;
 
 protected:
+
+    sparse_matrix_t mkl_matrix;
 
     // --------------//
     // Base Members  //

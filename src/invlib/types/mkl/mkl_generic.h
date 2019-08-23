@@ -8,6 +8,9 @@
 #ifndef MKL_MKL_GENERIC_H
 #define MKL_MKL_GENERIC_H
 
+#include <invlib/types/sparse/sparse_data.h>
+
+#if defined MKL_AVAILABLE
 #include "mkl.h"
 #include "mkl_spblas.h"
 
@@ -118,12 +121,71 @@ template<>
 
     return A;
 }
+
+template<>
+sparse_matrix_t sparse_create<float, Representation::Coordinates>(
+    MKL_INT m,
+    MKL_INT n,
+    MKL_INT * cols_start,
+    MKL_INT * row_indx,
+    float * values)
+{
+    sparse_matrix_t A;
+    sparse_status_t s = mkl_sparse_s_create_csc(&A,
+                                                index_base,
+                                                m, n,
+                                                cols_start, cols_start + 1,
+                                                row_indx,
+                                                values);
+
+    if (!(s == SPARSE_STATUS_SUCCESS)) {
+        throw std::runtime_error("Error constructing sparse MKL matrix.");
+    }
+
+    return A;
+}
+
+sparse_matrix_t sparse_create_coo(MKL_INT m,
+                                  MKL_INT n,
+                                  MKL_INT nnz,
+                                  MKL_INT * row_indices,
+                                  MKL_INT * column_indices,
+                                  double * values)
+{
+    sparse_matrix_t A;
+    sparse_status_t s = mkl_sparse_d_create_coo(&A, index_base, m, n, nnz,
+                                                row_indices, column_indices, values);
+
+    if (!(s == SPARSE_STATUS_SUCCESS)) {
+        throw std::runtime_error("Error constructing sparse MKL matrix.");
+    }
+
+    return A;
+}
+
+sparse_matrix_t sparse_create_coo(MKL_INT m,
+                                  MKL_INT n,
+                                  MKL_INT nnz,
+                                  MKL_INT * row_indices,
+                                  MKL_INT * column_indices,
+                                  float * values)
+{
+    sparse_matrix_t A;
+    sparse_status_t s = mkl_sparse_s_create_coo(&A, index_base, m, n, nnz,
+                                                row_indices, column_indices, values);
+
+    if (!(s == SPARSE_STATUS_SUCCESS)) {
+        throw std::runtime_error("Error constructing sparse MKL matrix.");
+    }
+
+    return A;
+}
+
 //--------------------------------//
 //  Matrix Vector Multiplication  //
 //--------------------------------//
 
-
-template<typename Real, Representation rep>
+template<typename Real>
     void mv(const sparse_operation_t operation,
             const Real alpha,
             const sparse_matrix_t A,
@@ -132,7 +194,7 @@ template<typename Real, Representation rep>
                   Real * y);
 
 template<>
-void mv<float, Representation::CompressedRows>(
+void mv<float>(
     const sparse_operation_t operation,
     const float alpha,
     const sparse_matrix_t A,
@@ -144,7 +206,7 @@ void mv<float, Representation::CompressedRows>(
 }
 
 template<>
-    void mv<double, Representation::CompressedRows>(
+void mv<double>(
         const sparse_operation_t operation,
         const double alpha,
         const sparse_matrix_t A,
@@ -155,118 +217,26 @@ template<>
     mkl_sparse_d_mv(operation, alpha, A, matrix_descriptor, x, beta, y);
 }
 
-template<>
-    void mv<float, Representation::CompressedColumns>(
-        const sparse_operation_t operation,
-        const float alpha,
-        const sparse_matrix_t A,
-        const float * x,
-        const float beta,
-        float * y)
-{
-    mkl_sparse_s_mv(operation, alpha, A, matrix_descriptor, x, beta, y);
-}
-
-template<>
-    void mv<double, Representation::CompressedColumns>(
-        const sparse_operation_t operation,
-        const double alpha,
-        const sparse_matrix_t A,
-        const double * x,
-        const double beta,
-        double * y)
-{
-    mkl_sparse_d_mv(operation, alpha, A, matrix_descriptor, x, beta, y);
-}
-
-const char mkl_matrix_descriptor[4] = {'G',' ',' ', 'C'};
-
-template<typename Real, Representation rep> void smv(
-    char transa,
-    int  m, int k, int nnz,
-    Real alpha,
-    const Real *, const int *, const int *, const int *,
-    const Real * x,
-    Real beta, Real * y);
-
-template<> void smv<float, Representation::Coordinates>(
-    char transa,
-    int m, int k, int nnz,
-    float alpha,
-    const float * a, const int * row_indices, const int * column_indices,
-    const int * /*not used*/,
-    const float * x,
-    float beta, float * y)
-{
-    mkl_scoomv(&transa, &m, &k, &alpha, mkl_matrix_descriptor,
-               a, row_indices, column_indices, &nnz, x, &beta, y);
-}
-
-template<> void smv<double, Representation::Coordinates>(
-    char transa,
-    int m, int k, int nnz,
-    double alpha,
-    const double * a, const int * row_indices, const int * column_indices,
-    const int * /*not used*/,
-    const double * x,
-    double beta, double * y)
-{
-    mkl_dcoomv(&transa, &m, &k, &alpha, mkl_matrix_descriptor,
-               a, row_indices, column_indices, &nnz, x, &beta, y);
-}
-
-template<> void smv<float, Representation::CompressedColumns>(
-    char transa,
-    int m, int k, int nnz,
-    float alpha,
-    const float * a, const int * row_indices,
-    const int * column_starts, const int * column_ends,
-    const float * x,
-    float beta, float * y)
-{
-    mkl_scscmv(&transa, &m, &k, &alpha, mkl_matrix_descriptor,
-               a, row_indices, column_starts, column_ends, x, &beta, y);
-}
-
-template<> void smv<double, Representation::CompressedColumns>(
-    char transa,
-    int m, int k, int nnz,
-    double alpha,
-    const double * a, const int * row_indices,
-    const int * column_starts, const int * column_ends,
-    const double * x,
-    double beta, double * y)
-{
-    mkl_dcscmv(&transa, &m, &k, &alpha, mkl_matrix_descriptor,
-               a, row_indices, column_starts, column_ends, x, &beta, y);
-}
-
-template<> void smv<float, Representation::CompressedRows>(
-    char transa,
-    int m, int k, int nnz,
-    float alpha,
-    const float * a, const int * column_indices,
-    const int * row_starts, const int * row_ends,
-    const float * x,
-    float beta, float * y)
-{
-    mkl_scsrmv(&transa, &m, &k, &alpha, mkl_matrix_descriptor,
-               a, column_indices, row_starts, row_ends, x, &beta, y);
-}
-
-template<> void smv<double, Representation::CompressedRows>(
-    char transa,
-    int m, int k, int nnz,
-    double alpha,
-    const double * a, const int * column_indices,
-    const int * row_starts, const int * row_ends,
-    const double * x,
-    double beta, double * y)
-{
-    mkl_dcsrmv(&transa, &m, &k, &alpha, mkl_matrix_descriptor,
-               a, column_indices, row_starts, row_ends, x, &beta, y);
-}
-
 }      // namespace invlib
 }      // namespace mkl
+#else  // MKL_AVAILABLE
+
+using MKL_INT = size_t;
+using sparse_matrix_t = size_t;
+using sparse_operation_t = size_t;
+const size_t SPARSE_OPERATION_TRANSPOSE = 0;
+size_t SPARSE_OPERATION_NON_TRANSPOSE = 0;
+
+namespace invlib {
+namespace mkl {
+
+template<typename Real, Representation rep>
+sparse_matrix_t sparse_create(MKL_INT, MKL_INT, MKL_INT *, MKL_INT *, Real *);
+sparse_matrix_t sparse_create_coo(MKL_INT, MKL_INT, MKL_INT, MKL_INT *, MKL_INT *, double *);
+template<typename T> void mv(const sparse_operation_t, const T, const sparse_matrix_t,
+                             const T * x, const T, T *);
+}
+}
+
+#endif // MKL_AVAILABLE
 #endif // MKL_MKL_GENERIC_H

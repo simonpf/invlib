@@ -7,8 +7,8 @@
 #ifndef BLAS_BLAS_MATRIX_H
 #define BLAS_BLAS_MATRIX_H
 
-#include "invlib/sparse/sparse_data.h"
-#include "invlib/blas/blas_generic.h"
+#include "invlib/types/blas/blas_generic.h"
+#include "invlib/types/blas/blas_vector.h"
 
 namespace invlib {
 

@@ -7,9 +7,8 @@
 #ifndef BLAS_BLAS_VECTOR_H
 #define BLAS_BLAS_VECTOR_H
 
-#include "invlib/dense/vector_data.h"
-#include "invlib/sparse/sparse_data.h"
-#include "invlib/blas/blas_generic.h"
+#include "invlib/types/dense/vector_data.h"
+#include "invlib/types/blas/blas_generic.h"
 
 namespace invlib {
 
